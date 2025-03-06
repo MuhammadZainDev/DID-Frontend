@@ -1,29 +1,15 @@
 import { View, StyleSheet, TextInput, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-
-const CATEGORIES = [
-  { icon: 'hand-left-outline', label: 'All Duas' },
-  { icon: 'star-outline', label: 'Favourite Duas' },
-  { icon: 'water-outline', label: 'Ablution' },
-  { icon: 'shield-checkmark-outline', label: 'Protection' },
-  { icon: 'close-circle-outline', label: 'Against Evil' },
-  { icon: 'time-outline', label: 'All Time' },
-  { icon: 'heart-outline', label: "Allah's Mercy" },
-  { icon: 'people-outline', label: 'Children' },
-  { icon: 'heart-half-outline', label: 'Deceased' },
-  { icon: 'sunny-outline', label: 'Decision' },
-  { icon: 'restaurant-outline', label: 'Food' },
-  { icon: 'car-outline', label: 'Travel' },
-  { icon: 'medical-outline', label: 'Health' },
-  { icon: 'home-outline', label: 'Home' },
-  { icon: 'hand-right-outline', label: 'Forgiveness' },
-];
+import categoriesData from '@/constants/categories.json';
 
 export default function HomeScreen() {
+  const router = useRouter();
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -89,12 +75,20 @@ export default function HomeScreen() {
 
         {/* Categories Grid */}
         <View style={styles.grid}>
-          {CATEGORIES.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.gridItem} activeOpacity={0.7}>
+          {categoriesData.categories.map((item) => (
+            <TouchableOpacity 
+              key={item.id} 
+              style={styles.gridItem} 
+              activeOpacity={0.7}
+              onPress={() => router.push({
+                pathname: '/dua',
+                params: { categoryId: item.id }
+              })}
+            >
               <View style={styles.iconCircle}>
                 <Ionicons name={item.icon as any} size={24} color="#0E8A3E" />
               </View>
-              <ThemedText style={styles.gridLabel}>{item.label}</ThemedText>
+              <ThemedText style={styles.gridLabel}>{item.name}</ThemedText>
             </TouchableOpacity>
           ))}
         </View>
