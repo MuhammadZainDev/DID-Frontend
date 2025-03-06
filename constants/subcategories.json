@@ -1,0 +1,64 @@
+{
+  "subcategories": [
+    {
+      "id": "morning_evening",
+      "category_id": "all_time",
+      "name": "Morning & Evening",
+      "icon": "sunny-outline"
+    },
+    {
+      "id": "daily_routine",
+      "category_id": "all_time",
+      "name": "Daily Routine",
+      "icon": "time-outline"
+    },
+    {
+      "id": "evil_eye",
+      "category_id": "protection",
+      "name": "Evil Eye Protection",
+      "icon": "eye-outline"
+    },
+    {
+      "id": "general_protection",
+      "category_id": "protection",
+      "name": "General Protection",
+      "icon": "shield-outline"
+    },
+    {
+      "id": "eating",
+      "category_id": "food",
+      "name": "Before & After Eating",
+      "icon": "restaurant-outline"
+    },
+    {
+      "id": "drinking",
+      "category_id": "food",
+      "name": "Before & After Drinking",
+      "icon": "water-outline"
+    },
+    {
+      "id": "journey",
+      "category_id": "travel",
+      "name": "Journey Duas",
+      "icon": "car-outline"
+    },
+    {
+      "id": "transport",
+      "category_id": "travel",
+      "name": "Transport Duas",
+      "icon": "airplane-outline"
+    },
+    {
+      "id": "general_forgiveness",
+      "category_id": "forgiveness",
+      "name": "General Forgiveness",
+      "icon": "heart-outline"
+    },
+    {
+      "id": "special_forgiveness",
+      "category_id": "forgiveness",
+      "name": "Special Occasions",
+      "icon": "calendar-outline"
+    }
+  ]
+} 

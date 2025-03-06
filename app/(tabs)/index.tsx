@@ -81,7 +81,7 @@ export default function HomeScreen() {
               style={styles.gridItem} 
               activeOpacity={0.7}
               onPress={() => router.push({
-                pathname: '/dua',
+                pathname: '/subcategory',
                 params: { categoryId: item.id }
               })}
             >

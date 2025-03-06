@@ -5,18 +5,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import categoriesData from '@/constants/categories.json';
+import subcategoriesData from '@/constants/subcategories.json';
 import duasData from '@/constants/duas.json';
 
 export default function DuaScreen() {
   const router = useRouter();
-  const { categoryId } = useLocalSearchParams();
+  const { subcategoryId } = useLocalSearchParams();
   
-  // Find the category details
-  const category = categoriesData.categories.find(cat => cat.id === categoryId);
+  // Find the subcategory details
+  const subcategory = subcategoriesData.subcategories.find(subcat => subcat.id === subcategoryId);
   
-  // Filter duas by category
-  const categoryDuas = duasData.duas.filter(dua => dua.category_id === categoryId);
+  // Filter duas by subcategory
+  const subcategoryDuas = duasData.duas.filter(dua => dua.subcategory_id === subcategoryId);
 
   return (
     <View style={styles.container}>
@@ -30,7 +30,7 @@ export default function DuaScreen() {
             >
               <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
-            <ThemedText style={styles.title}>{category?.name || 'Duas'}</ThemedText>
+            <ThemedText style={styles.title}>{subcategory?.name || 'Duas'}</ThemedText>
             <TouchableOpacity style={styles.iconButton}>
               <Ionicons name="bookmark-outline" size={24} color="white" />
             </TouchableOpacity>
@@ -40,7 +40,7 @@ export default function DuaScreen() {
 
       {/* Content */}
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {categoryDuas.map((dua) => (
+        {subcategoryDuas.map((dua) => (
           <View key={dua.id} style={styles.duaCard}>
             <View style={styles.duaHeader}>
               <ThemedText style={styles.duaTitle}>{dua.title}</ThemedText>
