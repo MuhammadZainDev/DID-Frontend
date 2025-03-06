@@ -1,7 +1,9 @@
-import { View, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Platform, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Audio } from 'expo-av';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -11,12 +13,144 @@ import duasData from '@/constants/duas.json';
 export default function DuaScreen() {
   const router = useRouter();
   const { subcategoryId } = useLocalSearchParams();
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [playbackPosition, setPlaybackPosition] = useState(0);
+  const [playbackDuration, setPlaybackDuration] = useState(0);
   
   // Find the subcategory details
   const subcategory = subcategoriesData.subcategories.find(subcat => subcat.id === subcategoryId);
   
   // Filter duas by subcategory
   const subcategoryDuas = duasData.duas.filter(dua => dua.subcategory_id === subcategoryId);
+
+  // Initialize Audio on component mount
+  useEffect(() => {
+    async function initAudio() {
+      try {
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: true,
+          shouldDuckAndroid: true,
+          allowsRecordingIOS: false,
+          playThroughEarpieceAndroid: false,
+        });
+      } catch (error) {
+        console.error('Failed to initialize audio:', error);
+      }
+    }
+    initAudio();
+  }, []);
+
+  // Cleanup sound when component unmounts
+  useEffect(() => {
+    return sound
+      ? () => {
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
+
+  const formatTime = (milliseconds: number) => {
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const playSound = async (audioSource: number) => {
+    try {
+      if (sound) {
+        if (isPlaying) {
+          await sound.pauseAsync();
+          setIsPlaying(false);
+        } else {
+          // Reset position if the audio has finished playing
+          if (playbackPosition >= playbackDuration) {
+            await sound.setPositionAsync(0);
+          }
+          await sound.playAsync();
+          setIsPlaying(true);
+        }
+      } else {
+        setIsLoading(true);
+        const { sound: newSound } = await Audio.Sound.createAsync(
+          audioSource,
+          {
+            volume: 1.0,    // Maximum volume (1.0 = 100%)
+            rate: 0.85,     // Slightly slower speed (0.85 = 85% of normal speed)
+            shouldCorrectPitch: true,  // Keep the pitch normal even when slowing down
+            progressUpdateIntervalMillis: 100,  // Update progress more frequently
+          }
+        );
+        setSound(newSound);
+
+        newSound.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded) {
+            setPlaybackPosition(status.positionMillis);
+            setPlaybackDuration(status.durationMillis || 0);
+            setIsPlaying(status.isPlaying);
+            
+            if (status.didJustFinish) {
+              setIsPlaying(false);
+              setPlaybackPosition(status.durationMillis || 0);
+            }
+          }
+        });
+
+        await newSound.playAsync();
+        setIsPlaying(true);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('Error playing sound:', error);
+      setIsLoading(false);
+      // If there's an error, cleanup the sound
+      if (sound) {
+        await sound.unloadAsync();
+        setSound(null);
+      }
+    }
+  };
+
+  const renderActionButtons = (dua: any, index: number) => {
+    return (
+      <View style={styles.actionButtons}>
+        <TouchableOpacity style={styles.actionButton}>
+          <Ionicons name="copy-outline" size={20} color="#0E8A3E" />
+          <ThemedText style={styles.actionButtonText}>Copy</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton}>
+          <Ionicons name="share-social-outline" size={20} color="#0E8A3E" />
+          <ThemedText style={styles.actionButtonText}>Share</ThemedText>
+        </TouchableOpacity>
+        {index === 0 && dua.audio_path && (
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => playSound(require('../assets/audio/morning_dua.m4a'))}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#0E8A3E" size="small" />
+            ) : (
+              <>
+                <Ionicons 
+                  name={isPlaying ? "pause-outline" : "play-outline"} 
+                  size={20} 
+                  color="#0E8A3E" 
+                />
+                <ThemedText style={styles.actionButtonText}>
+                  {isPlaying ? "Pause" : "Play"}
+                  {playbackDuration > 0 && ` (${formatTime(playbackPosition)})`}
+                </ThemedText>
+              </>
+            )}
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -40,7 +174,7 @@ export default function DuaScreen() {
 
       {/* Content */}
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {subcategoryDuas.map((dua) => (
+        {subcategoryDuas.map((dua, index) => (
           <View key={dua.id} style={styles.duaCard}>
             <View style={styles.duaHeader}>
               <ThemedText style={styles.duaTitle}>{dua.title}</ThemedText>
@@ -63,20 +197,7 @@ export default function DuaScreen() {
               <ThemedText style={styles.referenceText}>Reference: {dua.reference}</ThemedText>
             </View>
             
-            <View style={styles.actionButtons}>
-              <TouchableOpacity style={styles.actionButton}>
-                <Ionicons name="copy-outline" size={20} color="#0E8A3E" />
-                <ThemedText style={styles.actionButtonText}>Copy</ThemedText>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton}>
-                <Ionicons name="share-social-outline" size={20} color="#0E8A3E" />
-                <ThemedText style={styles.actionButtonText}>Share</ThemedText>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton}>
-                <Ionicons name="play-outline" size={20} color="#0E8A3E" />
-                <ThemedText style={styles.actionButtonText}>Play</ThemedText>
-              </TouchableOpacity>
-            </View>
+            {renderActionButtons(dua, index)}
           </View>
         ))}
         <View style={styles.bottomPadding} />

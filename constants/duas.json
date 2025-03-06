@@ -6,7 +6,8 @@
       "title": "Morning Dua",
       "arabic_text": "اللَّهُمَّ بِكَ أَصْبَحْنَا وَبِكَ أَمْسَيْنَا وَبِكَ نَحْيَا وَبِكَ نَمُوتُ وَإِلَيْكَ النُّشُورُ",
       "translation": "O Allah, by You we enter the morning and by You we enter the evening, by You we live and by You we die, and to You is the Resurrection.",
-      "reference": "Abu Dawud"
+      "reference": "Abu Dawud",
+      "audio_path": "morning_dua.m4a"
     },
     {
       "id": "protection_from_evil",
@@ -14,7 +15,8 @@
       "title": "Protection from Evil Eye",
       "arabic_text": "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ",
       "translation": "I seek refuge in Allah's perfect words from every devil, poisonous pest, and every evil eye.",
-      "reference": "Bukhari"
+      "reference": "Bukhari",
+      "audio_path": "evil_eye.mp3"
     },
     {
       "id": "before_eating",
@@ -22,7 +24,8 @@
       "title": "Dua Before Eating",
       "arabic_text": "بِسْمِ اللَّهِ وَعَلَى بَرَكَةِ اللَّهِ",
       "translation": "In the name of Allah and with the blessings of Allah",
-      "reference": "Abu Dawud"
+      "reference": "Abu Dawud",
+      "audio_url": "https://cdn.islamic-network.com/quran/audio/128/ar.alafasy/3.mp3"
     },
     {
       "id": "travel_dua",
@@ -30,7 +33,8 @@
       "title": "Dua for Traveling",
       "arabic_text": "سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ",
       "translation": "Glory to Him Who has subjected this to us, for we could never have accomplished this by ourselves, and indeed to our Lord we will return.",
-      "reference": "Quran 43:13-14"
+      "reference": "Quran 43:13-14",
+      "audio_url": "https://cdn.islamic-network.com/quran/audio/128/ar.alafasy/4.mp3"
     },
     {
       "id": "forgiveness_dua",
@@ -38,7 +42,8 @@
       "title": "Dua for Forgiveness",
       "arabic_text": "رَبِّ اغْفِرْ لِي وَتُبْ عَلَيَّ إِنَّكَ أَنْتَ التَّوَّابُ الرَّحِيمُ",
       "translation": "My Lord, forgive me and accept my repentance, for You are the Ever-Accepting of repentance, the Most Merciful.",
-      "reference": "Bukhari"
+      "reference": "Bukhari",
+      "audio_url": "https://cdn.islamic-network.com/quran/audio/128/ar.alafasy/5.mp3"
     }
   ]
 } 
