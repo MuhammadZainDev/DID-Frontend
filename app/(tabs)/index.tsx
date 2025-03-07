@@ -44,7 +44,10 @@ export default function HomeScreen() {
             <View style={styles.headerTop}>
               <ThemedText style={styles.title}>Duas & Adhkar</ThemedText>
               <View style={styles.headerIcons}>
-                <TouchableOpacity style={styles.iconButton}>
+                <TouchableOpacity 
+                  style={styles.iconButton}
+                  onPress={() => router.push('/login')}
+                >
                   <Ionicons name="person-outline" size={24} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity 

@@ -110,7 +110,8 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: '#0E8A3E',
     paddingHorizontal: 16,
-    paddingBottom: 24,
+    paddingBottom: 16,
+    paddingTop: Platform.OS === 'ios' ? 50 : 16,
   },
   headerTop: {
     flexDirection: 'row',
