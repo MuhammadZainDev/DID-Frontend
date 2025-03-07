@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Platform,
   SafeAreaView,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
@@ -24,22 +25,57 @@ export default function Login() {
   const router = useRouter();
   const { login } = useAuth();
 
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const isValidPassword = (password: string) => {
+    return password.length >= 6;
+  };
+
+  const isFormValid = () => {
+    if (!email || !password) return false;
+    if (!isValidEmail(email)) return false;
+    if (!isValidPassword(password)) return false;
+    return true;
+  };
+
   const handleLogin = async () => {
     if (!email || !password) {
       setError('Please fill in all fields');
       return;
     }
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid email');
+      return;
+    }
+    if (!isValidPassword(password)) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+    
     setLoading(true);
     setError('');
     try {
       await login(email, password);
       router.push('/(tabs)');
-    } catch (err) {
-      setError('Invalid email or password');
+    } catch (err: any) {
+      setError(err.message || 'Invalid email or password');
     } finally {
       setLoading(false);
     }
   };
+
+  // Add auto-hide error functionality
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -47,63 +83,80 @@ export default function Login() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.content}
       >
-        <View style={styles.logoContainer}>
-          <Logo size={120} color="#0E8A3E" />
-        </View>
-
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Sign in to continue</Text>
-
-        <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor="#999"
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-            />
+        <ScrollView 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <View style={styles.logoContainer}>
+            <Logo size={120} color="#0E8A3E" />
           </View>
 
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              placeholderTextColor="#999"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-            />
-            <TouchableOpacity
-              style={styles.iconContainer}
-              onPress={() => setShowPassword(!showPassword)}
-            >
-              <Ionicons
-                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                size={24}
-                color="#999"
+          <Text style={styles.title}>Welcome Back</Text>
+          <Text style={styles.subtitle}>Sign in to continue</Text>
+
+          <View style={styles.form}>
+            {error ? (
+              <View style={styles.errorContainer}>
+                <Ionicons name="alert-circle" size={20} color="#D32F2F" />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            ) : null}
+
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                placeholderTextColor="#999"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
               />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                placeholderTextColor="#999"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+              />
+              <TouchableOpacity
+                style={styles.iconContainer}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Ionicons
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  size={24}
+                  color="#999"
+                />
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity 
+              style={[styles.button, !isFormValid() && styles.buttonDisabled]} 
+              onPress={handleLogin} 
+              disabled={loading || !isFormValid()}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Sign In</Text>
+              )}
             </TouchableOpacity>
+
+            <View style={styles.linkTextContainer}>
+              <Text style={styles.linkText}>
+                Don't have an account?{' '}
+              </Text>
+              <TouchableOpacity onPress={() => router.push('/signup')}>
+                <Text style={styles.link}>Sign Up</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-
-          <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Sign In</Text>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => router.push('/signup')}>
-            <Text style={styles.linkText}>
-              Don't have an account? <Text style={styles.link}>Sign Up</Text>
-            </Text>
-          </TouchableOpacity>
-        </View>
+        </ScrollView>
 
         <View style={styles.termsContainer}>
           <Text style={styles.termsText}>
@@ -146,16 +199,17 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   form: {
-    gap: 16,
+    gap: 8,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E8E8E8',
-    borderRadius: 12,
+    borderRadius: 8,
     paddingHorizontal: 16,
-    height: 56,
+    height: 48,
+    marginVertical: 6,
   },
   input: {
     flex: 1,
@@ -167,24 +221,42 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#0E8A3E',
-    height: 56,
+    height: 48,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
+    marginTop: 6,
+  },
+  buttonDisabled: {
+    backgroundColor: '#0E8A3E80',
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },
-  error: {
-    color: '#ff3b30',
+  errorContainer: {
+    backgroundColor: '#FFE5E5',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  errorText: {
+    color: '#D32F2F',
     fontSize: 14,
-    marginTop: -8,
+    flex: 1,
+  },
+  linkTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+    marginBottom: 12,
   },
   linkText: {
-    textAlign: 'center',
     color: '#666',
     fontSize: 14,
   },
@@ -193,10 +265,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   termsContainer: {
-    position: 'absolute',
-    bottom: 32,
-    left: 24,
-    right: 24,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+    backgroundColor: '#fff',
   },
   termsText: {
     textAlign: 'center',
@@ -206,5 +278,8 @@ const styles = StyleSheet.create({
   },
   termsLink: {
     color: '#0E8A3E',
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
 }); 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -28,26 +28,71 @@ export default function Signup() {
   const router = useRouter();
   const { signup } = useAuth();
 
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const isValidPassword = (password: string) => {
+    return password.length >= 6;
+  };
+
+  const isValidName = (name: string) => {
+    return name.trim().length >= 3;
+  };
+
+  const isFormValid = () => {
+    if (!name || !email || !password || !confirmPassword) return false;
+    if (!isValidName(name)) return false;
+    if (!isValidEmail(email)) return false;
+    if (!isValidPassword(password)) return false;
+    if (password !== confirmPassword) return false;
+    return true;
+  };
+
   const handleSignup = async () => {
     if (!name || !email || !password || !confirmPassword) {
       setError('Please fill in all fields');
+      return;
+    }
+    if (!isValidName(name)) {
+      setError('Name must be at least 3 characters');
+      return;
+    }
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid email');
+      return;
+    }
+    if (!isValidPassword(password)) {
+      setError('Password must be at least 6 characters');
       return;
     }
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
+    
     setLoading(true);
     setError('');
     try {
       await signup({ name, email, password, confirmPassword });
       router.push('/(tabs)');
-    } catch (err) {
-      setError('Failed to create account');
+    } catch (err: any) {
+      setError(err.message || 'Failed to create account');
     } finally {
       setLoading(false);
     }
   };
+
+  // Add auto-hide error functionality
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -67,6 +112,13 @@ export default function Signup() {
           <Text style={styles.subtitle}>Sign up to get started</Text>
 
           <View style={styles.form}>
+            {error ? (
+              <View style={styles.errorContainer}>
+                <Ionicons name="alert-circle" size={20} color="#D32F2F" />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            ) : null}
+
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
@@ -131,9 +183,11 @@ export default function Signup() {
               </TouchableOpacity>
             </View>
 
-            {error ? <Text style={styles.error}>{error}</Text> : null}
-
-            <TouchableOpacity style={styles.button} onPress={handleSignup} disabled={loading}>
+            <TouchableOpacity 
+              style={[styles.button, !isFormValid() && styles.buttonDisabled]} 
+              onPress={handleSignup} 
+              disabled={loading || !isFormValid()}
+            >
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
@@ -141,22 +195,25 @@ export default function Signup() {
               )}
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => router.push('/login')}>
+            <View style={styles.linkTextContainer}>
               <Text style={styles.linkText}>
-                Already have an account? <Text style={styles.link}>Sign In</Text>
+                Already have an account?{' '}
               </Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.termsContainer}>
-            <Text style={styles.termsText}>
-              By continuing, you agree to our{' '}
-              <Text style={styles.termsLink}>Terms of Service</Text>
-              {' '}and{' '}
-              <Text style={styles.termsLink}>Privacy Policy</Text>
-            </Text>
+              <TouchableOpacity onPress={() => router.push('/login')}>
+                <Text style={styles.link}>Sign In</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
+
+        <View style={styles.termsContainer}>
+          <Text style={styles.termsText}>
+            By continuing, you agree to our{' '}
+            <Text style={styles.termsLink}>Terms of Service</Text>
+            {' '}and{' '}
+            <Text style={styles.termsLink}>Privacy Policy</Text>
+          </Text>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -190,16 +247,17 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   form: {
-    gap: 16,
+    gap: 8,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E8E8E8',
-    borderRadius: 12,
+    borderRadius: 8,
     paddingHorizontal: 16,
-    height: 56,
+    height: 48,
+    marginVertical: 6,
   },
   input: {
     flex: 1,
@@ -211,24 +269,42 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#0E8A3E',
-    height: 56,
+    height: 48,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
+    marginTop: 6,
+  },
+  buttonDisabled: {
+    backgroundColor: '#0E8A3E80',
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },
-  error: {
-    color: '#ff3b30',
+  errorContainer: {
+    backgroundColor: '#FFE5E5',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  errorText: {
+    color: '#D32F2F',
     fontSize: 14,
-    marginTop: -8,
+    flex: 1,
+  },
+  linkTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+    marginBottom: 12,
   },
   linkText: {
-    textAlign: 'center',
     color: '#666',
     fontSize: 14,
   },
@@ -238,11 +314,12 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: 24,
   },
   termsContainer: {
-    marginTop: 32,
-    marginHorizontal: 24,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+    backgroundColor: '#fff',
   },
   termsText: {
     textAlign: 'center',
