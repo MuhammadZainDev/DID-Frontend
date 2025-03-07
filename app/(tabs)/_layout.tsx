@@ -8,7 +8,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: '#0E8A3E',
-        tabBarInactiveTintColor: '#88A398',
+        tabBarInactiveTintColor: '#666666',
         headerShown: false,
         tabBarStyle: {
           backgroundColor: 'white',
@@ -27,22 +27,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="favorites"
-        options={{
-          title: 'Favorites',
-          tabBarIcon: ({ color }) => <Ionicons name="bookmark-outline" size={24} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="categories"
-        options={{
-          title: 'Categories',
-          tabBarIcon: ({ color }) => <Ionicons name="grid-outline" size={24} color={color} />,
+          title: 'Prayer Times',
+          tabBarIcon: ({ color }) => <Ionicons name="time-outline" size={24} color={color} />,
         }}
       />
       <Tabs.Screen

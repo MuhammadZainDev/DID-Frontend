@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import PrayerTimes from '@/components/PrayerTimes';
 import categoriesData from '@/constants/categories.json';
 
 export default function HomeScreen() {
@@ -39,38 +40,9 @@ export default function HomeScreen() {
 
       {/* Content */}
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Next Prayer Section */}
-        <View style={styles.prayerCard}>
-          <View style={styles.prayerInfo}>
-            <View style={styles.dateInfo}>
-              <ThemedText style={styles.islamicDate}>15 Ramadan, 1445</ThemedText>
-              <ThemedText style={styles.gregorianDate}>25 March 2024</ThemedText>
-            </View>
-            <View style={styles.divider} />
-            <View style={styles.prayerDetails}>
-              <View>
-                <ThemedText style={styles.prayerLabel}>Next Prayer</ThemedText>
-                <ThemedText style={styles.prayerName}>Fajr</ThemedText>
-              </View>
-              <View style={styles.timeInfo}>
-                <ThemedText style={styles.prayerTime}>05:53</ThemedText>
-                <ThemedText style={styles.timeRemaining}>04:23:24 remaining</ThemedText>
-              </View>
-            </View>
-            <View style={styles.progressBar}>
-              <View style={styles.progressFill} />
-            </View>
-            <View style={styles.additionalInfo}>
-              <View style={styles.infoItem}>
-                <Ionicons name="sunny-outline" size={16} color="#88A398" />
-                <ThemedText style={styles.infoText}>Sunrise: 06:45</ThemedText>
-              </View>
-              <View style={styles.infoItem}>
-                <Ionicons name="moon-outline" size={16} color="#88A398" />
-                <ThemedText style={styles.infoText}>Maghrib: 18:30</ThemedText>
-              </View>
-            </View>
-          </View>
+        {/* Prayer Times Section */}
+        <View style={styles.prayerCardContainer}>
+          <PrayerTimes />
         </View>
 
         {/* Categories Grid */}
@@ -158,101 +130,9 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  prayerCard: {
-    backgroundColor: 'white',
+  prayerCardContainer: {
     marginHorizontal: 16,
     marginTop: 16,
-    borderRadius: 12,
-    padding: 16,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
-  },
-  prayerInfo: {
-    padding: 16,
-  },
-  dateInfo: {
-    marginBottom: 12,
-  },
-  islamicDate: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#0E8A3E',
-    marginBottom: 2,
-  },
-  gregorianDate: {
-    fontSize: 13,
-    color: '#88A398',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#E8F5ED',
-    marginVertical: 12,
-  },
-  prayerDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  },
-  prayerLabel: {
-    fontSize: 13,
-    color: '#88A398',
-    marginBottom: 4,
-  },
-  prayerName: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#0E8A3E',
-    lineHeight: 28,
-  },
-  timeInfo: {
-    alignItems: 'flex-end',
-  },
-  prayerTime: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#0E8A3E',
-    lineHeight: 28,
-  },
-  timeRemaining: {
-    fontSize: 13,
-    color: '#88A398',
-    marginTop: 4,
-  },
-  progressBar: {
-    height: 4,
-    backgroundColor: '#E8F5ED',
-    borderRadius: 2,
-    marginBottom: 16,
-  },
-  progressFill: {
-    width: '35%',
-    height: '100%',
-    backgroundColor: '#0E8A3E',
-    borderRadius: 2,
-  },
-  additionalInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingTop: 8,
-  },
-  infoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  infoText: {
-    fontSize: 13,
-    color: '#88A398',
-    marginLeft: 6,
   },
   grid: {
     flexDirection: 'row',
