@@ -11,6 +11,19 @@ import { ThemedView } from '@/components/ThemedView';
 import subcategoriesData from '@/constants/subcategories.json';
 import duasData from '@/constants/dua.json';
 
+type Dua = {
+  id: string;
+  subcategory_id: string;
+  name: string;
+  arabic_text: string;
+  reference: string;
+  description: string;
+  translation: string;
+  urdu_translation?: string;
+  count?: string;
+  audio_path?: string;
+};
+
 export default function DuaScreen() {
   const router = useRouter();
   const { subcategoryId } = useLocalSearchParams();
@@ -194,6 +207,14 @@ export default function DuaScreen() {
             
             <View style={styles.translationContainer}>
               <ThemedText style={styles.translationText}>{dua.translation}</ThemedText>
+              {dua.urdu_translation && (
+                <>
+                  <View style={styles.translationDivider} />
+                  <ThemedText style={[styles.translationText, styles.urduText]}>
+                    {dua.urdu_translation}
+                  </ThemedText>
+                </>
+              )}
             </View>
             
             <View style={styles.referenceContainer}>
@@ -279,13 +300,18 @@ const styles = StyleSheet.create({
   },
   arabicContainer: {
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: 12,
+    marginVertical: 4,
+    width: '100%',
   },
   arabicText: {
-    fontSize: 24,
-    lineHeight: 36,
+    fontSize: 26,
+    lineHeight: 42,
     textAlign: 'center',
     color: '#2C3E50',
+    fontFamily: 'NotoKufi-Arabic',
+    writingDirection: 'rtl',
+    paddingHorizontal: 12,
   },
   divider: {
     height: 1,
@@ -337,6 +363,19 @@ const styles = StyleSheet.create({
   },
   countText: {
     fontSize: 14,
+    color: '#2C3E50',
+  },
+  translationDivider: {
+    height: 1,
+    backgroundColor: '#E8F5ED',
+    marginVertical: 8,
+  },
+  urduText: {
+    fontFamily: 'Jameel-Noori-Nastaleeq',
+    fontSize: 20,
+    lineHeight: 36,
+    textAlign: 'right',
+    writingDirection: 'rtl',
     color: '#2C3E50',
   },
 }); 

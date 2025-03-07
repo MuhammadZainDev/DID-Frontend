@@ -1,0 +1,47 @@
+/* Font families for Arabic and Urdu text */
+@font-face {
+    font-family: 'Jameel Noori Nastaleeq';
+    src: url('../assets/fonts/Jameel-Noori-Nastaleeq.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Noto Nastaliq Urdu';
+    src: url('../assets/fonts/NotoNastaliqUrdu-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.arabic-text {
+    font-family: 'Traditional Arabic', 'Scheherazade', 'Amiri', system-ui, -apple-system, BlinkMacSystemFont;
+    font-size: 1.4em;
+    line-height: 2;
+    direction: rtl;
+    text-align: right;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+.urdu-text {
+    font-family: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', system-ui, -apple-system, BlinkMacSystemFont;
+    font-size: 1.3em;
+    line-height: 2.2;
+    direction: rtl;
+    text-align: right;
+    letter-spacing: 0.3px;
+    font-weight: normal;
+}
+
+/* For better readability on mobile devices */
+@media screen and (max-width: 768px) {
+    .arabic-text {
+        font-size: 1.2em;
+        line-height: 1.8;
+    }
+    
+    .urdu-text {
+        font-size: 1.1em;
+        line-height: 2;
+    }
+} 
