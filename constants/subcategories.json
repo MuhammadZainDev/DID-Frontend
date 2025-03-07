@@ -1,64 +1,1118 @@
 {
   "subcategories": [
     {
-      "id": "morning_evening",
-      "category_id": "all_time",
-      "name": "Morning & Evening",
-      "icon": "sunny-outline"
+      "id": "morning_evening_subs",
+      "category_id": "morning_evening",
+      "category_dua": {
+        "arabic_text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ",
+        "reference": "Muslim 2723",
+        "description": "Main morning and evening dua"
+      },
+      "subcategories": [
+        {
+          "id": "morning_remembrance",
+          "name": "Morning Remembrance",
+          "reference": "Muslim 2723",
+          "description": "Essential morning dhikr",
+          "arabic_text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ"
+        },
+        {
+          "id": "evening_remembrance",
+          "name": "Evening Remembrance",
+          "reference": "Muslim 2723",
+          "description": "Essential evening dhikr",
+          "arabic_text": "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ"
+        },
+        {
+          "id": "morning_protection",
+          "name": "Morning Protection",
+          "reference": "Abu Dawud 5082",
+          "description": "Protection dua for morning",
+          "arabic_text": "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ"
+        },
+        {
+          "id": "evening_protection",
+          "name": "Evening Protection",
+          "reference": "Abu Dawud 5082",
+          "description": "Protection dua for evening",
+          "arabic_text": "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ"
+        },
+        {
+          "id": "daily_protection",
+          "name": "Daily Protection",
+          "reference": "Abu Dawud 5088",
+          "description": "General protection throughout the day",
+          "arabic_text": "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ"
+        }
+      ]
     },
     {
-      "id": "daily_routine",
-      "category_id": "all_time",
-      "name": "Daily Routine",
-      "icon": "time-outline"
+      "id": "morning_adhkar_subs",
+      "category_id": "morning_adhkar",
+      "category_dua": {
+        "arabic_text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ",
+        "reference": "Muslim 2723",
+        "description": "Main morning remembrance dua"
+      },
+      "subcategories": [
+        {
+          "id": "morning_praise",
+          "name": "Morning Praise",
+          "count": "3x",
+          "reference": "Abu Dawud 5077",
+          "description": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ - Glory be to Allah and His praise",
+          "arabic_text": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ"
+        },
+        {
+          "id": "morning_protection",
+          "name": "Morning Protection",
+          "count": "1x",
+          "reference": "Abu Dawud 5084",
+          "description": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ - We have entered morning and the dominion belongs to Allah",
+          "arabic_text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ"
+        },
+        {
+          "id": "ayatul_kursi_morning",
+          "name": "Ayatul Kursi",
+          "count": "1x",
+          "reference": "Al-Bukhari",
+          "description": "The verse of the throne for morning protection",
+          "arabic_text": "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ"
+        },
+        {
+          "id": "three_quls_morning",
+          "name": "Three Quls",
+          "count": "3x",
+          "reference": "Abu Dawud 5082",
+          "description": "Surah Al-Ikhlas, Al-Falaq, and An-Nas",
+          "arabic_text": "قُلْ هُوَ اللَّهُ أَحَدٌ..."
+        },
+        {
+          "id": "sayyidul_istighfar",
+          "name": "Sayyidul Istighfar",
+          "count": "1x",
+          "reference": "Bukhari 6306",
+          "description": "The master of seeking forgiveness",
+          "arabic_text": "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ"
+        }
+      ]
     },
     {
-      "id": "evil_eye",
+      "id": "evening_adhkar_subs",
+      "category_id": "evening_adhkar",
+      "category_dua": {
+        "arabic_text": "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ",
+        "reference": "Muslim 2723",
+        "description": "Main evening remembrance dua"
+      },
+      "subcategories": [
+        {
+          "id": "evening_protection",
+          "name": "Evening Protection",
+          "count": "1x",
+          "reference": "Abu Dawud 5084",
+          "description": "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ - We have entered evening and the dominion belongs to Allah",
+          "arabic_text": "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ"
+        },
+        {
+          "id": "evening_remembrance",
+          "name": "Evening Remembrance",
+          "count": "3x",
+          "reference": "Muslim 2723",
+          "description": "Evening dhikr for protection",
+          "arabic_text": "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ"
+        },
+        {
+          "id": "ayatul_kursi_evening",
+          "name": "Ayatul Kursi",
+          "count": "1x",
+          "reference": "Al-Bukhari",
+          "description": "The verse of the throne for evening protection",
+          "arabic_text": "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ"
+        },
+        {
+          "id": "three_quls_evening",
+          "name": "Three Quls",
+          "count": "3x",
+          "reference": "Abu Dawud 5082",
+          "description": "Surah Al-Ikhlas, Al-Falaq, and An-Nas",
+          "arabic_text": "قُلْ هُوَ اللَّهُ أَحَدٌ..."
+        },
+        {
+          "id": "evening_gratitude",
+          "name": "Evening Gratitude",
+          "count": "1x",
+          "reference": "Abu Dawud 5077",
+          "description": "Gratitude dua for evening",
+          "arabic_text": "اللَّهُمَّ مَا أَمْسَى بِي مِنْ نِعْمَةٍ فَمِنْكَ"
+        }
+      ]
+    },
+    {
+      "id": "daily_worship_subs",
+      "category_id": "daily_worship",
+      "category_dua": {
+        "arabic_text": "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
+        "reference": "Bukhari 4522",
+        "description": "Most comprehensive dua for daily worship"
+      },
+      "subcategories": [
+        {
+          "id": "entering_masjid",
+          "name": "Entering Masjid",
+          "reference": "Muslim 713",
+          "description": "Dua when entering the mosque",
+          "arabic_text": "اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ"
+        },
+        {
+          "id": "leaving_masjid",
+          "name": "Leaving Masjid",
+          "reference": "Muslim 713",
+          "description": "Dua when leaving the mosque",
+          "arabic_text": "اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ"
+        },
+        {
+          "id": "before_wudu",
+          "name": "Before Wudu",
+          "reference": "Abu Dawud 101",
+          "description": "Dua before performing ablution",
+          "arabic_text": "بِسْمِ اللَّهِ"
+        },
+        {
+          "id": "after_wudu",
+          "name": "After Wudu",
+          "reference": "Muslim 234",
+          "description": "Dua after completing ablution",
+          "arabic_text": "أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ"
+        },
+        {
+          "id": "after_adhan",
+          "name": "After Adhan",
+          "reference": "Bukhari 614",
+          "description": "Dua after hearing the call to prayer",
+          "arabic_text": "اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ"
+        }
+      ]
+    },
+    {
+      "id": "sleep_wakeup_subs",
+      "category_id": "sleep_wakeup",
+      "category_dua": {
+        "arabic_text": "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا",
+        "reference": "Bukhari 6324",
+        "description": "Main dua for sleep and waking"
+      },
+      "subcategories": [
+        {
+          "id": "before_sleep",
+          "name": "Before Sleep",
+          "reference": "Bukhari 6320",
+          "description": "Dua before going to bed",
+          "arabic_text": "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا"
+        },
+        {
+          "id": "waking_up",
+          "name": "Waking Up",
+          "reference": "Bukhari 6312",
+          "description": "Dua upon waking up",
+          "arabic_text": "الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ"
+        },
+        {
+          "id": "bad_dream",
+          "name": "After Bad Dream",
+          "reference": "Muslim 2261",
+          "description": "Dua after seeing bad dream",
+          "arabic_text": "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ وَمِنْ شَرِّ مَا رَأَيْتُ"
+        },
+        {
+          "id": "good_dream",
+          "name": "After Good Dream",
+          "reference": "Bukhari 6984",
+          "description": "Dua after seeing good dream",
+          "arabic_text": "الْحَمْدُ لِلَّهِ الَّذِي جَعَلَ رُؤْيَايَ خَيْرًا"
+        },
+        {
+          "id": "tahajjud",
+          "name": "Tahajjud Prayer",
+          "reference": "Bukhari 1120",
+          "description": "Dua for night prayer",
+          "arabic_text": "اللَّهُمَّ لَكَ الْحَمْدُ أَنْتَ نُورُ السَّمَاوَاتِ وَالْأَرْضِ"
+        }
+      ]
+    },
+    {
+      "id": "protection_subs",
       "category_id": "protection",
-      "name": "Evil Eye Protection",
-      "icon": "eye-outline"
+      "category_dua": {
+        "arabic_text": "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",
+        "reference": "Abu Dawud 5088",
+        "description": "Main protection dua"
+      },
+      "subcategories": [
+        {
+          "id": "evil_eye",
+          "name": "Against Evil Eye",
+          "reference": "Muslim 2709",
+          "description": "Protection from evil eye",
+          "arabic_text": "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ"
+        },
+        {
+          "id": "general_protection",
+          "name": "General Protection",
+          "reference": "Bukhari 7488",
+          "description": "Seeking Allah's complete protection",
+          "arabic_text": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ زَوَالِ نِعْمَتِكَ، وَتَحَوُّلِ عَافِيَتِكَ، وَفُجَاءَةِ نِقْمَتِكَ، وَجَمِيعِ سَخَطِكَ"
+        },
+        {
+          "id": "home_protection",
+          "name": "Home Protection",
+          "reference": "Muslim 2708",
+          "description": "Protection for home",
+          "arabic_text": "بِسْمِ اللَّهِ وَلَجْنَا، وَبِسْمِ اللَّهِ خَرَجْنَا، وَعَلَى رَبِّنَا تَوَكَّلْنَا"
+        },
+        {
+          "id": "morning_evening_protection",
+          "name": "Daily Protection",
+          "reference": "Abu Dawud 5082",
+          "description": "Daily protection dua",
+          "arabic_text": "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ"
+        },
+        {
+          "id": "protection_from_harm",
+          "name": "Protection from Harm",
+          "reference": "Abu Dawud 5074",
+          "description": "Protection from all types of harm",
+          "arabic_text": "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ"
+        }
+      ]
     },
     {
-      "id": "general_protection",
-      "category_id": "protection",
-      "name": "General Protection",
-      "icon": "shield-outline"
+      "id": "food_sustenance_subs",
+      "category_id": "food_sustenance",
+      "category_dua": {
+        "arabic_text": "اللَّهُمَّ بَارِكْ لَنَا فِيمَا رَزَقْتَنَا وَقِنَا عَذَابَ النَّارِ",
+        "reference": "Muslim 2042",
+        "description": "Main dua for food and sustenance"
+      },
+      "subcategories": [
+        {
+          "id": "before_eating",
+          "name": "Before Eating",
+          "reference": "Abu Dawud 3767",
+          "description": "Dua before starting to eat",
+          "arabic_text": "بِسْمِ اللَّهِ وَعَلَى بَرَكَةِ اللَّهِ"
+        },
+        {
+          "id": "after_eating",
+          "name": "After Eating",
+          "reference": "Abu Dawud 3850",
+          "description": "Dua after finishing meal",
+          "arabic_text": "الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنِي هَذَا وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ"
+        },
+        {
+          "id": "guest_host",
+          "name": "Guest's Dua for Host",
+          "reference": "Muslim 2042",
+          "description": "Dua when eating at someone's house",
+          "arabic_text": "اللَّهُمَّ بَارِكْ لَهُمْ فِيمَا رَزَقْتَهُمْ، وَاغْفِرْ لَهُمْ وَارْحَمْهُمْ"
+        },
+        {
+          "id": "breaking_fast",
+          "name": "Breaking Fast",
+          "reference": "Abu Dawud 2358",
+          "description": "Dua for breaking fast",
+          "arabic_text": "ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ"
+        },
+        {
+          "id": "provision_increase",
+          "name": "Increase in Provision",
+          "reference": "Ibn Majah 925",
+          "description": "Dua for seeking blessed sustenance",
+          "arabic_text": "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا"
+        }
+      ]
     },
     {
-      "id": "eating",
-      "category_id": "food",
-      "name": "Before & After Eating",
-      "icon": "restaurant-outline"
+      "id": "travel_journey_subs",
+      "category_id": "travel_journey",
+      "category_dua": {
+        "arabic_text": "اللَّهُمَّ إِنَّا نَسْأَلُكَ فِي سَفَرِنَا هَذَا الْبِرَّ وَالتَّقْوَى وَمِنَ الْعَمَلِ مَا تَرْضَى",
+        "reference": "Muslim 1342",
+        "description": "Main travel dua"
+      },
+      "subcategories": [
+        {
+          "id": "starting_journey",
+          "name": "Starting Journey",
+          "reference": "Muslim 1342",
+          "description": "Dua when beginning a journey",
+          "arabic_text": "اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ"
+        },
+        {
+          "id": "entering_vehicle",
+          "name": "Entering Vehicle",
+          "reference": "Abu Dawud 2602",
+          "description": "Dua when entering any transport",
+          "arabic_text": "بِسْمِ اللَّهِ، الْحَمْدُ لِلَّهِ"
+        },
+        {
+          "id": "returning_home",
+          "name": "Returning Home",
+          "reference": "Muslim 1345",
+          "description": "Dua when returning from journey",
+          "arabic_text": "آيِبُونَ تَائِبُونَ عَابِدُونَ لِرَبِّنَا حَامِدُونَ"
+        },
+        {
+          "id": "travel_protection",
+          "name": "Travel Protection",
+          "reference": "Muslim 1343",
+          "description": "Protection during journey",
+          "arabic_text": "اللَّهُمَّ إِنَّا نَسْأَلُكَ فِي سَفَرِنَا هَذَا الْبِرَّ وَالتَّقْوَى، وَمِنَ الْعَمَلِ مَا تَرْضَى"
+        },
+        {
+          "id": "new_place",
+          "name": "Entering New Place",
+          "reference": "Muslim 2708",
+          "description": "Dua when entering a new place",
+          "arabic_text": "اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ هَذِهِ الْقَرْيَةِ وَخَيْرَ أَهْلِهَا، وَأَعُوذُ بِكَ مِنْ شَرِّهَا وَشَرِّ أَهْلِهَا"
+        }
+      ]
     },
     {
-      "id": "drinking",
-      "category_id": "food",
-      "name": "Before & After Drinking",
-      "icon": "water-outline"
+      "id": "stress_anxiety_subs",
+      "category_id": "stress_anxiety",
+      "category_dua": {
+        "arabic_text": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ وَالْعَجْزِ وَالْكَسَلِ",
+        "reference": "Bukhari 6369",
+        "description": "Main dua for anxiety relief"
+      },
+      "subcategories": [
+        {
+          "id": "remove_worry",
+          "name": "Remove Worry",
+          "reference": "Abu Dawud 1555",
+          "description": "Dua to remove anxiety and worry",
+          "arabic_text": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ"
+        },
+        {
+          "id": "ease_difficulty",
+          "name": "Ease Difficulty",
+          "reference": "Bukhari 6345",
+          "description": "Dua for making matters easy",
+          "arabic_text": "اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا"
+        },
+        {
+          "id": "sadness_relief",
+          "name": "Relief from Sadness",
+          "reference": "Bukhari 6346",
+          "description": "Dua for removing sadness",
+          "arabic_text": "اللَّهُمَّ إِنِّي عَبْدُكَ، ابْنُ عَبْدِكَ، ابْنُ أَمَتِكَ"
+        },
+        {
+          "id": "debt_relief",
+          "name": "Relief from Debt",
+          "reference": "Abu Dawud 1555",
+          "description": "Dua for relief from debt burden",
+          "arabic_text": "اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ، وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ"
+        },
+        {
+          "id": "peace_heart",
+          "name": "Peace of Heart",
+          "reference": "Tirmidhi 3388",
+          "description": "Dua for peace and tranquility",
+          "arabic_text": "اللَّهُمَّ إِنِّي أَسْأَلُكَ الثَّبَاتَ فِي الْأَمْرِ، وَالْعَزِيمَةَ عَلَى الرُّشْدِ"
+        }
+      ]
     },
     {
-      "id": "journey",
-      "category_id": "travel",
-      "name": "Journey Duas",
-      "icon": "car-outline"
+      "id": "home_family_subs",
+      "category_id": "home_family",
+      "category_dua": {
+        "arabic_text": "رَبِّ اجْعَلْنِي مُقِيمَ الصَّلَاةِ وَمِنْ ذُرِّيَّتِي رَبَّنَا وَتَقَبَّلْ دُعَاءِ",
+        "reference": "Quran 14:40",
+        "description": "Main dua for family"
+      },
+      "subcategories": [
+        {
+          "id": "parents_dua",
+          "name": "For Parents",
+          "reference": "Quran 17:24",
+          "description": "Dua for parents from Quran",
+          "arabic_text": "رَبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا"
+        },
+        {
+          "id": "spouse_dua",
+          "name": "For Spouse",
+          "reference": "Abu Dawud 2160",
+          "description": "Dua for spouse and marital harmony",
+          "arabic_text": "اللَّهُمَّ بَارِكْ لِي فِي أَهْلِي"
+        },
+        {
+          "id": "children_dua",
+          "name": "For Children",
+          "reference": "Bukhari 6399",
+          "description": "Dua for children's protection and guidance",
+          "arabic_text": "اللَّهُمَّ إِنِّي أَسْتَوْدِعُكَ دِينِي وَأَمَانَتِي وَخَوَاتِيمَ عَمَلِي"
+        },
+        {
+          "id": "entering_home",
+          "name": "Entering Home",
+          "reference": "Muslim 2018",
+          "description": "Dua when entering home",
+          "arabic_text": "بِسْمِ اللَّهِ وَلَجْنَا، وَبِسْمِ اللَّهِ خَرَجْنَا، وَعَلَى رَبِّنَا تَوَكَّلْنَا"
+        },
+        {
+          "id": "leaving_home",
+          "name": "Leaving Home",
+          "reference": "Abu Dawud 5095",
+          "description": "Dua when leaving home",
+          "arabic_text": "بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلَى اللَّهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ"
+        }
+      ]
     },
     {
-      "id": "transport",
-      "category_id": "travel",
-      "name": "Transport Duas",
-      "icon": "airplane-outline"
+      "id": "knowledge_study_subs",
+      "category_id": "knowledge_study",
+      "category_dua": {
+        "arabic_text": "رَبِّ زِدْنِي عِلْمًا",
+        "reference": "Quran 20:114",
+        "description": "Main dua for knowledge"
+      },
+      "subcategories": [
+        {
+          "id": "increase_knowledge",
+          "name": "Increase Knowledge",
+          "reference": "Quran 20:114",
+          "description": "Dua for increasing knowledge",
+          "arabic_text": "رَبِّ زِدْنِي عِلْمًا"
+        },
+        {
+          "id": "memory_improvement",
+          "name": "Memory Improvement",
+          "reference": "Tirmidhi 3599",
+          "description": "Dua for improving memory",
+          "arabic_text": "اللَّهُمَّ انْفَعْنِي بِمَا عَلَّمْتَنِي وَعَلِّمْنِي مَا يَنْفَعُنِي"
+        },
+        {
+          "id": "study_success",
+          "name": "Study Success",
+          "reference": "Ibn Majah 3833",
+          "description": "Dua for success in studies",
+          "arabic_text": "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا"
+        },
+        {
+          "id": "understanding",
+          "name": "Better Understanding",
+          "reference": "Bukhari 7381",
+          "description": "Dua for better comprehension",
+          "arabic_text": "اللَّهُمَّ فَقِّهْنِي فِي الدِّينِ"
+        },
+        {
+          "id": "before_study",
+          "name": "Before Studying",
+          "reference": "Abu Dawud 3883",
+          "description": "Dua before starting to study",
+          "arabic_text": "رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي"
+        }
+      ]
     },
     {
-      "id": "general_forgiveness",
+      "id": "forgiveness_subs",
       "category_id": "forgiveness",
-      "name": "General Forgiveness",
-      "icon": "heart-outline"
+      "category_dua": {
+        "arabic_text": "رَبَّنَا اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ",
+        "reference": "Quran 14:41",
+        "description": "Main dua for forgiveness"
+      },
+      "subcategories": [
+        {
+          "id": "general_forgiveness",
+          "name": "General Forgiveness",
+          "reference": "Bukhari 6307",
+          "description": "General dua for forgiveness",
+          "arabic_text": "اللَّهُمَّ اغْفِرْ لِي خَطِيئَتِي وَجَهْلِي"
+        },
+        {
+          "id": "sayyid_istighfar",
+          "name": "Sayyidul Istighfar",
+          "reference": "Bukhari 6306",
+          "description": "Master of forgiveness duas",
+          "arabic_text": "اللَّهُمَّ أَنْتَ رَبِّي لا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ"
+        },
+        {
+          "id": "major_sins",
+          "name": "Major Sins",
+          "reference": "Muslim 2705",
+          "description": "Dua for major sins",
+          "arabic_text": "رَبِّ اغْفِرْ لِي وَتُبْ عَلَيَّ إِنَّكَ أَنْتَ التَّوَّابُ الرَّحِيمُ"
+        },
+        {
+          "id": "sincere_repentance",
+          "name": "Sincere Repentance",
+          "reference": "Tirmidhi 3434",
+          "description": "Dua for sincere repentance",
+          "arabic_text": "أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ"
+        },
+        {
+          "id": "seeking_mercy",
+          "name": "Seeking Mercy",
+          "reference": "Muslim 2702",
+          "description": "Dua for seeking Allah's mercy",
+          "arabic_text": "رَبِّ اغْفِرْ وَارْحَمْ وَأَنْتَ خَيْرُ الرَّاحِمِينَ"
+        }
+      ]
     },
     {
-      "id": "special_forgiveness",
-      "category_id": "forgiveness",
-      "name": "Special Occasions",
-      "icon": "calendar-outline"
+      "id": "health_wellbeing_subs",
+      "category_id": "health_wellbeing",
+      "category_dua": {
+        "arabic_text": "اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي، اللَّهُمَّ عَافِنِي فِي بَصَرِي",
+        "reference": "Abu Dawud 5090",
+        "description": "Main dua for health"
+      },
+      "subcategories": [
+        {
+          "id": "general_health",
+          "name": "General Health",
+          "reference": "Abu Dawud 1554",
+          "description": "Dua for good health",
+          "arabic_text": "اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي"
+        },
+        {
+          "id": "healing",
+          "name": "Healing",
+          "reference": "Bukhari 5675",
+          "description": "Dua for healing",
+          "arabic_text": "اللَّهُمَّ رَبَّ النَّاسِ، أَذْهِبِ الْبَأْسَ، اشْفِ أَنْتَ الشَّافِي"
+        },
+        {
+          "id": "pain_relief",
+          "name": "Pain Relief",
+          "reference": "Muslim 2202",
+          "description": "Dua for pain relief",
+          "arabic_text": "أَعُوذُ بِعِزَّةِ اللَّهِ وَقُدْرَتِهِ مِنْ شَرِّ مَا أَجِدُ وَأُحَاذِرُ"
+        },
+        {
+          "id": "physical_strength",
+          "name": "Physical Strength",
+          "reference": "Muslim 2722",
+          "description": "Dua for physical strength",
+          "arabic_text": "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ"
+        },
+        {
+          "id": "protection_illness",
+          "name": "Protection from Illness",
+          "reference": "Abu Dawud 5088",
+          "description": "Dua for protection from illness",
+          "arabic_text": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْبَرَصِ، وَالْجُنُونِ، وَالْجُذَامِ"
+        }
+      ]
+    },
+    {
+      "id": "success_guidance_subs",
+      "category_id": "success_guidance",
+      "category_dua": {
+        "arabic_text": "رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي",
+        "reference": "Quran 20:25-26",
+        "description": "Main dua for success"
+      },
+      "subcategories": [
+        {
+          "id": "seeking_guidance",
+          "name": "Seeking Guidance",
+          "reference": "Tirmidhi 3551",
+          "description": "Dua for guidance",
+          "arabic_text": "اللَّهُمَّ اهْدِنِي وَسَدِّدْنِي"
+        },
+        {
+          "id": "decision_making",
+          "name": "Decision Making",
+          "reference": "Bukhari 1166",
+          "description": "Dua for making decisions",
+          "arabic_text": "اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ"
+        },
+        {
+          "id": "success_affairs",
+          "name": "Success in Affairs",
+          "reference": "Muslim 2725",
+          "description": "Dua for success",
+          "arabic_text": "رَبِّ أَعِنِّي وَلَا تُعِنْ عَلَيَّ"
+        },
+        {
+          "id": "steadfastness",
+          "name": "Steadfastness",
+          "reference": "Muslim 2716",
+          "description": "Dua for steadfastness",
+          "arabic_text": "يَا مُقَلِّبَ الْقُلُوبِ ثَبِّتْ قَلْبِي عَلَى دِينِكَ"
+        },
+        {
+          "id": "righteous_path",
+          "name": "Righteous Path",
+          "reference": "Tirmidhi 3489",
+          "description": "Dua for staying on the right path",
+          "arabic_text": "اللَّهُمَّ اهْدِنِي فِيمَنْ هَدَيْتَ"
+        }
+      ]
+    },
+    {
+      "id": "marriage_family_subs",
+      "category_id": "marriage_family",
+      "category_dua": {
+        "arabic_text": "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا",
+        "reference": "Quran 25:74",
+        "description": "Main dua for marriage and family"
+      },
+      "subcategories": [
+        {
+          "id": "seeking_marriage",
+          "name": "Seeking Marriage",
+          "reference": "Abu Dawud 2160",
+          "description": "Dua for seeking a righteous spouse",
+          "arabic_text": "رَبِّ هَبْ لِي مِنْ لَدُنْكَ ذُرِّيَّةً طَيِّبَةً"
+        },
+        {
+          "id": "marital_harmony",
+          "name": "Marital Harmony",
+          "reference": "Bukhari 5163",
+          "description": "Dua for harmony between spouses",
+          "arabic_text": "بَارَكَ اللَّهُ لَكَ وَبَارَكَ عَلَيْكَ وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ"
+        },
+        {
+          "id": "spouse_harmony",
+          "name": "Spouse Harmony",
+          "reference": "Abu Dawud 2160",
+          "description": "Dua for harmony between spouses",
+          "arabic_text": "اللَّهُمَّ أَلِّفْ بَيْنَ قُلُوبِنَا"
+        },
+        {
+          "id": "family_unity",
+          "name": "Family Unity",
+          "reference": "Abu Dawud 969",
+          "description": "Dua for family unity",
+          "arabic_text": "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ"
+        },
+        {
+          "id": "relationship_strength",
+          "name": "Relationship Strength",
+          "reference": "Muslim 2699",
+          "description": "Dua for strengthening relationships",
+          "arabic_text": "اللَّهُمَّ اجْعَلْ حُبَّكَ أَحَبَّ إِلَيَّ مِنْ نَفْسِي وَأَهْلِي"
+        }
+      ]
+    },
+    {
+      "id": "work_business_subs",
+      "category_id": "work_business",
+      "category_dua": {
+        "arabic_text": "اللَّهُمَّ إِنِّي أَسْأَلُكَ رِزْقًا طَيِّبًا، وَعِلْمًا نَافِعًا، وَعَمَلًا مُتَقَبَّلًا",
+        "reference": "Ibn Majah 925",
+        "description": "Main dua for work and business"
+      },
+      "subcategories": [
+        {
+          "id": "work_success",
+          "name": "Work Success",
+          "reference": "Tirmidhi 3489",
+          "description": "Dua for success in work",
+          "arabic_text": "اللَّهُمَّ إِنِّي أَسْأَلُكَ رِزْقًا طَيِّبًا، وَعِلْمًا نَافِعًا، وَعَمَلًا مُتَقَبَّلًا"
+        },
+        {
+          "id": "business_barakah",
+          "name": "Business Barakah",
+          "reference": "Ibn Majah 2146",
+          "description": "Dua for blessing in business",
+          "arabic_text": "اللَّهُمَّ بَارِكْ لَنَا فِي بَيْعِنَا"
+        },
+        {
+          "id": "debt_payment",
+          "name": "Debt Payment",
+          "reference": "Muslim 2713",
+          "description": "Dua for paying off debts",
+          "arabic_text": "اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ"
+        },
+        {
+          "id": "honest_dealings",
+          "name": "Honest Dealings",
+          "reference": "Bukhari 2086",
+          "description": "Dua for honest business dealings",
+          "arabic_text": "اللَّهُمَّ اجْعَلْ رِزْقِي فِي التِّجَارَةِ"
+        },
+        {
+          "id": "workplace_harmony",
+          "name": "Workplace Harmony",
+          "reference": "Abu Dawud 5095",
+          "description": "Dua for harmony at workplace",
+          "arabic_text": "اللَّهُمَّ يَسِّرْ لِي أَمْرِي"
+        }
+      ]
+    },
+    {
+      "id": "special_times_subs",
+      "category_id": "special_times",
+      "category_dua": {
+        "arabic_text": "اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي",
+        "reference": "Tirmidhi 3513",
+        "description": "Main dua for special occasions"
+      },
+      "subcategories": [
+        {
+          "id": "start_of_ramadan",
+          "name": "Start of Ramadan",
+          "reference": "Abu Dawud 2341",
+          "description": "Dua at the start of Ramadan",
+          "arabic_text": "اللَّهُمَّ بَارِكْ لَنَا فِي رَجَبٍ وَشَعْبَانَ وَبَلِّغْنَا رَمَضَانَ"
+        },
+        {
+          "id": "laylatul_qadr",
+          "name": "Laylatul Qadr",
+          "reference": "Bukhari 1145",
+          "description": "Dua for Laylatul Qadr",
+          "arabic_text": "اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي"
+        },
+        {
+          "id": "eid_prayer",
+          "name": "Eid Prayer",
+          "reference": "Muslim 885",
+          "description": "Dua for Eid",
+          "arabic_text": "اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، لَا إِلَهَ إِلَّا اللَّهُ"
+        },
+        {
+          "id": "islamic_new_year",
+          "name": "Islamic New Year",
+          "reference": "Tirmidhi 3451",
+          "description": "Dua for new Islamic year",
+          "arabic_text": "اللَّهُمَّ أَنْتَ الْأَبَدُ الَّذِي لَا نَفَادَ لَكَ"
+        },
+        {
+          "id": "friday_special_times",
+          "name": "Friday Special Times",
+          "reference": "Abu Dawud 1046",
+          "description": "Dua for special times on Friday",
+          "arabic_text": "اللَّهُمَّ اغْفِرْ لِي وَارْحَمْنِي وَاهْدِنِي وَعَافِنِي وَارْزُقْنِي"
+        }
+      ]
+    },
+    {
+      "id": "quran_dhikr_subs",
+      "category_id": "quran_dhikr",
+      "category_dua": {
+        "arabic_text": "رَبِّ يَسِّرْ وَلَا تُعَسِّرْ، رَبِّ تَمِّمْ بِالْخَيْرِ",
+        "reference": "Bukhari 6365",
+        "description": "Main dua for Quran recitation"
+      },
+      "subcategories": [
+        {
+          "id": "before_quran",
+          "name": "Before Quran",
+          "reference": "Muslim 780",
+          "description": "Dua before reciting Quran",
+          "arabic_text": "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ"
+        },
+        {
+          "id": "after_quran",
+          "name": "After Quran",
+          "reference": "Abu Dawud 1461",
+          "description": "Dua after reciting Quran",
+          "arabic_text": "اللَّهُمَّ ارْحَمْنِي بِالْقُرْآنِ"
+        },
+        {
+          "id": "quran_memorization",
+          "name": "Quran Memorization",
+          "reference": "Bukhari 5027",
+          "description": "Dua for memorizing Quran",
+          "arabic_text": "اللَّهُمَّ عَلِّمْنِي مِنْهُ مَا جَهِلْتُ"
+        },
+        {
+          "id": "understanding_quran",
+          "name": "Understanding Quran",
+          "reference": "Tirmidhi 3599",
+          "description": "Dua for understanding Quran",
+          "arabic_text": "رَبِّ اشْرَحْ لِي صَدْرِي"
+        },
+        {
+          "id": "daily_dhikr",
+          "name": "Daily Dhikr",
+          "reference": "Muslim 2691",
+          "description": "Essential daily remembrance",
+          "arabic_text": "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ"
+        }
+      ]
+    },
+    {
+      "id": "difficult_times_subs",
+      "category_id": "difficult_times",
+      "category_dua": {
+        "arabic_text": "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ",
+        "reference": "Bukhari 4563",
+        "description": "Main dua for difficult times"
+      },
+      "subcategories": [
+        {
+          "id": "during_hardship",
+          "name": "During Hardship",
+          "reference": "Bukhari 6345",
+          "description": "Dua during difficult times",
+          "arabic_text": "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ"
+        },
+        {
+          "id": "during_calamity",
+          "name": "During Calamity",
+          "reference": "Muslim 918",
+          "description": "Dua when facing calamity",
+          "arabic_text": "إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ"
+        },
+        {
+          "id": "financial_difficulty",
+          "name": "Financial Difficulty",
+          "reference": "Abu Dawud 1555",
+          "description": "Dua during financial hardship",
+          "arabic_text": "اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ"
+        },
+        {
+          "id": "emotional_distress",
+          "name": "Emotional Distress",
+          "reference": "Bukhari 6369",
+          "description": "Dua during emotional pain",
+          "arabic_text": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ"
+        },
+        {
+          "id": "seeking_help",
+          "name": "Seeking Help",
+          "reference": "Tirmidhi 3524",
+          "description": "Dua for seeking Allah's help",
+          "arabic_text": "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ"
+        }
+      ]
+    },
+    {
+      "id": "social_relations_subs",
+      "category_id": "social_relations",
+      "category_dua": {
+        "arabic_text": "السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ",
+        "reference": "Abu Dawud 5176",
+        "description": "Main dua for social interactions"
+      },
+      "subcategories": [
+        {
+          "id": "meeting_others",
+          "name": "Meeting Others",
+          "reference": "Abu Dawud 5176",
+          "description": "Dua when meeting others",
+          "arabic_text": "السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ"
+        },
+        {
+          "id": "parting_others",
+          "name": "Parting Others",
+          "reference": "Abu Dawud 5177",
+          "description": "Dua when parting from others",
+          "arabic_text": "أَسْتَوْدِعُ اللَّهَ دِينَكَ وَأَمَانَتَكَ"
+        },
+        {
+          "id": "reconciliation",
+          "name": "Reconciliation",
+          "reference": "Bukhari 6035",
+          "description": "Dua for reconciling relationships",
+          "arabic_text": "اللَّهُمَّ أَصْلِحْ ذَاتَ بَيْنِنَا"
+        },
+        {
+          "id": "good_character",
+          "name": "Good Character",
+          "reference": "Muslim 2721",
+          "description": "Dua for good character",
+          "arabic_text": "اللَّهُمَّ اهْدِنِي لِأَحْسَنِ الْأَخْلَاقِ"
+        },
+        {
+          "id": "avoiding_conflict",
+          "name": "Avoiding Conflict",
+          "reference": "Abu Dawud 5094",
+          "description": "Dua for avoiding disputes",
+          "arabic_text": "اللَّهُمَّ جَنِّبْنَا الْفِتَنَ"
+        }
+      ]
+    },
+    {
+      "id": "weather_related_subs",
+      "category_id": "weather_related",
+      "category_dua": {
+        "arabic_text": "اللَّهُمَّ حَوَالَيْنَا وَلَا عَلَيْنَا، اللَّهُمَّ عَلَى الآكَامِ وَالظِّرَابِ وَبُطُونِ الْأَوْدِيَةِ وَمَنَابِتِ الشَّجَرِ",
+        "reference": "Bukhari 1014",
+        "description": "Main dua for weather conditions"
+      },
+      "subcategories": [
+        {
+          "id": "when_it_rains",
+          "name": "When It Rains",
+          "reference": "Bukhari 1032",
+          "description": "Dua when it rains",
+          "arabic_text": "اللَّهُمَّ صَيِّباً نَافِعاً"
+        },
+        {
+          "id": "thunder_lightning",
+          "name": "Thunder & Lightning",
+          "reference": "Tirmidhi 3450",
+          "description": "Dua during thunder and lightning",
+          "arabic_text": "سُبْحَانَ الَّذِي يُسَبِّحُ الرَّعْدُ بِحَمْدِهِ"
+        },
+        {
+          "id": "strong_winds",
+          "name": "Strong Winds",
+          "reference": "Abu Dawud 5097",
+          "description": "Dua during strong winds",
+          "arabic_text": "اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّهَا"
+        },
+        {
+          "id": "seeking_rain",
+          "name": "Seeking Rain",
+          "reference": "Bukhari 1014",
+          "description": "Dua for seeking rain",
+          "arabic_text": "اللَّهُمَّ اسْقِنَا غَيْثاً مُغِيثاً"
+        },
+        {
+          "id": "extreme_weather",
+          "name": "Extreme Weather",
+          "reference": "Abu Dawud 5099",
+          "description": "Dua during extreme weather",
+          "arabic_text": "اللَّهُمَّ لَا تَقْتُلْنَا بِغَضَبِكَ"
+        }
+      ]
+    },
+    {
+      "id": "daily_activities_subs",
+      "category_id": "daily_activities",
+      "category_dua": {
+        "arabic_text": "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ",
+        "reference": "Abu Dawud 5088",
+        "description": "Main dua for daily activities"
+      },
+      "subcategories": [
+        {
+          "id": "starting_activity",
+          "name": "Starting Activity",
+          "reference": "Bukhari 6386",
+          "description": "Dua before starting any activity",
+          "arabic_text": "بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلَى اللَّهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ"
+        },
+        {
+          "id": "dressing_undressing",
+          "name": "Dressing/Undressing",
+          "reference": "Abu Dawud 4023",
+          "description": "Dua when putting on or taking off clothes",
+          "arabic_text": "بِسْمِ اللَّهِ الَّذِي لَا إِلَهَ إِلَّا هُوَ"
+        },
+        {
+          "id": "mirror_looking",
+          "name": "Looking in Mirror",
+          "reference": "Tirmidhi 3419",
+          "description": "Dua when looking in the mirror",
+          "arabic_text": "اللَّهُمَّ كَمَا حَسَّنْتَ خَلْقِي فَحَسِّنْ خُلُقِي"
+        },
+        {
+          "id": "market_shopping",
+          "name": "Market/Shopping",
+          "reference": "Tirmidhi 3428",
+          "description": "Dua when entering the market",
+          "arabic_text": "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، يُحْيِي وَيُمِيتُ"
+        },
+        {
+          "id": "daily_errands",
+          "name": "Daily Errands",
+          "reference": "Muslim 2709",
+          "description": "Dua for protection during daily tasks",
+          "arabic_text": "بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ"
+        }
+      ]
+    },
+    {
+      "id": "entering_leaving_subs",
+      "category_id": "entering_leaving",
+      "category_dua": {
+        "arabic_text": "بِسْمِ اللَّهِ وَلَجْنَا، وَبِسْمِ اللَّهِ خَرَجْنَا، وَعَلَى رَبِّنَا تَوَكَّلْنَا",
+        "reference": "Abu Dawud 5096",
+        "description": "Main dua for entering and leaving places"
+      },
+      "subcategories": [
+        {
+          "id": "entering_home",
+          "name": "Entering Home",
+          "reference": "Muslim 2018",
+          "description": "Dua when entering home",
+          "arabic_text": "بِسْمِ اللَّهِ وَلَجْنَا، وَبِسْمِ اللَّهِ خَرَجْنَا، وَعَلَى رَبِّنَا تَوَكَّلْنَا"
+        },
+        {
+          "id": "leaving_home",
+          "name": "Leaving Home",
+          "reference": "Abu Dawud 5095",
+          "description": "Dua when leaving home",
+          "arabic_text": "بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلَى اللَّهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ"
+        },
+        {
+          "id": "entering_masjid",
+          "name": "Entering Masjid",
+          "reference": "Muslim 713",
+          "description": "Dua when entering the mosque",
+          "arabic_text": "اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ"
+        },
+        {
+          "id": "leaving_masjid",
+          "name": "Leaving Masjid",
+          "reference": "Muslim 713",
+          "description": "Dua when leaving the mosque",
+          "arabic_text": "اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ"
+        },
+        {
+          "id": "entering_new_place",
+          "name": "Entering New Place",
+          "reference": "Muslim 2708",
+          "description": "Dua when entering a new place",
+          "arabic_text": "اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ هَذِهِ الْقَرْيَةِ وَخَيْرَ أَهْلِهَا، وَأَعُوذُ بِكَ مِنْ شَرِّهَا وَشَرِّ أَهْلِهَا"
+        }
+      ]
+    },
+    {
+      "id": "marriage_relationship_subs",
+      "category_id": "marriage_relationship",
+      "category_dua": {
+        "arabic_text": "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا",
+        "reference": "Quran 25:74",
+        "description": "Main dua for marriage and relationships"
+      },
+      "subcategories": [
+        {
+          "id": "seeking_spouse",
+          "name": "Seeking Spouse",
+          "reference": "Abu Dawud 2160",
+          "description": "Dua for finding a righteous spouse",
+          "arabic_text": "رَبِّ هَبْ لِي مِنْ لَدُنْكَ ذُرِّيَّةً طَيِّبَةً"
+        },
+        {
+          "id": "marriage_blessing",
+          "name": "Marriage Blessing",
+          "reference": "Bukhari 5163",
+          "description": "Dua for blessing in marriage",
+          "arabic_text": "بَارَكَ اللَّهُ لَكَ وَبَارَكَ عَلَيْكَ وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ"
+        },
+        {
+          "id": "spouse_harmony",
+          "name": "Spouse Harmony",
+          "reference": "Abu Dawud 2160",
+          "description": "Dua for harmony between spouses",
+          "arabic_text": "اللَّهُمَّ أَلِّفْ بَيْنَ قُلُوبِنَا"
+        },
+        {
+          "id": "family_unity",
+          "name": "Family Unity",
+          "reference": "Abu Dawud 969",
+          "description": "Dua for family unity",
+          "arabic_text": "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ"
+        },
+        {
+          "id": "relationship_strength",
+          "name": "Relationship Strength",
+          "reference": "Muslim 2699",
+          "description": "Dua for strengthening relationships",
+          "arabic_text": "اللَّهُمَّ اجْعَلْ حُبَّكَ أَحَبَّ إِلَيَّ مِنْ نَفْسِي وَأَهْلِي"
+        }
+      ]
     }
   ]
 } 

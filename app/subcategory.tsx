@@ -8,6 +8,8 @@ import { ThemedView } from '@/components/ThemedView';
 import categoriesData from '@/constants/categories.json';
 import subcategoriesData from '@/constants/subcategories.json';
 
+type IconName = keyof typeof Ionicons.glyphMap;
+
 export default function SubcategoryScreen() {
   const router = useRouter();
   const { categoryId } = useLocalSearchParams();
@@ -15,8 +17,8 @@ export default function SubcategoryScreen() {
   // Find the category details
   const category = categoriesData.categories.find(cat => cat.id === categoryId);
   
-  // Filter subcategories by category
-  const categorySubcategories = subcategoriesData.subcategories.filter(
+  // Find the subcategory group for this category
+  const categorySubcategories = subcategoriesData.subcategories.find(
     subcat => subcat.category_id === categoryId
   );
 
@@ -39,14 +41,14 @@ export default function SubcategoryScreen() {
           </View>
           <View style={styles.categoryInfo}>
             <View style={styles.categoryIcon}>
-              <Ionicons name={category?.icon || 'layers'} size={24} color="white" />
+              <Ionicons name={(category?.icon || 'layers-outline') as IconName} size={24} color="white" />
             </View>
             <View style={styles.categoryDetails}>
               <ThemedText style={styles.categoryCount}>
-                {categorySubcategories.length} Subcategories
+                {categorySubcategories?.subcategories?.length || 0} Dua's
               </ThemedText>
               <ThemedText style={styles.categoryDescription}>
-                Collection of duas for {category?.name.toLowerCase()}
+                Collection of duas for {category?.name?.toLowerCase() || 'this category'}
               </ThemedText>
             </View>
           </View>
@@ -59,14 +61,14 @@ export default function SubcategoryScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {categorySubcategories.map((item, index) => (
+        {categorySubcategories?.subcategories?.map((subcategory) => (
           <TouchableOpacity 
-            key={item.id} 
+            key={subcategory.id} 
             style={styles.listItem} 
             activeOpacity={0.7}
             onPress={() => router.push({
               pathname: '/dua',
-              params: { subcategoryId: item.id }
+              params: { subcategoryId: subcategory.id }
             })}
           >
             <View style={styles.itemContent}>
@@ -76,9 +78,9 @@ export default function SubcategoryScreen() {
                 </View>
               </View>
               <View style={styles.textContainer}>
-                <ThemedText style={styles.itemText}>{item.name}</ThemedText>
+                <ThemedText style={styles.itemText}>{subcategory.name}</ThemedText>
                 <ThemedText style={styles.itemDescription}>
-                  Essential duas for {item.name.toLowerCase()}
+                  Essential duas for {subcategory.name?.toLowerCase() || 'this dua'}
                 </ThemedText>
               </View>
               <View style={styles.rightContainer}>
@@ -90,7 +92,7 @@ export default function SubcategoryScreen() {
                 <Ionicons name="book-outline" size={14} color="#88A398" />
               </View>
               <ThemedText style={styles.referenceText}>
-                References: Bukhari, Muslim, Abu Dawud
+                Reference: {subcategory.reference}
               </ThemedText>
             </View>
           </TouchableOpacity>

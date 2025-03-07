@@ -1,79 +1,124 @@
 {
   "categories": [
     {
-      "id": "all_duas",
-      "name": "All Duas",
-      "icon": "hand-left-outline"
+      "id": "daily_worship",
+      "name": "Daily Worship",
+      "icon": "pray-outline",
+      "description": "Essential duas for daily prayers, Ramadan, and worship activities"
     },
     {
-      "id": "favorite_duas",
-      "name": "Favourite Duas",
-      "icon": "star-outline"
+      "id": "morning_evening",
+      "name": "Morning & Evening",
+      "icon": "partly-sunny-outline",
+      "description": "Protection duas and adhkar for morning and evening"
     },
     {
-      "id": "ablution",
-      "name": "Ablution",
-      "icon": "water-outline"
+      "id": "home_family",
+      "name": "Home & Family",
+      "icon": "home-outline",
+      "description": "Duas for home, parents, children and family matters"
+    },
+    {
+      "id": "daily_activities",
+      "name": "Daily Activities",
+      "icon": "time-outline",
+      "description": "Duas for various daily activities and routines"
+    },
+    {
+      "id": "travel_journey",
+      "name": "Travel & Journey",
+      "icon": "car-outline",
+      "description": "Duas for travel safety and journeys"
+    },
+    {
+      "id": "forgiveness",
+      "name": "Seeking Forgiveness",
+      "icon": "heart-outline",
+      "description": "Duas for repentance and seeking Allah's forgiveness"
     },
     {
       "id": "protection",
       "name": "Protection",
-      "icon": "shield-checkmark-outline"
+      "icon": "shield-checkmark-outline",
+      "description": "Duas for protection from evil eye, harm and difficulties"
     },
     {
-      "id": "against_evil",
-      "name": "Against Evil",
-      "icon": "close-circle-outline"
+      "id": "health_wellbeing",
+      "name": "Health & Wellbeing",
+      "icon": "medical-outline",
+      "description": "Duas for good health, healing and recovery"
     },
     {
-      "id": "all_time",
-      "name": "All Time",
-      "icon": "time-outline"
+      "id": "success_guidance",
+      "name": "Success & Guidance",
+      "icon": "compass-outline",
+      "description": "Duas for success and seeking Allah's guidance"
     },
     {
-      "id": "allahs_mercy",
-      "name": "Allah's Mercy",
-      "icon": "heart-outline"
+      "id": "food_sustenance",
+      "name": "Food & Sustenance",
+      "icon": "restaurant-outline",
+      "description": "Duas related to food and seeking halal provision"
     },
     {
-      "id": "children",
-      "name": "Children",
-      "icon": "people-outline"
+      "id": "stress_anxiety",
+      "name": "Stress & Anxiety",
+      "icon": "leaf-outline",
+      "description": "Duas for peace of mind and removing worries"
     },
     {
-      "id": "deceased",
-      "name": "Deceased",
-      "icon": "heart-half-outline"
+      "id": "sleep_wakeup",
+      "name": "Sleep & Wake up",
+      "icon": "moon-outline",
+      "description": "Duas for before sleeping and after waking up"
     },
     {
-      "id": "decision",
-      "name": "Decision",
-      "icon": "sunny-outline"
+      "id": "knowledge_study",
+      "name": "Knowledge & Study",
+      "icon": "book-outline",
+      "description": "Duas for seeking knowledge and better understanding"
     },
     {
-      "id": "food",
-      "name": "Food",
-      "icon": "restaurant-outline"
+      "id": "marriage_relationship",
+      "name": "Marriage & Relations",
+      "icon": "people-outline",
+      "description": "Duas for marriage, spouse and maintaining good relations"
     },
     {
-      "id": "travel",
-      "name": "Travel",
-      "icon": "car-outline"
+      "id": "work_business",
+      "name": "Work & Business",
+      "icon": "briefcase-outline",
+      "description": "Duas for work, business and seeking halal earnings"
     },
     {
-      "id": "health",
-      "name": "Health",
-      "icon": "medical-outline"
+      "id": "difficult_times",
+      "name": "Difficult Times",
+      "icon": "umbrella-outline",
+      "description": "Duas for facing hardships and difficulties"
     },
     {
-      "id": "home",
-      "name": "Home",
-      "icon": "home-outline"
+      "id": "quran_dhikr",
+      "name": "Quran & Dhikr",
+      "icon": "book-outline",
+      "description": "Duas for recitation and remembrance of Allah"
     },
     {
-      "id": "forgiveness",
-      "name": "Forgiveness",
-      "icon": "hand-right-outline"
+      "id": "entering_leaving",
+      "name": "Entering & Leaving",
+      "icon": "enter-outline",
+      "description": "Duas for entering/leaving home, masjid, and places"
+    },
+    {
+      "id": "morning_adhkar",
+      "name": "Morning Adhkar",
+      "icon": "sunny-outline",
+      "description": "Essential morning remembrance and protection duas"
+    },
+    {
+      "id": "evening_adhkar",
+      "name": "Evening Adhkar",
+      "icon": "moon-outline",
+      "description": "Essential evening remembrance and protection duas"
     }
   ]
 } 

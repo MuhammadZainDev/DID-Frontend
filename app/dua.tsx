@@ -4,11 +4,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Audio } from 'expo-av';
+import { Text } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import subcategoriesData from '@/constants/subcategories.json';
-import duasData from '@/constants/duas.json';
+import duasData from '@/constants/dua.json';
 
 export default function DuaScreen() {
   const router = useRouter();
@@ -20,7 +21,9 @@ export default function DuaScreen() {
   const [playbackDuration, setPlaybackDuration] = useState(0);
   
   // Find the subcategory details
-  const subcategory = subcategoriesData.subcategories.find(subcat => subcat.id === subcategoryId);
+  const subcategory = subcategoriesData.subcategories
+    .flatMap(category => category.subcategories)
+    .find(subcat => subcat.id === subcategoryId);
   
   // Filter duas by subcategory
   const subcategoryDuas = duasData.duas.filter(dua => dua.subcategory_id === subcategoryId);
@@ -177,7 +180,7 @@ export default function DuaScreen() {
         {subcategoryDuas.map((dua, index) => (
           <View key={dua.id} style={styles.duaCard}>
             <View style={styles.duaHeader}>
-              <ThemedText style={styles.duaTitle}>{dua.title}</ThemedText>
+              <ThemedText style={styles.duaTitle}>{dua.name}</ThemedText>
               <TouchableOpacity style={styles.bookmarkButton}>
                 <Ionicons name="bookmark-outline" size={20} color="#0E8A3E" />
               </TouchableOpacity>
@@ -196,6 +199,12 @@ export default function DuaScreen() {
             <View style={styles.referenceContainer}>
               <ThemedText style={styles.referenceText}>Reference: {dua.reference}</ThemedText>
             </View>
+            
+            {dua.count && (
+              <View style={styles.countContainer}>
+                <ThemedText style={styles.countText}>Recite: {dua.count}</ThemedText>
+              </View>
+            )}
             
             {renderActionButtons(dua, index)}
           </View>
@@ -319,5 +328,15 @@ const styles = StyleSheet.create({
   },
   bottomPadding: {
     height: 20,
+  },
+  countContainer: {
+    marginTop: 8,
+    padding: 8,
+    backgroundColor: '#E8F5ED',
+    borderRadius: 4,
+  },
+  countText: {
+    fontSize: 14,
+    color: '#2C3E50',
   },
 }); 
