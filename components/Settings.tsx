@@ -15,7 +15,7 @@ const SettingItem = ({ icon, title, subtitle, onPress }: { icon: string, title: 
   </TouchableOpacity>
 );
 
-export default function SettingsScreen() {
+export default function Settings() {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.section}>
