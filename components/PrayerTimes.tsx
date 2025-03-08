@@ -18,7 +18,6 @@ const formatTime = (time: string) => {
 export default function PrayerTimes() {
   const { prayerTimes, loading, error, nextPrayer } = usePrayerTimes();
 
-  console.log('Prayer Times Component:', { prayerTimes, nextPrayer, loading, error });
 
   if (loading) {
     return (
