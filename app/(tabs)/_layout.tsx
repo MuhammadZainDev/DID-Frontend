@@ -41,6 +41,13 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index"
           options={{
+            title: 'Home',
+            tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="prayers"
+          options={{
             title: 'Prayer Times',
             tabBarIcon: ({ color }) => <Ionicons name="time-outline" size={24} color={color} />,
           }}
