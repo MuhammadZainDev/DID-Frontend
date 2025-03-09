@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, ActivityIndicator, StyleSheet, TouchableOpacity, RefreshControl, ScrollView, Dimensions } from 'react-native';
 import { usePrayerTimes } from '@/hooks/usePrayerTimes';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../context/LanguageContext';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -17,7 +18,7 @@ const formatTime = (time: string) => {
 
 export default function PrayerTimes() {
   const { prayerTimes, loading, error, nextPrayer } = usePrayerTimes();
-
+  const { translations } = useLanguage();
 
   if (loading) {
     return (
@@ -30,7 +31,7 @@ export default function PrayerTimes() {
   if (error) {
     return (
       <View style={styles.container}>
-        <Text style={styles.errorText}>Error loading prayer times</Text>
+        <Text style={styles.errorText}>{translations['prayer.error_loading']}</Text>
       </View>
     );
   }
@@ -56,13 +57,15 @@ export default function PrayerTimes() {
         {prayerTimes.date.gregorian.day} {prayerTimes.date.gregorian.month.en} {prayerTimes.date.gregorian.year}
       </Text>
 
-      <Text style={styles.nextPrayerLabel}>Next Prayer</Text>
+      <Text style={styles.nextPrayerLabel}>{translations['prayer.nextPrayer']}</Text>
       
       <View style={styles.prayerRow}>
-        <Text style={styles.prayerName}>{nextPrayer.name}</Text>
+        <Text style={styles.prayerName}>
+          {translations[`prayer.${nextPrayer.name.toLowerCase()}`] || nextPrayer.name}
+        </Text>
         <View style={styles.timeContainer}>
           <Text style={styles.prayerTime}>{formatTime(nextPrayer.time)}</Text>
-          <Text style={styles.remainingTime}>{nextPrayer.remaining} remaining</Text>
+          <Text style={styles.remainingTime}>{nextPrayer.remaining} {translations['prayer.remaining']}</Text>
         </View>
       </View>
 
@@ -74,7 +77,7 @@ export default function PrayerTimes() {
         <View style={styles.prayerTimeRow}>
           <View style={styles.prayerLabel}>
             <Ionicons name="sunny-outline" size={18} color="#666666" />
-            <Text style={styles.prayerText}>Sunrise:</Text>
+            <Text style={styles.prayerText}>{translations['prayer.sunrise']}:</Text>
           </View>
           <Text style={styles.timeText}>{formatTime(prayerTimes.timings.Sunrise)}</Text>
         </View>
@@ -82,7 +85,7 @@ export default function PrayerTimes() {
         <View style={styles.prayerTimeRow}>
           <View style={styles.prayerLabel}>
             <Ionicons name="moon-outline" size={18} color="#666666" />
-            <Text style={styles.prayerText}>Maghrib:</Text>
+            <Text style={styles.prayerText}>{translations['prayer.maghrib']}:</Text>
           </View>
           <Text style={styles.timeText}>{formatTime(prayerTimes.timings.Maghrib)}</Text>
         </View>

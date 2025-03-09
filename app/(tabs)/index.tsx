@@ -9,11 +9,13 @@ import { ThemedView } from '@/components/ThemedView';
 import PrayerTimes from '@/components/PrayerTimes';
 import Settings from '@/components/Settings';
 import categoriesData from '@/constants/categories.json';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function HomeScreen() {
   const router = useRouter();
   const [showSettings, setShowSettings] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const { translations } = useLanguage();
 
   useEffect(() => {
     if (showSettings) {
@@ -42,7 +44,7 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <SafeAreaView>
             <View style={styles.headerTop}>
-              <ThemedText style={styles.title}>Duas & Adhkar</ThemedText>
+              <ThemedText style={styles.title}>{translations['app.name']}</ThemedText>
               <View style={styles.headerIcons}>
                 <TouchableOpacity 
                   style={styles.iconButton}
@@ -61,7 +63,7 @@ export default function HomeScreen() {
             <View style={styles.searchBar}>
               <Ionicons name="search-outline" size={20} color="#88A398" style={styles.searchIcon} />
               <TextInput 
-                placeholder="Search for duas..."
+                placeholder={translations['home.search_placeholder']}
                 placeholderTextColor="#88A398"
                 style={styles.searchInput}
               />
@@ -91,7 +93,9 @@ export default function HomeScreen() {
                 <View style={styles.iconCircle}>
                   <Ionicons name={item.icon as any} size={24} color="#0E8A3E" />
                 </View>
-                <ThemedText style={styles.gridLabel}>{item.name}</ThemedText>
+                <ThemedText style={styles.gridLabel}>
+                  {translations[`category.${item.id}`] || item.name}
+                </ThemedText>
               </TouchableOpacity>
             ))}
           </View>
@@ -134,7 +138,7 @@ export default function HomeScreen() {
               >
                 <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
               </TouchableOpacity>
-              <ThemedText style={styles.modalTitle}>Settings</ThemedText>
+              <ThemedText style={styles.modalTitle}>{translations['settings.title']}</ThemedText>
             </View>
             <Settings />
           </Animated.View>

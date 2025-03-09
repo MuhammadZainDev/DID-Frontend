@@ -143,8 +143,8 @@ export function usePrayerTimes() {
       setCurrentPrayer(current.name);
       const remaining = getTimeRemaining(next.date);
       setNextPrayer({
-        name: next.name,
-        time: convertTo12Hour(next.time),
+        name: current.name,
+        time: convertTo12Hour(current.time),
         remaining: remaining.timeString,
         totalSeconds: remaining.totalSeconds
       });

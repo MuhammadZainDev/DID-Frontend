@@ -4,9 +4,11 @@ import { Platform, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function TabLayout() {
   const router = useRouter();
+  const { translations } = useLanguage();
 
   return (
     <SafeAreaProvider>
@@ -45,28 +47,28 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: 'Home',
+            title: translations['tab.home'],
             tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
           }}
         />
         <Tabs.Screen
           name="prayers"
           options={{
-            title: 'Prayer Times',
+            title: translations['tab.prayerTimes'],
             tabBarIcon: ({ color }) => <Ionicons name="time-outline" size={24} color={color} />,
           }}
         />
         <Tabs.Screen
           name="favorites"
           options={{
-            title: 'Favorites',
+            title: translations['tab.favorites'],
             tabBarIcon: ({ color }) => <Ionicons name="bookmark-outline" size={24} color={color} />,
           }}
         />
         <Tabs.Screen
           name="settings"
           options={{
-            title: 'Settings',
+            title: translations['tab.settings'],
             headerShown: true,
             headerStyle: {
               backgroundColor: '#0E8A3E',

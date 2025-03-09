@@ -6,6 +6,7 @@ import { usePrayerTimes } from '@/hooks/usePrayerTimes';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
+import { useLanguage } from '../../context/LanguageContext';
 
 // Configure notifications
 Notifications.setNotificationHandler({
@@ -20,6 +21,7 @@ export default function PrayerTimesScreen() {
   const { prayerTimes, loading, error, nextPrayer, refreshPrayerTimes } = usePrayerTimes();
   const [location, setLocation] = useState('Loading location...');
   const [notificationsScheduled, setNotificationsScheduled] = useState(false);
+  const { translations } = useLanguage();
 
   useEffect(() => {
     async function getLocationName() {
@@ -81,12 +83,12 @@ export default function PrayerTimesScreen() {
         await Notifications.cancelAllScheduledNotificationsAsync();
         
         const prayers = [
-          { name: 'Fajr', time: prayerTimes.timings.Fajr },
-          { name: 'Sunrise', time: prayerTimes.timings.Sunrise },
-          { name: 'Dhuhr', time: prayerTimes.timings.Dhuhr },
-          { name: 'Asr', time: prayerTimes.timings.Asr },
-          { name: 'Maghrib', time: prayerTimes.timings.Maghrib },
-          { name: 'Isha', time: prayerTimes.timings.Isha }
+          { name: translations['prayer.fajr'], time: prayerTimes.timings.Fajr },
+          { name: translations['prayer.sunrise'], time: prayerTimes.timings.Sunrise },
+          { name: translations['prayer.dhuhr'], time: prayerTimes.timings.Dhuhr },
+          { name: translations['prayer.asr'], time: prayerTimes.timings.Asr },
+          { name: translations['prayer.maghrib'], time: prayerTimes.timings.Maghrib },
+          { name: translations['prayer.isha'], time: prayerTimes.timings.Isha }
         ];
         
         const now = new Date();
@@ -98,7 +100,7 @@ export default function PrayerTimesScreen() {
           const prayer = prayers[i];
           
           // Skip Sunrise as it's not a prayer time
-          if (prayer.name === 'Sunrise') continue;
+          if (prayer.name === translations['prayer.sunrise']) continue;
           
           // Convert prayer time to Date object
           const prayerDate = getPrayerTimeAsDate(prayer.time);
@@ -111,8 +113,8 @@ export default function PrayerTimesScreen() {
           if (fifteenMinutesBefore > now) {
             // Schedule 15 minutes before notification
             await scheduleNotification(
-              `${prayer.name} Prayer Reminder`,
-              `15 minutes left until ${prayer.name} prayer time`,
+              `${prayer.name} ${translations['prayer.time']}`,
+              `15 ${translations['prayer.remaining']} ${prayer.name} ${translations['prayer.time']}`,
               fifteenMinutesBefore
             );
             console.log(`Scheduled 15-min reminder for ${prayer.name} at ${fifteenMinutesBefore.toLocaleTimeString()}`);
@@ -121,8 +123,8 @@ export default function PrayerTimesScreen() {
           // Schedule prayer time start notification
           if (prayerDate > now) {
             await scheduleNotification(
-              `${prayer.name} Prayer Time`,
-              `It's time for ${prayer.name} prayer`,
+              `${prayer.name} ${translations['prayer.time']}`,
+              `${translations['prayer.time']} ${prayer.name}`,
               prayerDate
             );
             console.log(`Scheduled start time notification for ${prayer.name} at ${prayerDate.toLocaleTimeString()}`);
@@ -137,7 +139,7 @@ export default function PrayerTimesScreen() {
     }
     
     schedulePrayerNotifications();
-  }, [prayerTimes, notificationsScheduled]);
+  }, [prayerTimes, notificationsScheduled, translations]);
 
   // Helper function to convert prayer time string to Date object
   const getPrayerTimeAsDate = (timeStr: string): Date => {
@@ -218,7 +220,9 @@ export default function PrayerTimesScreen() {
             <View style={styles.bannerContent}>
               <Text style={styles.locationText}>{location}</Text>
               <View style={styles.nextPrayerInfo}>
-                <Text style={styles.nextPrayerName}>{nextPrayer.name}</Text>
+                <Text style={styles.nextPrayerName}>
+                  {translations[`prayer.${nextPrayer.name.toLowerCase()}`] || nextPrayer.name}
+                </Text>
                 <Text style={styles.nextPrayerTime}>{nextPrayer.time}</Text>
                 <Text style={styles.remainingTime}>{nextPrayer.remaining}</Text>
               </View>
@@ -235,37 +239,37 @@ export default function PrayerTimesScreen() {
         {/* Prayer Times List */}
         <View style={styles.prayerTimesContainer}>
           <PrayerTimeItem 
-            name="Fajr" 
+            name={translations['prayer.fajr']} 
             time={prayerTimes.timings.Fajr} 
             icon="sunny-outline" 
             isActive={nextPrayer.name === 'Fajr'}
           />
           <PrayerTimeItem 
-            name="Sunrise" 
+            name={translations['prayer.sunrise']} 
             time={prayerTimes.timings.Sunrise} 
             icon="sunny-outline" 
             isActive={false}
           />
           <PrayerTimeItem 
-            name="Dhuhr" 
+            name={translations['prayer.dhuhr']} 
             time={prayerTimes.timings.Dhuhr} 
             icon="sunny-outline" 
             isActive={nextPrayer.name === 'Dhuhr'}
           />
           <PrayerTimeItem 
-            name="Asr" 
+            name={translations['prayer.asr']} 
             time={prayerTimes.timings.Asr} 
             icon="sunny-outline" 
             isActive={nextPrayer.name === 'Asr'}
           />
           <PrayerTimeItem 
-            name="Maghrib" 
+            name={translations['prayer.maghrib']} 
             time={prayerTimes.timings.Maghrib} 
             icon="partly-sunny-outline" 
             isActive={nextPrayer.name === 'Maghrib'}
           />
           <PrayerTimeItem 
-            name="Isha" 
+            name={translations['prayer.isha']} 
             time={prayerTimes.timings.Isha} 
             icon="cloudy-night-outline" 
             isActive={nextPrayer.name === 'Isha'}

@@ -136,6 +136,13 @@ export default function Login() {
             </View>
 
             <TouchableOpacity 
+              style={styles.forgotPasswordContainer}
+              onPress={() => router.push('/forgot-password')}
+            >
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
               style={[styles.button, !isFormValid() && styles.buttonDisabled]} 
               onPress={handleLogin} 
               disabled={loading || !isFormValid()}
@@ -281,5 +288,14 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+  },
+  forgotPasswordContainer: {
+    alignSelf: 'flex-end',
+    marginVertical: 8,
+  },
+  forgotPasswordText: {
+    color: '#0E8A3E',
+    fontSize: 14,
+    fontWeight: '500',
   },
 }); 
