@@ -28,14 +28,18 @@ export default function TabLayout() {
             backgroundColor: 'white',
             borderTopWidth: 1,
             borderTopColor: '#E5E5E5',
-            height: 85,
-            paddingTop: 12,
-            paddingBottom: Platform.OS === 'ios' ? 28 : 16,
+            height: Platform.OS === 'ios' ? 80 : 65,
+            paddingBottom: Platform.OS === 'ios' ? 25 : 10,
+            paddingTop: 5,
           },
           tabBarLabelStyle: {
             fontSize: 12,
-            marginTop: 4,
+            marginTop: 0,
+            paddingTop: 0,
             fontWeight: '500',
+          },
+          tabBarIconStyle: {
+            marginBottom: 0,
           }
         }}>
         <Tabs.Screen
@@ -53,34 +57,10 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="duas"
+          name="favorites"
           options={{
-            title: 'Duas',
-            headerShown: true,
-            headerStyle: {
-              backgroundColor: '#0E8A3E',
-            },
-            headerRight: () => (
-              <View style={{ 
-                flexDirection: 'row', 
-                marginRight: 16,
-                marginTop: Platform.OS === 'ios' ? -8 : 0
-              }}>
-                <TouchableOpacity 
-                  onPress={() => router.push('/login')}
-                  style={{ marginRight: 16, padding: 4 }}
-                >
-                  <Ionicons name="person-outline" size={24} color="#FFFFFF" />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  onPress={() => router.push('/(tabs)/settings')}
-                  style={{ padding: 4 }}
-                >
-                  <Ionicons name="settings-outline" size={24} color="#FFFFFF" />
-                </TouchableOpacity>
-              </View>
-            ),
-            tabBarIcon: ({ color }) => <Ionicons name="book-outline" size={24} color={color} />,
+            title: 'Favorites',
+            tabBarIcon: ({ color }) => <Ionicons name="bookmark-outline" size={24} color={color} />,
           }}
         />
         <Tabs.Screen
@@ -97,7 +77,7 @@ export default function TabLayout() {
               fontSize: 18,
             },
             headerTintColor: '#FFFFFF',
-            tabBarItemStyle: { display: 'none' },
+            tabBarIcon: ({ color }) => <Ionicons name="settings-outline" size={24} color={color} />,
           }}
         />
       </Tabs>
