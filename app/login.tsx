@@ -15,19 +15,19 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Login() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const router = useRouter();
   const { login } = useAuth();
 
   const isValidEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    return /\S+@\S+\.\S+/.test(email);
   };
 
   const isValidPassword = (password: string) => {
@@ -35,10 +35,7 @@ export default function Login() {
   };
 
   const isFormValid = () => {
-    if (!email || !password) return false;
-    if (!isValidEmail(email)) return false;
-    if (!isValidPassword(password)) return false;
-    return true;
+    return isValidEmail(email) && isValidPassword(password);
   };
 
   const handleLogin = async () => {
@@ -59,7 +56,11 @@ export default function Login() {
     setError('');
     try {
       await login(email, password);
-      router.push('/(tabs)');
+      setEmail('');
+      setPassword('');
+      
+      // Use replace to ensure clean navigation and avoid duplicate screens
+      router.replace('/(tabs)');
     } catch (err: any) {
       setError(err.message || 'Invalid email or password');
     } finally {
@@ -77,6 +78,28 @@ export default function Login() {
     }
   }, [error]);
 
+  useEffect(() => {
+    // Check if user is already logged in
+    const checkAuth = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const userData = await AsyncStorage.getItem('user');
+        if (token && userData) {
+          router.replace('/(tabs)');
+        }
+      } catch (error) {
+        console.error('Error checking auth:', error);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  // This function will be called when back button is pressed
+  const handleBackPress = () => {
+    // Use the correct method name
+    router.replace('/');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -87,6 +110,13 @@ export default function Login() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={handleBackPress}
+          >
+            <Ionicons name="arrow-back" size={24} color="#0E8A3E" />
+          </TouchableOpacity>
+
           <View style={styles.logoContainer}>
             <Logo size={120} color="#0E8A3E" />
           </View>
@@ -187,9 +217,16 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
   },
+  backButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 10 : 20,
+    left: 0,
+    padding: 10,
+    zIndex: 10,
+  },
   logoContainer: {
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: Platform.OS === 'ios' ? 60 : 80,
     marginBottom: 40,
   },
   title: {

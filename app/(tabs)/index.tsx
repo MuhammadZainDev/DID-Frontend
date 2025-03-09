@@ -1,21 +1,41 @@
-import { View, StyleSheet, TextInput, ScrollView, TouchableOpacity, Platform, Modal, Animated } from 'react-native';
+import { View, StyleSheet, TextInput, ScrollView, TouchableOpacity, Platform, Modal, Animated, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import React, { useState, useRef, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import PrayerTimes from '@/components/PrayerTimes';
 import Settings from '@/components/Settings';
+import UserAvatar from '@/components/UserAvatar';
 import categoriesData from '@/constants/categories.json';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function HomeScreen() {
   const router = useRouter();
   const [showSettings, setShowSettings] = useState(false);
+  const [showLogoutMenu, setShowLogoutMenu] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const { translations } = useLanguage();
+  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+
+  useEffect(() => {
+    // Check if user is logged in
+    const checkUser = async () => {
+      try {
+        const userData = await AsyncStorage.getItem('user');
+        if (userData) {
+          setUser(JSON.parse(userData));
+        }
+      } catch (error) {
+        console.error('Error checking user:', error);
+      }
+    };
+
+    checkUser();
+  }, []);
 
   useEffect(() => {
     if (showSettings) {
@@ -37,6 +57,23 @@ export default function HomeScreen() {
     }).start(() => setShowSettings(false));
   };
 
+  const handleLogout = async () => {
+    try {
+      // Clear user data
+      await AsyncStorage.removeItem('user');
+      await AsyncStorage.removeItem('token');
+      
+      // Update local state
+      setUser(null);
+      setShowLogoutMenu(false);
+      
+      // Navigate to login screen
+      router.replace('/login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
   return (
     <>
       <View style={styles.container}>
@@ -48,16 +85,37 @@ export default function HomeScreen() {
               <View style={styles.headerIcons}>
                 <TouchableOpacity 
                   style={styles.iconButton}
-                  onPress={() => router.push('/login')}
+                  onPress={() => {
+                    if (user) {
+                      setShowLogoutMenu(!showLogoutMenu);
+                    } else {
+                      // Use replace instead of push for better navigation
+                      router.replace('/login');
+                    }
+                  }}
                 >
-                  <Ionicons name="person-outline" size={24} color="white" />
+                  {user ? (
+                    <UserAvatar name={user.name} size={32} />
+                  ) : (
+                    <Ionicons name="person-outline" size={24} color="#FFFFFF" />
+                  )}
                 </TouchableOpacity>
-                <TouchableOpacity 
-                  style={styles.iconButton}
-                  onPress={() => setShowSettings(true)}
-                >
-                  <Ionicons name="settings-outline" size={24} color="white" />
-                </TouchableOpacity>
+                {showLogoutMenu && user && (
+                  <View style={styles.logoutMenu}>
+                    <View style={styles.userInfo}>
+                      <Text style={styles.userName}>{user.name}</Text>
+                      <Text style={styles.userEmail}>{user.email}</Text>
+                    </View>
+                    <View style={styles.divider} />
+                    <TouchableOpacity 
+                      style={styles.logoutButton}
+                      onPress={handleLogout}
+                    >
+                      <Ionicons name="log-out-outline" size={20} color="#FF3B30" style={styles.logoutIcon} />
+                      <Text style={styles.logoutText}>Logout</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
               </View>
             </View>
             <View style={styles.searchBar}>
@@ -157,6 +215,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#0E8A3E',
     paddingHorizontal: 16,
     paddingBottom: 16,
+    zIndex: 9999,
+    elevation: 20,
   },
   headerTop: {
     flexDirection: 'row',
@@ -173,10 +233,13 @@ const styles = StyleSheet.create({
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
+    position: 'relative',
+    zIndex: 9999,
   },
   iconButton: {
     padding: 8,
     marginLeft: 8,
+    zIndex: 9999,
   },
   searchBar: {
     backgroundColor: 'white',
@@ -207,6 +270,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    zIndex: 1,
   },
   prayerCardContainer: {
     marginHorizontal: 16,
@@ -282,5 +346,61 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginLeft: 16,
+  },
+  logoutMenu: {
+    position: 'absolute',
+    top: 45,
+    right: 0,
+    backgroundColor: 'white',
+    borderRadius: 16,
+    width: 250,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 20,
+    zIndex: 99999,
+    padding: 8,
+  },
+  userInfo: {
+    padding: 16,
+    alignItems: 'flex-start',
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+    textAlign: 'left',
+  },
+  userEmail: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'left',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#E5E5E5',
+    width: '100%',
+    marginVertical: 8,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    marginHorizontal: 8,
+    borderRadius: 12,
+    backgroundColor: '#FFF1F0',
+  },
+  logoutIcon: {
+    marginRight: 8,
+  },
+  logoutText: {
+    color: '#FF3B30',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
