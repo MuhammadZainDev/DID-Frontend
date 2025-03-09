@@ -30,6 +30,7 @@ export default function ResetPassword() {
   const [error, setError] = useState('');
   const router = useRouter();
   const { translations } = useLanguage();
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const isValidPassword = (password: string) => {
     // Password must be at least 8 characters with at least one number and one letter
@@ -61,7 +62,6 @@ export default function ResetPassword() {
     setError('');
 
     try {
-      // Make API call to reset the password
       const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
         method: 'POST',
         headers: {
@@ -81,16 +81,14 @@ export default function ResetPassword() {
         throw new Error(data.error || 'Failed to reset password');
       }
       
-      Alert.alert(
-        'Password Reset Successful',
-        'Your password has been reset successfully. You can now login with your new password.',
-        [
-          {
-            text: 'Login',
-            onPress: () => router.push('/login')
-          }
-        ]
-      );
+      // Show success message overlay
+      setShowSuccess(true);
+      
+      // Wait for 3 seconds then redirect
+      setTimeout(() => {
+        router.replace('/login');
+      }, 3000);
+      
     } catch (error: any) {
       setError(error.message || 'An error occurred. Please try again.');
     } finally {
@@ -130,6 +128,7 @@ export default function ResetPassword() {
               <TextInput
                 style={styles.input}
                 placeholder="New Password"
+                placeholderTextColor="#999"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -152,6 +151,7 @@ export default function ResetPassword() {
               <TextInput
                 style={styles.input}
                 placeholder="Confirm Password"
+                placeholderTextColor="#999"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry={!showConfirmPassword}
@@ -214,6 +214,18 @@ export default function ResetPassword() {
               )}
             </TouchableOpacity>
           </View>
+
+          {showSuccess && (
+            <View style={styles.successOverlay}>
+              <View style={styles.successContent}>
+                <Ionicons name="checkmark-circle" size={60} color="#0E8A3E" />
+                <Text style={styles.successTitle}>Success!</Text>
+                <Text style={styles.successText}>
+                  Your password has been reset successfully
+                </Text>
+              </View>
+            </View>
+          )}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -323,5 +335,32 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
+  },
+  successOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  successContent: {
+    alignItems: 'center',
+    padding: 20,
+  },
+  successTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#0E8A3E',
+    marginTop: 15,
+    marginBottom: 10,
+  },
+  successText: {
+    fontSize: 16,
+    color: '#666666',
+    textAlign: 'center',
   },
 }); 

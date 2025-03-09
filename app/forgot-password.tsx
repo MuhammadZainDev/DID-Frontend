@@ -105,12 +105,12 @@ export default function ForgotPassword() {
               <Ionicons name="mail-outline" size={20} color="#88A398" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Email Address"
+                placeholder="Enter your email address"
+                placeholderTextColor="#999"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                autoCorrect={false}
               />
             </View>
             
@@ -129,13 +129,6 @@ export default function ForgotPassword() {
               ) : (
                 <Text style={styles.buttonText}>Send Verification Code</Text>
               )}
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={styles.linkButton}
-              onPress={() => router.push('/login')}
-            >
-              <Text style={styles.linkText}>Back to Login</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -225,14 +218,5 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
-  },
-  linkButton: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  linkText: {
-    color: '#0E8A3E',
-    fontSize: 14,
-    fontWeight: '500',
   },
 }); 

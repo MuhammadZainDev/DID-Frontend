@@ -188,12 +188,12 @@ export default function VerifyCode() {
                   key={index}
                   ref={ref => inputRefs.current[index] = ref}
                   style={styles.codeInput}
-                  value={digit}
-                  onChangeText={text => handleCodeChange(text, index)}
-                  onKeyPress={e => handleKeyPress(e, index)}
-                  keyboardType="number-pad"
                   maxLength={1}
-                  selectTextOnFocus
+                  keyboardType="number-pad"
+                  value={code[index]}
+                  onChangeText={(text) => handleCodeChange(text, index)}
+                  onKeyPress={(e) => handleKeyPress(e, index)}
+                  placeholderTextColor="#999"
                 />
               ))}
             </View>
