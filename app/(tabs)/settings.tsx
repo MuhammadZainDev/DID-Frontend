@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../../context/LanguageContext';
+import { resetFirstLaunchStatus } from '../../utils/storage';
+import { useRouter } from 'expo-router';
 
 const SettingItem = ({ icon, title, subtitle, onPress }: { icon: string, title: string, subtitle?: string, onPress?: () => void }) => (
   <TouchableOpacity style={styles.settingItem} onPress={onPress}>
@@ -19,6 +21,34 @@ const SettingItem = ({ icon, title, subtitle, onPress }: { icon: string, title: 
 export default function SettingsScreen() {
   const { translations, language, setLanguage } = useLanguage();
   const [languageModalVisible, setLanguageModalVisible] = useState(false);
+  const router = useRouter();
+
+  const handleResetWelcomeScreens = async () => {
+    try {
+      await resetFirstLaunchStatus();
+      Alert.alert(
+        'Success',
+        'Welcome screens reset successfully. Restart the app to see them.',
+        [
+          { 
+            text: 'Test Now', 
+            onPress: () => router.replace('/welcome')
+          },
+          { 
+            text: 'OK', 
+            style: 'cancel' 
+          }
+        ]
+      );
+    } catch (error) {
+      Alert.alert('Error', 'Failed to reset welcome screens');
+    }
+  };
+
+  const handleTestWelcomeScreens = () => {
+    // Navigate directly to welcome screen without resetting
+    router.replace('/welcome');
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -75,6 +105,23 @@ export default function SettingsScreen() {
         <SettingItem 
           icon="star-outline" 
           title={translations['settings.rate']}
+        />
+      </View>
+      
+      {/* Developer Options */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Developer Options</Text>
+        <SettingItem 
+          icon="refresh-outline" 
+          title="Reset Welcome Screens"
+          subtitle="Reset first launch status for next app restart"
+          onPress={handleResetWelcomeScreens}
+        />
+        <SettingItem 
+          icon="play-outline" 
+          title="Test Welcome Screens Now"
+          subtitle="View welcome screens immediately"
+          onPress={handleTestWelcomeScreens}
         />
       </View>
       
