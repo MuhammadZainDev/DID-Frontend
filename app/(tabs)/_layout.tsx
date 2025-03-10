@@ -14,12 +14,12 @@ export default function TabLayout() {
     <SafeAreaProvider>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: '#0E8A3E',
-          tabBarInactiveTintColor: '#666666',
+          tabBarActiveTintColor: '#4CAF50',
+          tabBarInactiveTintColor: '#AAAAAA',
           headerShown: false,
           headerShadowVisible: false,
           headerStyle: {
-            backgroundColor: '#0E8A3E',
+            backgroundColor: '#121212',
           },
           headerTitleStyle: {
             color: '#FFFFFF',
@@ -27,9 +27,9 @@ export default function TabLayout() {
             fontSize: 18,
           },
           tabBarStyle: {
-            backgroundColor: 'white',
+            backgroundColor: '#121212',
             borderTopWidth: 1,
-            borderTopColor: '#E5E5E5',
+            borderTopColor: '#333333',
             height: Platform.OS === 'ios' ? 80 : 65,
             paddingBottom: Platform.OS === 'ios' ? 25 : 10,
             paddingTop: 5,
@@ -71,7 +71,7 @@ export default function TabLayout() {
             title: translations['tab.settings'],
             headerShown: true,
             headerStyle: {
-              backgroundColor: '#0E8A3E',
+              backgroundColor: '#121212',
             },
             headerTitleStyle: {
               color: '#FFFFFF',

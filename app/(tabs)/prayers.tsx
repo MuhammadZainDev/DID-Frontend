@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, Image, TouchableOpacity, ActivityIndicator, ScrollView, Platform, Alert } from 'react-native';
+import { View, StyleSheet, Text, Image, TouchableOpacity, ActivityIndicator, ScrollView, Platform, Alert, ImageBackground } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { usePrayerTimes } from '@/hooks/usePrayerTimes';
@@ -208,26 +208,25 @@ export default function PrayerTimesScreen() {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        {/* Location Banner with Mosque Image */}
+        {/* Location Banner with Background GIF */}
         <View style={styles.locationBanner}>
-          <View style={styles.mosqueImagePlaceholder}>
-            <Ionicons name="business-outline" size={80} color="white" style={styles.mosqueIcon} />
-          </View>
-          <LinearGradient
-            colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.7)']}
-            style={styles.gradient}
+          <ImageBackground 
+            source={require('@/assets/namazTime/prayerBG.gif')} 
+            style={styles.bannerBackground}
           >
-            <View style={styles.bannerContent}>
-              <Text style={styles.locationText}>{location}</Text>
-              <View style={styles.nextPrayerInfo}>
-                <Text style={styles.nextPrayerName}>
-                  {translations[`prayer.${nextPrayer.name.toLowerCase()}`] || nextPrayer.name}
-                </Text>
-                <Text style={styles.nextPrayerTime}>{nextPrayer.time}</Text>
-                <Text style={styles.remainingTime}>{nextPrayer.remaining}</Text>
+            <View style={styles.bannerOverlay}>
+              <View style={styles.bannerContent}>
+                <Text style={styles.locationText}>{location}</Text>
+                <View style={styles.nextPrayerInfo}>
+                  <Text style={styles.nextPrayerName}>
+                    {translations[`prayer.${nextPrayer.name.toLowerCase()}`] || nextPrayer.name}
+                  </Text>
+                  <Text style={styles.nextPrayerTime}>{nextPrayer.time}</Text>
+                  <Text style={styles.remainingTime}>{nextPrayer.remaining}</Text>
+                </View>
               </View>
             </View>
-          </LinearGradient>
+          </ImageBackground>
         </View>
 
         {/* Date Display */}
@@ -245,12 +244,6 @@ export default function PrayerTimesScreen() {
             isActive={nextPrayer.name === 'Fajr'}
           />
           <PrayerTimeItem 
-            name={translations['prayer.sunrise']} 
-            time={prayerTimes.timings.Sunrise} 
-            icon="sunny-outline" 
-            isActive={false}
-          />
-          <PrayerTimeItem 
             name={translations['prayer.dhuhr']} 
             time={prayerTimes.timings.Dhuhr} 
             icon="sunny-outline" 
@@ -265,13 +258,13 @@ export default function PrayerTimesScreen() {
           <PrayerTimeItem 
             name={translations['prayer.maghrib']} 
             time={prayerTimes.timings.Maghrib} 
-            icon="partly-sunny-outline" 
+            icon="moon-outline" 
             isActive={nextPrayer.name === 'Maghrib'}
           />
           <PrayerTimeItem 
             name={translations['prayer.isha']} 
             time={prayerTimes.timings.Isha} 
-            icon="cloudy-night-outline" 
+            icon="moon-outline" 
             isActive={nextPrayer.name === 'Isha'}
           />
         </View>
@@ -297,25 +290,47 @@ function PrayerTimeItem({ name, time, icon, isActive }: { name: string; time: st
     // Here you would add code to actually schedule or cancel notifications
   };
 
+  // Get the correct background image based on prayer name
+  const getBackgroundImage = () => {
+    const prayerName = name.toLowerCase();
+    
+    // Map prayer names to their image file names
+    if (prayerName.includes('fajr')) return require('@/assets/namazTime/fajr.jpg');
+    if (prayerName.includes('dhuhr')) return require('@/assets/namazTime/dhuhr.jpg');
+    if (prayerName.includes('asr')) return require('@/assets/namazTime/asr.jpg');
+    if (prayerName.includes('maghrib')) return require('@/assets/namazTime/maghrib.jpg');
+    if (prayerName.includes('isha')) return require('@/assets/namazTime/isha.jpg');
+    
+    // Default return for any other prayer
+    return null;
+  };
+
+  const backgroundImage = getBackgroundImage();
+
   return (
     <View style={[styles.prayerTimeItem, isActive && styles.activePrayerItem]}>
-      <View style={styles.prayerNameContainer}>
-        <Ionicons name={icon as any} size={20} color={isActive ? "#0E8A3E" : "#666"} />
-        <Text style={[styles.prayerName, isActive && styles.activePrayerText]}>{name}</Text>
-      </View>
-      <View style={styles.prayerTimeRight}>
-        <Text style={[styles.prayerTime, isActive && styles.activePrayerText]}>{formatTime(time)}</Text>
-        <TouchableOpacity 
-          style={styles.notificationButton}
-          onPress={toggleNotification}
-          activeOpacity={0.7}
-        >
-          <Ionicons 
-            name={notificationEnabled ? "notifications" : "notifications-off-outline"} 
-            size={26} 
-            color={notificationEnabled ? "#0E8A3E" : "#666"} 
-          />
-        </TouchableOpacity>
+      {backgroundImage ? (
+        <Image source={backgroundImage} style={styles.prayerBackgroundImage} />
+      ) : null}
+      <View style={styles.prayerItemOverlay}>
+        <View style={styles.prayerNameContainer}>
+          <Ionicons name={icon as any} size={20} color="#FFFFFF" />
+          <Text style={[styles.prayerName, { color: '#FFFFFF' }]}>{name}</Text>
+        </View>
+        <View style={styles.prayerTimeRight}>
+          <Text style={[styles.prayerTime, { color: '#FFFFFF' }]}>{formatTime(time)}</Text>
+          <TouchableOpacity 
+            style={styles.notificationButton}
+            onPress={toggleNotification}
+            activeOpacity={0.7}
+          >
+            <Ionicons 
+              name={notificationEnabled ? "notifications" : "notifications-off-outline"} 
+              size={26} 
+              color={notificationEnabled ? "#FFFFFF" : "#DDDDDD"} 
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -324,157 +339,180 @@ function PrayerTimeItem({ name, time, icon, isActive }: { name: string; time: st
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#121212', // Dark background color
+  },
+  scrollView: {
+    flex: 1,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: '#666',
+    backgroundColor: '#121212', // Dark background for loading screen
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#121212', // Dark background for error screen
     padding: 20,
   },
   errorText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#666',
+    color: '#FF3B30',
     textAlign: 'center',
-    marginBottom: 20,
   },
   retryButton: {
+    marginTop: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     backgroundColor: '#0E8A3E',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
     borderRadius: 8,
   },
   retryButtonText: {
     color: 'white',
-    fontSize: 16,
     fontWeight: '600',
-  },
-  scrollView: {
-    flex: 1,
   },
   locationBanner: {
     height: 200,
-    position: 'relative',
+    overflow: 'hidden',
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
-  mosqueImagePlaceholder: {
+  bannerBackground: {
     width: '100%',
     height: '100%',
-    position: 'absolute',
-    backgroundColor: '#0E8A3E',
+    resizeMode: 'cover',
   },
-  mosqueIcon: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    marginLeft: -40,
-    marginTop: -40,
-    opacity: 0.5,
-  },
-  gradient: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: '100%',
-    justifyContent: 'flex-end',
-    padding: 16,
+  bannerOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.3)', // Semi-transparent overlay to ensure text readability
   },
   bannerContent: {
-    justifyContent: 'flex-end',
-  },
-  locationText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  nextPrayerInfo: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
+    flex: 1,
+    padding: 16,
     justifyContent: 'space-between',
   },
-  nextPrayerName: {
+  locationText: {
+    fontSize: 16,
+    fontWeight: '600',
     color: 'white',
+    marginTop: 40,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+  },
+  nextPrayerInfo: {
+    alignItems: 'flex-start',
+  },
+  nextPrayerName: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: 'bold',
+    color: 'white',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
   nextPrayerTime: {
+    fontSize: 32,
+    fontWeight: 'bold',
     color: 'white',
-    fontSize: 20,
-    fontWeight: '600',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
   remainingTime: {
-    color: 'white',
     fontSize: 16,
+    color: 'white',
+    opacity: 0.8,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
   dateContainer: {
     padding: 16,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
+    backgroundColor: '#1E1E1E', // Dark background for date section
+    marginVertical: 10,
+    borderRadius: 10,
+    marginHorizontal: 16,
+    borderWidth: 1,
+    borderColor: '#333333',
   },
   gregorianDate: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
+    fontSize: 14,
+    color: '#FFFFFF',
+    marginBottom: 4,
   },
   hijriDate: {
     fontSize: 14,
-    color: '#666',
-    marginTop: 4,
+    fontWeight: '600',
+    color: '#4CAF50', // Brighter green color for better visibility
   },
   prayerTimesContainer: {
-    backgroundColor: 'white',
-    marginTop: 8,
+    padding: 16,
   },
   prayerTimeItem: {
+    marginBottom: 16,
+    borderRadius: 10,
+    overflow: 'hidden',
+    height: 80,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  activePrayerItem: {
+    borderLeftWidth: 3,
+    borderLeftColor: '#0E8A3E',
+  },
+  prayerBackgroundImage: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  prayerItemOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.4)',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
-  },
-  activePrayerItem: {
-    backgroundColor: '#E8F5ED',
+    padding: 15,
   },
   prayerNameContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
   },
   prayerName: {
-    fontSize: 16,
-    color: '#333',
-    marginLeft: 12,
+    fontSize: 18,
+    fontWeight: '600',
+    marginLeft: 8,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
   prayerTimeRight: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
   },
   prayerTime: {
     fontSize: 16,
-    color: '#333',
-    marginRight: 12,
-  },
-  activePrayerText: {
-    color: '#0E8A3E',
-    fontWeight: '600',
+    fontWeight: '500',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
   notificationButton: {
-    padding: 6,
+    padding: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    borderRadius: 20,
   },
 }); 
