@@ -1,4 +1,4 @@
-import { View, StyleSheet, TextInput, ScrollView, TouchableOpacity, Platform, Modal, Animated, Text } from 'react-native';
+import { View, StyleSheet, TextInput, ScrollView, TouchableOpacity, Platform, Modal, Animated, Text, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -10,8 +10,16 @@ import { ThemedView } from '@/components/ThemedView';
 import PrayerTimes from '@/components/PrayerTimes';
 import Settings from '@/components/Settings';
 import UserAvatar from '@/components/UserAvatar';
-import categoriesData from '@/constants/categories.json';
 import { useLanguage } from '../../context/LanguageContext';
+import { API_URL } from '@/config/constants';
+
+// Category type definition
+interface Category {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+}
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -20,6 +28,9 @@ export default function HomeScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const { translations } = useLanguage();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     // Check if user is logged in
@@ -35,6 +46,28 @@ export default function HomeScreen() {
     };
 
     checkUser();
+  }, []);
+
+  useEffect(() => {
+    // Fetch categories from the API
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_URL}/api/categories`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch categories');
+        }
+        const data = await response.json();
+        setCategories(data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        setError('Failed to load categories. Please try again later.');
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -137,26 +170,62 @@ export default function HomeScreen() {
           </View>
 
           {/* Categories Grid */}
-          <View style={styles.grid}>
-            {categoriesData.categories.map((item) => (
+          {loading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#0E8A3E" />
+              <ThemedText style={styles.loadingText}>Loading categories...</ThemedText>
+            </View>
+          ) : error ? (
+            <View style={styles.errorContainer}>
+              <Ionicons name="alert-circle-outline" size={40} color="#FF3B30" />
+              <ThemedText style={styles.errorText}>{error}</ThemedText>
               <TouchableOpacity 
-                key={item.id} 
-                style={styles.gridItem} 
-                activeOpacity={0.7}
-                onPress={() => router.push({
-                  pathname: '/subcategory',
-                  params: { categoryId: item.id }
-                })}
+                style={styles.retryButton}
+                onPress={() => {
+                  setError('');
+                  setLoading(true);
+                  // Fetch categories again
+                  fetch(`${API_URL}/api/categories`)
+                    .then(response => {
+                      if (!response.ok) throw new Error('Failed to fetch');
+                      return response.json();
+                    })
+                    .then(data => {
+                      setCategories(data);
+                      setLoading(false);
+                    })
+                    .catch(err => {
+                      console.error('Error fetching categories:', err);
+                      setError('Failed to load categories. Please try again later.');
+                      setLoading(false);
+                    });
+                }}
               >
-                <View style={styles.iconCircle}>
-                  <Ionicons name={item.icon as any} size={24} color="#0E8A3E" />
-                </View>
-                <ThemedText style={styles.gridLabel}>
-                  {translations[`category.${item.id}`] || item.name}
-                </ThemedText>
+                <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
               </TouchableOpacity>
-            ))}
-          </View>
+            </View>
+          ) : (
+            <View style={styles.grid}>
+              {categories.map((item) => (
+                <TouchableOpacity 
+                  key={item.id} 
+                  style={styles.gridItem} 
+                  activeOpacity={0.7}
+                  onPress={() => router.push({
+                    pathname: '/subcategory',
+                    params: { categoryId: item.id }
+                  })}
+                >
+                  <View style={styles.iconCircle}>
+                    <Ionicons name={item.icon as any} size={24} color="#0E8A3E" />
+                  </View>
+                  <ThemedText style={styles.gridLabel}>
+                    {translations[`category.${item.id}`] || item.name}
+                  </ThemedText>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
           <View style={styles.bottomPadding} />
         </ScrollView>
       </View>
@@ -400,6 +469,41 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     color: '#FF3B30',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  loadingContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#555',
+  },
+  errorContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  errorText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#FF3B30',
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  retryButton: {
+    backgroundColor: '#0E8A3E',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: 'white',
     fontSize: 16,
     fontWeight: '600',
   },
