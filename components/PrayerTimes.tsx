@@ -76,7 +76,7 @@ export default function PrayerTimes() {
       <View style={styles.otherPrayers}>
         <View style={styles.prayerTimeRow}>
           <View style={styles.prayerLabel}>
-            <Ionicons name="sunny-outline" size={18} color="#666666" />
+            <Ionicons name="sunny-outline" size={18} color="#EEEEEE" />
             <Text style={styles.prayerText}>{translations['prayer.sunrise']}:</Text>
           </View>
           <Text style={styles.timeText}>{formatTime(prayerTimes.timings.Sunrise)}</Text>
@@ -84,7 +84,7 @@ export default function PrayerTimes() {
 
         <View style={styles.prayerTimeRow}>
           <View style={styles.prayerLabel}>
-            <Ionicons name="moon-outline" size={18} color="#666666" />
+            <Ionicons name="moon-outline" size={18} color="#EEEEEE" />
             <Text style={styles.prayerText}>{translations['prayer.maghrib']}:</Text>
           </View>
           <Text style={styles.timeText}>{formatTime(prayerTimes.timings.Maghrib)}</Text>
@@ -96,29 +96,24 @@ export default function PrayerTimes() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'transparent',
     padding: 16,
     borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
   },
   hijriDate: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#0E8A3E',
+    color: '#4CAF50',
     marginBottom: 4,
   },
   gregorianDate: {
     fontSize: 14,
-    color: '#666666',
+    color: '#EEEEEE',
     marginBottom: 20,
   },
   nextPrayerLabel: {
     fontSize: 14,
-    color: '#666666',
+    color: '#CCCCCC',
     marginBottom: 8,
   },
   prayerRow: {
@@ -130,7 +125,7 @@ const styles = StyleSheet.create({
   prayerName: {
     fontSize: 30,
     fontWeight: '600',
-    color: '#0E8A3E',
+    color: '#FFFFFF',
   },
   timeContainer: {
     alignItems: 'flex-end',
@@ -138,28 +133,28 @@ const styles = StyleSheet.create({
   prayerTime: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#333333',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   remainingTime: {
     fontSize: 12,
-    color: '#666666',
+    color: '#EEEEEE',
   },
   progressBarContainer: {
     height: 4,
-    backgroundColor: '#EEEEEE',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 2,
     marginBottom: 24,
     overflow: 'hidden',
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#0E8A3E',
+    backgroundColor: '#4CAF50',
     borderRadius: 2,
   },
   otherPrayers: {
     borderTopWidth: 1,
-    borderTopColor: '#EEEEEE',
+    borderTopColor: 'rgba(255, 255, 255, 0.2)',
     paddingTop: 16,
     gap: 12,
   },
@@ -175,11 +170,11 @@ const styles = StyleSheet.create({
   },
   prayerText: {
     fontSize: 14,
-    color: '#666666',
+    color: '#EEEEEE',
   },
   timeText: {
     fontSize: 14,
-    color: '#333333',
+    color: '#FFFFFF',
   },
   errorText: {
     fontSize: 14,

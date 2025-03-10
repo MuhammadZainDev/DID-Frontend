@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, Text, Image, TouchableOpacity, ActivityIndicator, ScrollView, Platform, Alert, ImageBackground } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import { useLanguage } from '../../context/LanguageContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Configure notifications
 Notifications.setNotificationHandler({
@@ -17,11 +18,72 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// Store and retrieve notification status from persistent storage
+const storeNotificationStatus = async (prayerName: string, date: Date): Promise<void> => {
+  try {
+    const currentDate = new Date().toDateString();
+    await AsyncStorage.setItem(`notification_${prayerName}_${currentDate}`, 'scheduled');
+  } catch (error) {
+    console.error('Error storing notification status:', error);
+  }
+};
+
+const getNotificationStatus = async (prayerName: string): Promise<boolean> => {
+  try {
+    const currentDate = new Date().toDateString();
+    const status = await AsyncStorage.getItem(`notification_${prayerName}_${currentDate}`);
+    return status === 'scheduled';
+  } catch (error) {
+    console.error('Error retrieving notification status:', error);
+    return false;
+  }
+};
+
+// Store and retrieve user notification preferences for each prayer
+const savePrayerNotificationPreference = async (prayerName: string, enabled: boolean): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(`prayer_notification_${prayerName.toLowerCase()}`, enabled ? 'enabled' : 'disabled');
+  } catch (error) {
+    console.error('Error saving prayer notification preference:', error);
+  }
+};
+
+const getPrayerNotificationPreference = async (prayerName: string): Promise<boolean> => {
+  try {
+    const preference = await AsyncStorage.getItem(`prayer_notification_${prayerName.toLowerCase()}`);
+    // Default to enabled if no preference is set
+    return preference !== 'disabled';
+  } catch (error) {
+    console.error('Error retrieving prayer notification preference:', error);
+    return true;
+  }
+};
+
 export default function PrayerTimesScreen() {
   const { prayerTimes, loading, error, nextPrayer, refreshPrayerTimes } = usePrayerTimes();
   const [location, setLocation] = useState('Loading location...');
   const [notificationsScheduled, setNotificationsScheduled] = useState(false);
+  const isSchedulingRef = useRef(false);
   const { translations } = useLanguage();
+  const [notificationPreferences, setNotificationPreferences] = useState<Record<string, boolean>>({});
+
+  // Load notification preferences
+  useEffect(() => {
+    async function loadNotificationPreferences() {
+      if (!prayerTimes) return;
+
+      const prefs: Record<string, boolean> = {};
+      const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+      
+      for (const prayer of prayers) {
+        prefs[prayer] = await getPrayerNotificationPreference(prayer);
+      }
+      
+      setNotificationPreferences(prefs);
+    }
+    
+    loadNotificationPreferences();
+  }, [prayerTimes]);
 
   useEffect(() => {
     async function getLocationName() {
@@ -73,74 +135,6 @@ export default function PrayerTimesScreen() {
     requestNotificationPermissions();
   }, []);
 
-  // Schedule prayer time notifications
-  useEffect(() => {
-    async function schedulePrayerNotifications() {
-      if (!prayerTimes || notificationsScheduled) return;
-      
-      try {
-        // Cancel any existing notifications
-        await Notifications.cancelAllScheduledNotificationsAsync();
-        
-        const prayers = [
-          { name: translations['prayer.fajr'], time: prayerTimes.timings.Fajr },
-          { name: translations['prayer.sunrise'], time: prayerTimes.timings.Sunrise },
-          { name: translations['prayer.dhuhr'], time: prayerTimes.timings.Dhuhr },
-          { name: translations['prayer.asr'], time: prayerTimes.timings.Asr },
-          { name: translations['prayer.maghrib'], time: prayerTimes.timings.Maghrib },
-          { name: translations['prayer.isha'], time: prayerTimes.timings.Isha }
-        ];
-        
-        const now = new Date();
-        const tomorrow = new Date(now);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        
-        // Schedule notifications for each prayer time
-        for (let i = 0; i < prayers.length; i++) {
-          const prayer = prayers[i];
-          
-          // Skip Sunrise as it's not a prayer time
-          if (prayer.name === translations['prayer.sunrise']) continue;
-          
-          // Convert prayer time to Date object
-          const prayerDate = getPrayerTimeAsDate(prayer.time);
-          
-          // Calculate 15 minutes before prayer time
-          const fifteenMinutesBefore = new Date(prayerDate);
-          fifteenMinutesBefore.setMinutes(fifteenMinutesBefore.getMinutes() - 15);
-          
-          // Only schedule if the time is in the future
-          if (fifteenMinutesBefore > now) {
-            // Schedule 15 minutes before notification
-            await scheduleNotification(
-              `${prayer.name} ${translations['prayer.time']}`,
-              `15 ${translations['prayer.remaining']} ${prayer.name} ${translations['prayer.time']}`,
-              fifteenMinutesBefore
-            );
-            console.log(`Scheduled 15-min reminder for ${prayer.name} at ${fifteenMinutesBefore.toLocaleTimeString()}`);
-          }
-          
-          // Schedule prayer time start notification
-          if (prayerDate > now) {
-            await scheduleNotification(
-              `${prayer.name} ${translations['prayer.time']}`,
-              `${translations['prayer.time']} ${prayer.name}`,
-              prayerDate
-            );
-            console.log(`Scheduled start time notification for ${prayer.name} at ${prayerDate.toLocaleTimeString()}`);
-          }
-        }
-        
-        setNotificationsScheduled(true);
-        console.log('Prayer notifications scheduled successfully');
-      } catch (error) {
-        console.error('Error scheduling notifications:', error);
-      }
-    }
-    
-    schedulePrayerNotifications();
-  }, [prayerTimes, notificationsScheduled, translations]);
-
   // Helper function to convert prayer time string to Date object
   const getPrayerTimeAsDate = (timeStr: string): Date => {
     const today = new Date();
@@ -149,7 +143,16 @@ export default function PrayerTimesScreen() {
   };
 
   // Helper function to schedule a notification
-  const scheduleNotification = async (title: string, body: string, scheduledTime: Date): Promise<void> => {
+  const scheduleNotification = async (title: string, body: string, scheduledTime: Date, identifier: string): Promise<void> => {
+    try {
+      // Check if the notification time is in the future before scheduling
+      const now = new Date();
+      if (scheduledTime <= now) {
+        console.log(`Skipping notification ${identifier} as scheduled time has passed`);
+        return;
+      }
+      
+      // Schedule the notification
     await Notifications.scheduleNotificationAsync({
       content: {
         title,
@@ -161,7 +164,149 @@ export default function PrayerTimesScreen() {
         date: scheduledTime,
         channelId: 'prayer-times',
       },
-    });
+        identifier: identifier,
+      });
+      
+      console.log(`Successfully scheduled notification: ${identifier} at ${scheduledTime.toLocaleTimeString()}`);
+    } catch (error) {
+      console.error(`Error scheduling notification ${identifier}:`, error);
+    }
+  };
+
+  // Schedule prayer time notifications
+  useEffect(() => {
+    async function schedulePrayerNotifications() {
+      // Guard against multiple simultaneous calls
+      if (isSchedulingRef.current || !prayerTimes || !nextPrayer) return;
+      
+      isSchedulingRef.current = true;
+      
+      try {
+        // Check if notifications for this prayer have already been scheduled
+        const alreadyScheduled = await getNotificationStatus(nextPrayer.name);
+        if (alreadyScheduled) {
+          console.log(`Notifications for ${nextPrayer.name} already scheduled today. Skipping.`);
+          isSchedulingRef.current = false;
+          return;
+        }
+        
+        console.log(`Scheduling notifications for prayer: ${nextPrayer.name}`);
+        
+        // Cancel any existing notifications before creating new ones
+        await Notifications.cancelAllScheduledNotificationsAsync();
+        
+        const prayersList = [
+          { name: 'Fajr', time: prayerTimes.timings.Fajr },
+          { name: 'Dhuhr', time: prayerTimes.timings.Dhuhr },
+          { name: 'Asr', time: prayerTimes.timings.Asr },
+          { name: 'Maghrib', time: prayerTimes.timings.Maghrib },
+          { name: 'Isha', time: prayerTimes.timings.Isha }
+        ];
+        
+        // Schedule for current prayer
+        const currentPrayerIndex = prayersList.findIndex(p => p.name === nextPrayer.name);
+        if (currentPrayerIndex !== -1) {
+          const currentPrayer = prayersList[currentPrayerIndex];
+          
+          // Check if notifications are enabled for this prayer
+          const isEnabled = notificationPreferences[currentPrayer.name];
+          if (!isEnabled) {
+            console.log(`Notifications for ${currentPrayer.name} are disabled by user preference. Skipping.`);
+          } else {
+            const currentPrayerTime = getPrayerTimeAsDate(currentPrayer.time);
+            const now = new Date();
+            
+            // 15 minutes before notification
+            const fifteenMinutesBefore = new Date(currentPrayerTime);
+            fifteenMinutesBefore.setMinutes(fifteenMinutesBefore.getMinutes() - 15);
+            
+            if (fifteenMinutesBefore > now) {
+              await scheduleNotification(
+                `${translations[`prayer.${currentPrayer.name.toLowerCase()}`] || currentPrayer.name} ${translations['prayer.time']}`,
+                `15 ${translations['prayer.remaining']} ${translations[`prayer.${currentPrayer.name.toLowerCase()}`] || currentPrayer.name} ${translations['prayer.time']}`,
+                fifteenMinutesBefore,
+                `${currentPrayer.name.toLowerCase()}-reminder-${new Date().getTime()}`
+              );
+            }
+            
+            // Prayer start notification
+            if (currentPrayerTime > now) {
+              await scheduleNotification(
+                `${translations[`prayer.${currentPrayer.name.toLowerCase()}`] || currentPrayer.name} ${translations['prayer.time']}`,
+                `${translations['prayer.time']} ${translations[`prayer.${currentPrayer.name.toLowerCase()}`] || currentPrayer.name}`,
+                currentPrayerTime,
+                `${currentPrayer.name.toLowerCase()}-start-${new Date().getTime()}`
+              );
+            }
+          }
+          
+          // Get the next prayer for end notification
+          const nextPrayerIndex = (currentPrayerIndex + 1) % prayersList.length;
+          const nextPrayerObj = prayersList[nextPrayerIndex];
+          
+          // Check if notifications are enabled for next prayer
+          const isNextEnabled = notificationPreferences[nextPrayerObj.name];
+          if (!isNextEnabled && !isEnabled) {
+            console.log(`End notification skipped as both ${currentPrayer.name} and ${nextPrayerObj.name} notifications are disabled.`);
+          } else {
+            const nextPrayerTime = getPrayerTimeAsDate(nextPrayerObj.time);
+            const now = new Date();
+            
+            // If next prayer is tomorrow (i.e., current prayer is Isha)
+            if (nextPrayerIndex === 0) {
+              nextPrayerTime.setDate(nextPrayerTime.getDate() + 1);
+            }
+            
+            if (nextPrayerTime > now) {
+              // Get translated prayer names
+              const currentPrayerName = translations[`prayer.${currentPrayer.name.toLowerCase()}`] || currentPrayer.name;
+              const nextPrayerName = translations[`prayer.${nextPrayerObj.name.toLowerCase()}`] || nextPrayerObj.name;
+              
+              await scheduleNotification(
+                `${currentPrayerName} → ${nextPrayerName}`,
+                `${currentPrayerName} ${translations['prayer.time']} ${translations['prayer.ended']}. ${nextPrayerName} ${translations['prayer.time']} ${translations['prayer.started']}`,
+                nextPrayerTime,
+                `${currentPrayer.name.toLowerCase()}-end-${new Date().getTime()}`
+              );
+            }
+          }
+        }
+        
+        // Store in AsyncStorage that we've scheduled notifications for this prayer today
+        await storeNotificationStatus(nextPrayer.name, new Date());
+        setNotificationsScheduled(true);
+        console.log('Prayer notifications scheduled successfully');
+      } catch (error) {
+        console.error('Error scheduling notifications:', error);
+      } finally {
+        isSchedulingRef.current = false;
+      }
+    }
+    
+    schedulePrayerNotifications();
+  }, [prayerTimes, nextPrayer, notificationPreferences, translations]);
+
+  // Toggle notification preference for a specific prayer
+  const togglePrayerNotification = async (prayerName: string): Promise<void> => {
+    // Get current state (default to true if not set)
+    const currentState = notificationPreferences[prayerName] !== false;
+    
+    // Toggle the state
+    const newState = !currentState;
+    
+    // Update local state
+    setNotificationPreferences(prev => ({
+      ...prev,
+      [prayerName]: newState
+    }));
+    
+    // Save to AsyncStorage
+    await savePrayerNotificationPreference(prayerName, newState);
+    
+    // Force reschedule notifications
+    setNotificationsScheduled(false);
+    
+    console.log(`Notifications for ${prayerName} ${newState ? 'enabled' : 'disabled'}`);
   };
 
   if (loading) {
@@ -215,16 +360,16 @@ export default function PrayerTimesScreen() {
             style={styles.bannerBackground}
           >
             <View style={styles.bannerOverlay}>
-              <View style={styles.bannerContent}>
-                <Text style={styles.locationText}>{location}</Text>
-                <View style={styles.nextPrayerInfo}>
-                  <Text style={styles.nextPrayerName}>
-                    {translations[`prayer.${nextPrayer.name.toLowerCase()}`] || nextPrayer.name}
-                  </Text>
-                  <Text style={styles.nextPrayerTime}>{nextPrayer.time}</Text>
-                  <Text style={styles.remainingTime}>{nextPrayer.remaining}</Text>
-                </View>
+            <View style={styles.bannerContent}>
+              <Text style={styles.locationText}>{location}</Text>
+              <View style={styles.nextPrayerInfo}>
+                <Text style={styles.nextPrayerName}>
+                  {translations[`prayer.${nextPrayer.name.toLowerCase()}`] || nextPrayer.name}
+                </Text>
+                <Text style={styles.nextPrayerTime}>{nextPrayer.time}</Text>
+                <Text style={styles.remainingTime}>{nextPrayer.remaining}</Text>
               </View>
+            </View>
             </View>
           </ImageBackground>
         </View>
@@ -242,30 +387,40 @@ export default function PrayerTimesScreen() {
             time={prayerTimes.timings.Fajr} 
             icon="sunny-outline" 
             isActive={nextPrayer.name === 'Fajr'}
+            notificationEnabled={notificationPreferences['Fajr']}
+            onToggleNotification={() => togglePrayerNotification('Fajr')}
           />
           <PrayerTimeItem 
             name={translations['prayer.dhuhr']} 
             time={prayerTimes.timings.Dhuhr} 
             icon="sunny-outline" 
             isActive={nextPrayer.name === 'Dhuhr'}
+            notificationEnabled={notificationPreferences['Dhuhr']}
+            onToggleNotification={() => togglePrayerNotification('Dhuhr')}
           />
           <PrayerTimeItem 
             name={translations['prayer.asr']} 
             time={prayerTimes.timings.Asr} 
             icon="sunny-outline" 
             isActive={nextPrayer.name === 'Asr'}
+            notificationEnabled={notificationPreferences['Asr']}
+            onToggleNotification={() => togglePrayerNotification('Asr')}
           />
           <PrayerTimeItem 
             name={translations['prayer.maghrib']} 
             time={prayerTimes.timings.Maghrib} 
             icon="moon-outline" 
             isActive={nextPrayer.name === 'Maghrib'}
+            notificationEnabled={notificationPreferences['Maghrib']}
+            onToggleNotification={() => togglePrayerNotification('Maghrib')}
           />
           <PrayerTimeItem 
             name={translations['prayer.isha']} 
             time={prayerTimes.timings.Isha} 
             icon="moon-outline" 
             isActive={nextPrayer.name === 'Isha'}
+            notificationEnabled={notificationPreferences['Isha']}
+            onToggleNotification={() => togglePrayerNotification('Isha')}
           />
         </View>
       </ScrollView>
@@ -273,9 +428,21 @@ export default function PrayerTimesScreen() {
   );
 }
 
-function PrayerTimeItem({ name, time, icon, isActive }: { name: string; time: string; icon: string; isActive: boolean }) {
-  const [notificationEnabled, setNotificationEnabled] = useState(false);
-  
+function PrayerTimeItem({ 
+  name, 
+  time, 
+  icon, 
+  isActive, 
+  notificationEnabled = true,
+  onToggleNotification 
+}: { 
+  name: string; 
+  time: string; 
+  icon: string; 
+  isActive: boolean;
+  notificationEnabled?: boolean;
+  onToggleNotification?: () => void;
+}) {
   // Format time to 12-hour format
   const formatTime = (time: string) => {
     const [hours, minutes] = time.split(':');
@@ -285,9 +452,11 @@ function PrayerTimeItem({ name, time, icon, isActive }: { name: string; time: st
     return `${hour12}:${minutes} ${ampm}`;
   };
 
+  // We no longer need the internal state since it's now controlled by the parent
   const toggleNotification = () => {
-    setNotificationEnabled(prev => !prev);
-    // Here you would add code to actually schedule or cancel notifications
+    if (onToggleNotification) {
+      onToggleNotification();
+    }
   };
 
   // Get the correct background image based on prayer name
@@ -313,23 +482,23 @@ function PrayerTimeItem({ name, time, icon, isActive }: { name: string; time: st
         <Image source={backgroundImage} style={styles.prayerBackgroundImage} />
       ) : null}
       <View style={styles.prayerItemOverlay}>
-        <View style={styles.prayerNameContainer}>
+      <View style={styles.prayerNameContainer}>
           <Ionicons name={icon as any} size={20} color="#FFFFFF" />
           <Text style={[styles.prayerName, { color: '#FFFFFF' }]}>{name}</Text>
-        </View>
-        <View style={styles.prayerTimeRight}>
+      </View>
+      <View style={styles.prayerTimeRight}>
           <Text style={[styles.prayerTime, { color: '#FFFFFF' }]}>{formatTime(time)}</Text>
-          <TouchableOpacity 
-            style={styles.notificationButton}
-            onPress={toggleNotification}
-            activeOpacity={0.7}
-          >
-            <Ionicons 
-              name={notificationEnabled ? "notifications" : "notifications-off-outline"} 
-              size={26} 
-              color={notificationEnabled ? "#FFFFFF" : "#DDDDDD"} 
-            />
-          </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.notificationButton}
+          onPress={toggleNotification}
+          activeOpacity={0.7}
+        >
+          <Ionicons 
+            name={notificationEnabled ? "notifications" : "notifications-off-outline"} 
+            size={26} 
+              color={notificationEnabled ? "#FFFFFF" : "#AAAAAA"} 
+          />
+        </TouchableOpacity>
         </View>
       </View>
     </View>

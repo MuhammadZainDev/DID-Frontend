@@ -47,39 +47,29 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: translations['tab.home'],
+            title: 'Home',
             tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
           }}
         />
         <Tabs.Screen
           name="prayers"
           options={{
-            title: translations['tab.prayerTimes'],
+            title: 'Prayer Times',
             tabBarIcon: ({ color }) => <Ionicons name="time-outline" size={24} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="duas"
+          options={{
+            title: 'Duas',
+            tabBarIcon: ({ color }) => <Ionicons name="book-outline" size={24} color={color} />,
           }}
         />
         <Tabs.Screen
           name="favorites"
           options={{
-            title: translations['tab.favorites'],
+            title: 'Favorites',
             tabBarIcon: ({ color }) => <Ionicons name="bookmark-outline" size={24} color={color} />,
-          }}
-        />
-        <Tabs.Screen
-          name="settings"
-          options={{
-            title: translations['tab.settings'],
-            headerShown: true,
-            headerStyle: {
-              backgroundColor: '#121212',
-            },
-            headerTitleStyle: {
-              color: '#FFFFFF',
-              fontWeight: '600',
-              fontSize: 18,
-            },
-            headerTintColor: '#FFFFFF',
-            tabBarIcon: ({ color }) => <Ionicons name="settings-outline" size={24} color={color} />,
           }}
         />
       </Tabs>

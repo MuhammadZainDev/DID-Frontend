@@ -40,6 +40,10 @@ const enTranslations = {
   'prayer.nextPrayer': 'Current Prayer',
   'prayer.remaining': 'remaining',
   'prayer.time': 'Prayer Time',
+  'prayer.ending': 'Ending Soon',
+  'prayer.beginning': 'Beginning Now',
+  'prayer.ended': 'has ended',
+  'prayer.started': 'has started',
   'prayer.error_loading': 'Error loading prayer times',
   
   // Settings
@@ -126,6 +130,10 @@ const urTranslations = {
   'prayer.nextPrayer': 'موجودہ نماز',
   'prayer.remaining': 'باقی ہے',
   'prayer.time': 'نماز کا وقت',
+  'prayer.ending': 'ختم ہونے والا ہے',
+  'prayer.beginning': 'شروع ہو رہا ہے',
+  'prayer.ended': 'ختم ہو گیا ہے',
+  'prayer.started': 'شروع ہو گیا ہے',
   'prayer.error_loading': 'نماز کے اوقات لوڈ کرنے میں خرابی',
   
   // Settings

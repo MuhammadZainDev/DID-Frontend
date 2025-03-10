@@ -1,4 +1,4 @@
-import { View, StyleSheet, TextInput, ScrollView, TouchableOpacity, Platform, Modal, Animated, Text, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, TextInput, ScrollView, TouchableOpacity, Platform, Modal, Animated, Text, ActivityIndicator, ImageBackground } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -118,6 +118,12 @@ export default function HomeScreen() {
               <View style={styles.headerIcons}>
                 <TouchableOpacity 
                   style={styles.iconButton}
+                  onPress={() => router.push('/settings')}
+                >
+                  <Ionicons name="settings-outline" size={24} color="#FFFFFF" />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.iconButton}
                   onPress={() => {
                     if (user) {
                       setShowLogoutMenu(!showLogoutMenu);
@@ -166,13 +172,21 @@ export default function HomeScreen() {
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           {/* Prayer Times Section */}
           <View style={styles.prayerCardContainer}>
-            <PrayerTimes />
+            <ImageBackground 
+              source={require('../../assets/img/homeBG.jpg')} 
+              style={styles.prayerTimeBackground}
+              resizeMode="cover"
+            >
+              <View style={styles.prayerTimeOverlay}>
+                <PrayerTimes />
+              </View>
+            </ImageBackground>
           </View>
 
           {/* Categories Grid */}
           {loading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#0E8A3E" />
+              <ActivityIndicator size="large" color="#4CAF50" />
               <ThemedText style={styles.loadingText}>Loading categories...</ThemedText>
             </View>
           ) : error ? (
@@ -205,26 +219,34 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
           ) : (
-            <View style={styles.grid}>
-              {categories.map((item) => (
-                <TouchableOpacity 
-                  key={item.id} 
-                  style={styles.gridItem} 
-                  activeOpacity={0.7}
-                  onPress={() => router.push({
-                    pathname: '/subcategory',
-                    params: { categoryId: item.id }
-                  })}
-                >
-                  <View style={styles.iconCircle}>
-                    <Ionicons name={item.icon as any} size={24} color="#0E8A3E" />
-                  </View>
-                  <ThemedText style={styles.gridLabel}>
-                    {translations[`category.${item.id}`] || item.name}
-                  </ThemedText>
+            <>
+              <View style={styles.sectionHeader}>
+                <ThemedText style={styles.sectionTitle}>Duas</ThemedText>
+                <TouchableOpacity onPress={() => router.push('/duas')}>
+                  <ThemedText style={styles.viewMoreText}>View More</ThemedText>
                 </TouchableOpacity>
-              ))}
-            </View>
+              </View>
+              <View style={styles.grid}>
+                {categories.slice(0, 6).map((item) => (
+                  <TouchableOpacity 
+                    key={item.id} 
+                    style={styles.gridItem} 
+                    activeOpacity={0.7}
+                    onPress={() => router.push({
+                      pathname: '/subcategory',
+                      params: { categoryId: item.id }
+                    })}
+                  >
+                    <View style={styles.iconCircle}>
+                      <Ionicons name={item.icon as any} size={24} color="#4CAF50" />
+                    </View>
+                    <ThemedText style={styles.gridLabel}>
+                      {translations[`category.${item.id}`] || item.name}
+                    </ThemedText>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </>
           )}
           <View style={styles.bottomPadding} />
         </ScrollView>
@@ -278,126 +300,213 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#121212', // Dark theme background
   },
   header: {
-    backgroundColor: '#0E8A3E',
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    zIndex: 9999,
-    elevation: 20,
+    backgroundColor: '#121212', // Dark theme background
+    paddingTop: Platform.OS === 'android' ? 20 : 0,
   },
   headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 16,
-    marginTop: Platform.OS === 'android' ? 40 : 0,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
   title: {
-    color: 'white',
-    fontSize: 22,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF', // White text for dark theme
   },
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-    position: 'relative',
-    zIndex: 9999,
   },
   iconButton: {
-    padding: 8,
-    marginLeft: 8,
-    zIndex: 9999,
+    marginLeft: 16,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  searchBar: {
-    backgroundColor: 'white',
-    borderRadius: 10,
+  logoutMenu: {
+    position: 'absolute',
+    top: 45,
+    right: 0,
+    width: 200,
+    backgroundColor: '#1E1E1E', // Dark theme popup
+    borderRadius: 8,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    zIndex: 1000,
+  },
+  userInfo: {
+    marginBottom: 16,
+  },
+  userName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFFFFF', // White text for dark theme
+    marginBottom: 4,
+  },
+  userEmail: {
+    fontSize: 14,
+    color: '#CCCCCC', // Light gray text for dark theme
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#333333', // Dark divider for dark theme
+    marginBottom: 16,
+  },
+  logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  logoutIcon: {
+    marginRight: 8,
+  },
+  logoutText: {
+    color: '#FF3B30',
+    fontSize: 16,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1E1E1E', // Dark search bar for dark theme
+    borderRadius: 10,
+    marginHorizontal: 16,
+    marginBottom: 16,
     paddingHorizontal: 12,
-    height: 44,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
+    height: 48,
   },
   searchIcon: {
     marginRight: 8,
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
-    color: '#2C3E50',
+    fontSize: 16,
+    color: '#FFFFFF', // White text for dark theme
   },
   scrollView: {
     flex: 1,
-    zIndex: 1,
   },
   prayerCardContainer: {
     marginHorizontal: 16,
+    marginVertical: 8,
+    borderRadius: 12,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  prayerTimeBackground: {
+    width: '100%',
+    overflow: 'hidden',
+    borderRadius: 12,
+  },
+  prayerTimeBackgroundImage: {
+    borderRadius: 12,
+  },
+  prayerTimeOverlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: 12,
+  },
+  loadingContainer: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  loadingText: {
     marginTop: 16,
+    fontSize: 16,
+    color: '#CCCCCC', // Light gray text for dark theme
+  },
+  errorContainer: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  errorText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#FF3B30',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: '#1E1E1E', // Dark button for dark theme
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#4CAF50',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#FFFFFF', // White text for dark theme
+  },
+  viewMoreText: {
+    color: '#4CAF50',
+    fontSize: 16,
+    fontWeight: '600',
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 12,
-    paddingTop: 16,
+    paddingHorizontal: 16,
+    justifyContent: 'space-between',
   },
   gridItem: {
-    width: '31%',
-    aspectRatio: 1,
-    backgroundColor: 'white',
-    marginHorizontal: '1.16%',
-    marginBottom: 12,
-    borderRadius: 12,
-    padding: 12,
+    width: '30%',
     alignItems: 'center',
-    justifyContent: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
+    marginBottom: 24,
   },
   iconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#E8F5ED',
-    alignItems: 'center',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#212121', // Darker circle background
     justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#333333',
   },
   gridLabel: {
-    fontSize: 12,
-    color: '#2C3E50',
     textAlign: 'center',
-    fontWeight: '500',
+    fontSize: 13,
+    color: '#CCCCCC', // Lighter text color
+    paddingHorizontal: 4,
   },
   bottomPadding: {
-    height: 90,
+    height: 80,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Darker overlay for dark theme
+    justifyContent: 'flex-end',
   },
   modalContent: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
+    height: '90%',
+    backgroundColor: '#121212', // Dark background for dark theme
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 16,
   },
   modalHeader: {
     backgroundColor: '#0E8A3E',
@@ -416,95 +525,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 16,
   },
-  logoutMenu: {
-    position: 'absolute',
-    top: 45,
-    right: 0,
-    backgroundColor: 'white',
-    borderRadius: 16,
-    width: 250,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 20,
-    zIndex: 99999,
-    padding: 8,
-  },
-  userInfo: {
-    padding: 16,
-    alignItems: 'flex-start',
-  },
-  userName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-    textAlign: 'left',
-  },
-  userEmail: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'left',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#E5E5E5',
-    width: '100%',
-    marginVertical: 8,
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    marginHorizontal: 8,
-    borderRadius: 12,
-    backgroundColor: '#FFF1F0',
-  },
-  logoutIcon: {
-    marginRight: 8,
-  },
-  logoutText: {
-    color: '#FF3B30',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  loadingContainer: {
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#555',
-  },
-  errorContainer: {
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  errorText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#FF3B30',
-    textAlign: 'center',
-    marginBottom: 15,
-  },
-  retryButton: {
-    backgroundColor: '#0E8A3E',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-  },
-  retryButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
+  modalHandle: {
+    alignSelf: 'center',
+    width: 40,
+    height: 5,
+    backgroundColor: '#333333', // Dark handle for dark theme
+    borderRadius: 3,
+    marginBottom: 16,
   },
 });
