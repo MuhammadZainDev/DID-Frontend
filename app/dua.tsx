@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Platform, ActivityIndicator, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Platform, ActivityIndicator, Alert, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Audio } from 'expo-av';
 import { Text } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -263,32 +264,10 @@ export default function DuaScreen() {
     return (
       <View style={styles.actionButtons}>
         <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="copy-outline" size={20} color="#0E8A3E" />
-          <ThemedText style={styles.actionButtonText}>Copy</ThemedText>
+          <Ionicons name="copy-outline" size={20} color="#E0E0E0" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="share-social-outline" size={20} color="#0E8A3E" />
-          <ThemedText style={styles.actionButtonText}>Share</ThemedText>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.actionButton}
-          onPress={handleFavoriteToggle}
-          disabled={favLoading}
-        >
-          {favLoading ? (
-            <ActivityIndicator color="#0E8A3E" size="small" />
-          ) : (
-            <>
-              <Ionicons 
-                name={isFavorite ? "bookmark" : "bookmark-outline"} 
-                size={20} 
-                color="#0E8A3E" 
-              />
-              <ThemedText style={styles.actionButtonText}>
-                {isFavorite ? "Saved" : "Save"}
-              </ThemedText>
-            </>
-          )}
+          <Ionicons name="share-social-outline" size={20} color="#E0E0E0" />
         </TouchableOpacity>
         {index === 0 && dua.audio_path && (
           <TouchableOpacity 
@@ -297,19 +276,13 @@ export default function DuaScreen() {
             disabled={isLoading}
           >
             {isLoading ? (
-              <ActivityIndicator color="#0E8A3E" size="small" />
+              <ActivityIndicator color="#E0E0E0" size="small" />
             ) : (
-              <>
-                <Ionicons 
-                  name={isPlaying ? "pause-outline" : "play-outline"} 
-                  size={20} 
-                  color="#0E8A3E" 
-                />
-                <ThemedText style={styles.actionButtonText}>
-                  {isPlaying ? "Pause" : "Play"}
-                  {playbackDuration > 0 && ` (${formatTime(playbackPosition)})`}
-                </ThemedText>
-              </>
+              <Ionicons 
+                name={isPlaying ? "pause-outline" : "play-outline"} 
+                size={20} 
+                color="#E0E0E0" 
+              />
             )}
           </TouchableOpacity>
         )}
@@ -340,43 +313,59 @@ export default function DuaScreen() {
       {/* Content */}
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {subcategoryDuas.map((dua, index) => (
-          <View key={dua.id} style={styles.duaCard}>
-            <View style={styles.duaHeader}>
-              <ThemedText style={styles.duaTitle}>{dua.name}</ThemedText>
-              <TouchableOpacity style={styles.bookmarkButton}>
-                <Ionicons name="bookmark-outline" size={20} color="#0E8A3E" />
+          <View key={dua.id} style={styles.duaCardContainer}>
+            <LinearGradient
+              colors={['#202020', '#141414']}
+              style={styles.duaCard}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            >
+              {/* Bookmark Button */}
+              <TouchableOpacity 
+                style={styles.bookmarkButton}
+                onPress={handleFavoriteToggle}
+              >
+                <Ionicons 
+                  name={isFavorite ? "bookmark" : "bookmark-outline"} 
+                  size={22} 
+                  color="#E0E0E0" 
+                />
               </TouchableOpacity>
-            </View>
-            
-            <View style={styles.arabicContainer}>
-              <ThemedText style={styles.arabicText}>{dua.arabic_text}</ThemedText>
-            </View>
-            
-            <View style={styles.divider} />
-            
-            <View style={styles.translationContainer}>
-              <ThemedText style={styles.translationText}>{dua.translation}</ThemedText>
-              {dua.urdu_translation && (
-                <>
-                  <View style={styles.translationDivider} />
-                  <ThemedText style={[styles.translationText, styles.urduText]}>
-                    {dua.urdu_translation}
-                  </ThemedText>
-                </>
-              )}
-            </View>
-            
-            <View style={styles.referenceContainer}>
-              <ThemedText style={styles.referenceText}>Reference: {dua.reference}</ThemedText>
-            </View>
-            
-            {dua.count && (
-              <View style={styles.countContainer}>
-                <ThemedText style={styles.countText}>Recite: {dua.count}</ThemedText>
+
+              <View style={styles.duaHeader}>
+                <ThemedText style={styles.duaTitle}>{dua.name}</ThemedText>
               </View>
-            )}
-            
-            {renderActionButtons(dua, index)}
+              
+              <View style={styles.arabicContainer}>
+                <ThemedText style={styles.arabicText}>{dua.arabic_text}</ThemedText>
+              </View>
+              
+              <View style={styles.divider} />
+              
+              <View style={styles.translationContainer}>
+                <ThemedText style={styles.translationText}>{dua.translation}</ThemedText>
+                {dua.urdu_translation && (
+                  <>
+                    <View style={styles.translationDivider} />
+                    <ThemedText style={[styles.translationText, styles.urduText]}>
+                      {dua.urdu_translation}
+                    </ThemedText>
+                  </>
+                )}
+              </View>
+              
+              <View style={styles.referenceContainer}>
+                <ThemedText style={styles.referenceText}>Reference: {dua.reference}</ThemedText>
+              </View>
+              
+              {dua.count && (
+                <View style={styles.countContainer}>
+                  <ThemedText style={styles.countText}>Recite: {dua.count}</ThemedText>
+                </View>
+              )}
+              
+              {renderActionButtons(dua, index)}
+            </LinearGradient>
           </View>
         ))}
         <View style={styles.bottomPadding} />
@@ -388,10 +377,10 @@ export default function DuaScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#121212', // Dark theme background
   },
   header: {
-    backgroundColor: '#0E8A3E',
+    backgroundColor: '#1A7F4B', // Slightly darker, less saturated green
     paddingHorizontal: 16,
     paddingBottom: 16,
     paddingTop: Platform.OS === 'ios' ? 50 : 16,
@@ -417,115 +406,135 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  duaCard: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
+  duaCardContainer: {
+    marginBottom: 24,
+    position: 'relative',
+    borderRadius: 16,
+    overflow: 'hidden',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 3,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
       },
       android: {
-        elevation: 3,
+        elevation: 8,
       },
     }),
+  },
+  duaCard: {
+    borderRadius: 16,
+    padding: 20,
+    overflow: 'hidden',
   },
   duaHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 20,
   },
   duaTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#0E8A3E',
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#FFFFFF', // Changed from green to white
   },
   bookmarkButton: {
-    padding: 4,
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 10,
+    backgroundColor: 'rgba(26, 127, 75, 0.15)', // Very subtle green background
+    borderRadius: 20,
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   arabicContainer: {
     alignItems: 'center',
-    paddingVertical: 12,
-    marginVertical: 4,
+    paddingVertical: 20,
+    marginVertical: 8,
     width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)', // Changed from green to neutral color
+    borderRadius: 12,
+    paddingHorizontal: 16,
   },
   arabicText: {
-    fontSize: 26,
-    lineHeight: 42,
+    fontSize: 28,
+    lineHeight: 46,
     textAlign: 'center',
-    color: '#2C3E50',
+    color: '#E0E0E0', // Changed from green to light gray
     fontFamily: 'NotoKufi-Arabic',
     writingDirection: 'rtl',
-    paddingHorizontal: 12,
   },
   divider: {
     height: 1,
-    backgroundColor: '#E8F5ED',
-    marginVertical: 12,
+    backgroundColor: 'rgba(255,255,255,0.1)', // Subtle divider
+    marginVertical: 20,
   },
   translationContainer: {
-    paddingVertical: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
   },
   translationText: {
     fontSize: 16,
-    lineHeight: 24,
-    color: '#2C3E50',
+    lineHeight: 26,
+    color: '#EEEEEE', // Light grey text for better readability
   },
   referenceContainer: {
-    marginTop: 8,
+    marginTop: 16,
+    paddingHorizontal: 8,
   },
   referenceText: {
     fontSize: 14,
-    color: '#88A398',
+    color: 'rgba(200, 200, 200, 0.6)', // Changed from green-tinted to neutral gray
     fontStyle: 'italic',
   },
   actionButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 16,
-    paddingTop: 12,
+    justifyContent: 'flex-end',
+    marginTop: 20,
+    paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#E8F5ED',
+    borderTopColor: 'rgba(255,255,255,0.1)', // Subtle border
+    paddingRight: 8,
+    gap: 16,
   },
   actionButton: {
-    flexDirection: 'row',
+    padding: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)', // Changed from green to neutral 
+    borderRadius: 12,
+    width: 36,
+    height: 36,
     alignItems: 'center',
-    padding: 8,
-  },
-  actionButtonText: {
-    marginLeft: 4,
-    fontSize: 14,
-    color: '#0E8A3E',
+    justifyContent: 'center',
   },
   bottomPadding: {
-    height: 20,
+    height: 40,
   },
   countContainer: {
-    marginTop: 8,
-    padding: 8,
-    backgroundColor: '#E8F5ED',
-    borderRadius: 4,
+    marginTop: 16,
+    marginHorizontal: 8,
+    padding: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)', // Changed from green to neutral
+    borderRadius: 12,
   },
   countText: {
     fontSize: 14,
-    color: '#2C3E50',
+    color: '#FFFFFF', // White text for dark theme
   },
   translationDivider: {
     height: 1,
-    backgroundColor: '#E8F5ED',
-    marginVertical: 8,
+    backgroundColor: 'rgba(255,255,255,0.1)', // Subtle divider
+    marginVertical: 16,
   },
   urduText: {
     fontFamily: 'Jameel-Noori-Nastaleeq',
-    fontSize: 20,
-    lineHeight: 36,
+    fontSize: 22,
+    lineHeight: 40,
     textAlign: 'right',
     writingDirection: 'rtl',
-    color: '#2C3E50',
+    color: '#EEEEEE', // Light grey text for better readability
   },
 }); 

@@ -52,85 +52,98 @@ interface Category {
   description: string;
 }
 
+// Interface for subcategory type
+interface Subcategory {
+  id: string;
+  category_id: string;
+  name: string;
+  icon: string;
+  description: string;
+}
+
 export default function DuasScreen() {
   const [searchText, setSearchText] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
   const { translations } = useLanguage();
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   useEffect(() => {
-    // Fetch categories from the API
-    const fetchCategories = async () => {
+    // Fetch categories and subcategories from the API
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${API_URL}/api/categories`);
-        if (!response.ok) {
+        // Fetch categories
+        const categoriesResponse = await fetch(`${API_URL}/api/categories`);
+        if (!categoriesResponse.ok) {
           throw new Error('Failed to fetch categories');
         }
-        const data = await response.json();
-        setCategories(data);
+        const categoriesData = await categoriesResponse.json();
+        setCategories(categoriesData);
+
+        // Fetch subcategories
+        const subcategoriesResponse = await fetch(`${API_URL}/api/subcategories`);
+        if (!subcategoriesResponse.ok) {
+          throw new Error('Failed to fetch subcategories');
+        }
+        const subcategoriesData = await subcategoriesResponse.json();
+        setSubcategories(subcategoriesData);
+        
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching categories:', error);
-        setError('Failed to load categories. Please try again later.');
+        console.error('Error fetching data:', error);
+        setError('Failed to load data. Please try again later.');
         setLoading(false);
       }
     };
 
-    fetchCategories();
+    fetchData();
   }, []);
 
-  // Filter duas based on search text and selected category
-  const filteredDuas = sampleDuas.filter(dua => {
-    const matchesSearch = dua.title.toLowerCase().includes(searchText.toLowerCase()) || 
-                          dua.translation.toLowerCase().includes(searchText.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || dua.category === selectedCategory;
+  // Filter subcategories based on selected category and search text
+  const filteredSubcategories = subcategories.filter(subcategory => {
+    const matchesSearch = subcategory.name.toLowerCase().includes(searchText.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || subcategory.category_id === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  // Render a dua item
-  const renderDuaItem = ({ item }) => (
-    <View style={styles.duaCard}>
-      <View style={styles.duaHeader}>
-        <Text style={styles.duaTitle}>{item.title}</Text>
-        <TouchableOpacity style={styles.favoriteButton}>
-          <Ionicons name="heart-outline" size={24} color="#4CAF50" />
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.arabicText}>{item.arabic}</Text>
-      <Text style={styles.translationText}>{item.translation}</Text>
-      <View style={styles.duaFooter}>
-        <Text style={styles.categoryText}>{item.category}</Text>
-        <TouchableOpacity style={styles.shareButton}>
-          <Ionicons name="share-social-outline" size={20} color="#666" />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-
-  // Render a category grid item
-  const renderCategoryItem = (item) => (
+  // Render category item
+  const renderCategoryItem = (item: Category) => (
     <TouchableOpacity 
       key={item.id} 
-      style={[styles.categoryItem, selectedCategory === item.id && styles.selectedCategoryItem]} 
-      activeOpacity={0.7}
-      onPress={() => {
-        setSelectedCategory(item.id);
-        // Navigate to subcategory or filter
-      }}
+      style={[styles.categoryTag, selectedCategory === item.id && styles.selectedCategoryTag]} 
+      onPress={() => setSelectedCategory(item.id)}
     >
-      <View style={[styles.categoryIconCircle, selectedCategory === item.id && styles.selectedCategoryIconCircle]}>
-        <Ionicons 
-          name={item.icon as any} 
-          size={20} 
-          color={selectedCategory === item.id ? "#FFFFFF" : "#4CAF50"} 
-        />
-      </View>
-      <Text style={[styles.categoryLabel, selectedCategory === item.id && styles.selectedCategoryLabel]}>
+      <Ionicons 
+        name={item.icon as any} 
+        size={16} 
+        color={selectedCategory === item.id ? "#FFFFFF" : "#4CAF50"} 
+        style={styles.categoryTagIcon}
+      />
+      <Text style={[styles.categoryTagText, selectedCategory === item.id && styles.selectedCategoryTagText]}>
         {translations[`category.${item.id}`] || item.name}
+      </Text>
+    </TouchableOpacity>
+  );
+
+  // Render subcategory grid item
+  const renderSubcategoryItem = ({ item }: { item: Subcategory }) => (
+    <TouchableOpacity 
+      style={styles.subcategoryItem} 
+      activeOpacity={0.7}
+      onPress={() => router.push({
+        pathname: '/dua',
+        params: { subcategoryId: item.id }
+      })}
+    >
+      <View style={styles.iconCircle}>
+        <Ionicons name={item.icon as any} size={24} color="#4CAF50" />
+      </View>
+      <Text style={styles.subcategoryLabel}>
+        {translations[`subcategory.${item.id}`] || item.name}
       </Text>
     </TouchableOpacity>
   );
@@ -154,11 +167,10 @@ export default function DuasScreen() {
         )}
       </View>
 
-      {/* Categories Section */}
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#4CAF50" />
-          <Text style={styles.loadingText}>Loading categories...</Text>
+          <Text style={styles.loadingText}>Loading duas...</Text>
         </View>
       ) : error ? (
         <View style={styles.errorContainer}>
@@ -167,60 +179,90 @@ export default function DuasScreen() {
           <TouchableOpacity 
             style={styles.retryButton}
             onPress={() => {
-              // Retry fetching categories
+              setError('');
+              setLoading(true);
+              // Refetch data
+              fetch(`${API_URL}/api/categories`)
+                .then(response => {
+                  if (!response.ok) throw new Error('Failed to fetch');
+                  return response.json();
+                })
+                .then(data => {
+                  setCategories(data);
+                  return fetch(`${API_URL}/api/subcategories`);
+                })
+                .then(response => {
+                  if (!response.ok) throw new Error('Failed to fetch');
+                  return response.json();
+                })
+                .then(data => {
+                  setSubcategories(data);
+                  setLoading(false);
+                })
+                .catch(err => {
+                  console.error('Error fetching data:', err);
+                  setError('Failed to load data. Please try again later.');
+                  setLoading(false);
+                });
             }}
           >
             <Text style={styles.retryButtonText}>Retry</Text>
           </TouchableOpacity>
         </View>
       ) : (
-        <View style={styles.categoriesSection}>
-          <Text style={styles.sectionTitle}>Categories</Text>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false} 
-            style={styles.categoriesContainer}
-          >
-            <TouchableOpacity 
-              style={[styles.categoryItem, selectedCategory === 'All' && styles.selectedCategoryItem]}
-              onPress={() => setSelectedCategory('All')}
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Categories filter tags */}
+          <View style={styles.categoriesContainer}>
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false} 
+              contentContainerStyle={styles.categoryTagsContainer}
             >
-              <View style={[styles.categoryIconCircle, selectedCategory === 'All' && styles.selectedCategoryIconCircle]}>
+              <TouchableOpacity 
+                style={[styles.categoryTag, selectedCategory === 'all' && styles.selectedCategoryTag]} 
+                onPress={() => setSelectedCategory('all')}
+              >
                 <Ionicons 
-                  name="grid-outline" 
-                  size={20} 
-                  color={selectedCategory === 'All' ? "#FFFFFF" : "#4CAF50"} 
+                  name="apps-outline" 
+                  size={16} 
+                  color={selectedCategory === 'all' ? "#FFFFFF" : "#4CAF50"} 
+                  style={styles.categoryTagIcon}
                 />
-              </View>
-              <Text style={[styles.categoryLabel, selectedCategory === 'All' && styles.selectedCategoryLabel]}>
-                All
-              </Text>
-            </TouchableOpacity>
-            
-            {categories.map(item => renderCategoryItem(item))}
-          </ScrollView>
-        </View>
-      )}
-
-      <View style={styles.divider} />
-
-      {/* Filter by Category (Scrollable buttons) */}
-      <Text style={styles.sectionTitle}>Popular Duas</Text>
-
-      {/* Duas List */}
-      <FlatList
-        data={filteredDuas}
-        renderItem={renderDuaItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.duaList}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons name="search" size={50} color="#333" />
-            <Text style={styles.emptyText}>No duas found</Text>
+                <Text style={[styles.categoryTagText, selectedCategory === 'all' && styles.selectedCategoryTagText]}>
+                  All
+                </Text>
+              </TouchableOpacity>
+              {categories.map(item => renderCategoryItem(item))}
+            </ScrollView>
           </View>
-        }
-      />
+
+          {/* Subcategories Grid */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Duas</Text>
+            <Text style={styles.sectionSubtitle}>
+              {selectedCategory === 'all' 
+                ? 'All categories' 
+                : categories.find(c => c.id === selectedCategory)?.name || ''}
+            </Text>
+          </View>
+
+          {filteredSubcategories.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="search" size={50} color="#666" />
+              <Text style={styles.emptyText}>No duas found</Text>
+            </View>
+          ) : (
+            <View style={styles.subcategoriesGrid}>
+              {filteredSubcategories.map((item) => (
+                <View key={item.id} style={styles.subcategoryItemWrapper}>
+                  {renderSubcategoryItem({ item })}
+                </View>
+              ))}
+            </View>
+          )}
+          <View style={styles.bottomPadding} />
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
@@ -253,170 +295,138 @@ const styles = StyleSheet.create({
   clearButton: {
     padding: 4,
   },
-  categoriesSection: {
-    paddingHorizontal: 16,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 12,
-    paddingHorizontal: 16,
-  },
   categoriesContainer: {
-    flexDirection: 'row',
-    paddingBottom: 8,
-  },
-  categoryItem: {
-    alignItems: 'center',
-    marginRight: 16,
-    width: 80,
-  },
-  selectedCategoryItem: {
-    // Styling for selected category
-  },
-  categoryIconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#1E1E1E',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#333',
-  },
-  selectedCategoryIconCircle: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
-  },
-  categoryLabel: {
-    color: '#CCCCCC',
-    fontSize: 12,
-    textAlign: 'center',
-  },
-  selectedCategoryLabel: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#333',
-    marginVertical: 16,
-  },
-  categoriesScrollView: {
-    paddingHorizontal: 16,
     marginBottom: 16,
   },
-  categoryButton: {
+  categoryTagsContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: '#1E1E1E',
-    marginRight: 8,
-    borderWidth: 1,
-    borderColor: '#333',
   },
-  selectedCategoryButton: {
+  categoryTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1E1E1E',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#333333',
+  },
+  selectedCategoryTag: {
     backgroundColor: '#4CAF50',
     borderColor: '#4CAF50',
   },
-  categoryButtonText: {
-    color: '#FFFFFF',
+  categoryTagIcon: {
+    marginRight: 6,
+  },
+  categoryTagText: {
+    color: '#CCCCCC',
     fontSize: 14,
   },
-  selectedCategoryButtonText: {
+  selectedCategoryTagText: {
     color: '#FFFFFF',
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
-  duaList: {
-    paddingHorizontal: 16,
+  sectionHeader: {
+    paddingHorizontal: 20,
     paddingBottom: 16,
   },
-  duaCard: {
-    backgroundColor: '#1E1E1E',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 16,
-    borderLeftWidth: 3,
-    borderLeftColor: '#4CAF50',
-  },
-  duaHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  duaTitle: {
-    fontSize: 18,
+  sectionTitle: {
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#FFFFFF',
+    marginBottom: 4,
   },
-  favoriteButton: {
-    padding: 4,
-  },
-  arabicText: {
-    fontSize: 20,
-    color: '#4CAF50',
-    marginBottom: 12,
-    textAlign: 'right',
-    lineHeight: 32,
-  },
-  translationText: {
-    fontSize: 14,
+  sectionSubtitle: {
+    fontSize: 16,
     color: '#CCCCCC',
-    marginBottom: 12,
-    lineHeight: 20,
   },
-  duaFooter: {
+  subcategoriesGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexWrap: 'wrap',
+    paddingHorizontal: 16,
   },
-  categoryText: {
-    fontSize: 12,
-    color: '#888888',
+  subcategoryItemWrapper: {
+    width: '50%',
+    padding: 6,
   },
-  shareButton: {
-    padding: 4,
-  },
-  emptyContainer: {
+  subcategoryItem: {
+    backgroundColor: '#1E1E1E',
+    borderRadius: 12,
+    padding: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 100,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    height: 140,
   },
-  emptyText: {
-    color: '#666',
-    fontSize: 16,
-    marginTop: 12,
+  iconCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#212121',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#333333',
+  },
+  subcategoryLabel: {
+    textAlign: 'center',
+    fontSize: 15,
+    color: '#FFFFFF',
+    fontWeight: '500',
   },
   loadingContainer: {
-    padding: 24,
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+    padding: 40,
   },
   loadingText: {
-    marginTop: 8,
+    marginTop: 16,
+    fontSize: 16,
     color: '#CCCCCC',
   },
   errorContainer: {
-    padding: 24,
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+    padding: 40,
   },
   errorText: {
-    marginTop: 8,
+    marginTop: 16,
+    fontSize: 16,
     color: '#FF3B30',
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
   },
   retryButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
     backgroundColor: '#1E1E1E',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 8,
   },
   retryButtonText: {
     color: '#4CAF50',
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#CCCCCC',
+    textAlign: 'center',
+  },
+  bottomPadding: {
+    height: 80,
   },
 }); 
