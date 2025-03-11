@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import React, { useState, useRef, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -237,12 +238,19 @@ export default function HomeScreen() {
                       params: { categoryId: item.id }
                     })}
                   >
-                    <View style={styles.iconCircle}>
-                      <Ionicons name={item.icon as any} size={24} color="#4CAF50" />
-                    </View>
-                    <ThemedText style={styles.gridLabel}>
-                      {translations[`category.${item.id}`] || item.name}
-                    </ThemedText>
+                    <LinearGradient
+                      colors={['#202020', '#181818']}
+                      style={styles.categoryBox}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                    >
+                      <View style={styles.iconCircle}>
+                        <Ionicons name={item.icon as any} size={24} color="#1A7F4B" />
+                      </View>
+                      <ThemedText style={styles.gridLabel}>
+                        {translations[`category.${item.id}`] || item.name}
+                      </ThemedText>
+                    </LinearGradient>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -472,25 +480,43 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   gridItem: {
-    width: '30%',
+    width: '48%', // Change to 48% for 2 items per row with space between
+    marginBottom: 16,
+  },
+  categoryBox: {
+    borderRadius: 12,
+    padding: 16,
     alignItems: 'center',
-    marginBottom: 24,
+    justifyContent: 'center',
+    height: 140,
+    borderWidth: 1,
+    borderColor: '#333333',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
   },
   iconCircle: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#212121', // Darker circle background
+    backgroundColor: 'rgba(26, 127, 75, 0.1)', // Subtle green background
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#333333',
+    marginBottom: 12,
   },
   gridLabel: {
     textAlign: 'center',
-    fontSize: 13,
-    color: '#CCCCCC', // Lighter text color
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#FFFFFF', // White text for better visibility
     paddingHorizontal: 4,
   },
   bottomPadding: {

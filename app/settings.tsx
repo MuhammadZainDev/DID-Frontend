@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView, Platform, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme, themeColors } from '../context/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { language, setLanguage, translations } = useLanguage();
-  const [darkMode, setDarkMode] = useState(true);
+  const { theme, colors, setTheme } = useTheme();
   const [prayerNotifications, setPrayerNotifications] = useState(true);
-  const [reminderNotifications, setReminderNotifications] = useState(true);
-  const [adhanSound, setAdhanSound] = useState(true);
 
   const goBack = () => {
     router.back();
@@ -23,7 +22,9 @@ export default function SettingsScreen() {
 
   const SettingsSection = ({ title, children }) => (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{title}</Text>
+      <Text style={styles.sectionTitle}>
+        {title}
+      </Text>
       <View style={styles.sectionContent}>
         {children}
       </View>
@@ -33,14 +34,19 @@ export default function SettingsScreen() {
   const SettingsItem = ({ icon, title, value, onToggle, type = 'switch' }) => (
     <View style={styles.settingItem}>
       <View style={styles.settingItemLeft}>
-        <Ionicons name={icon} size={22} color="#4CAF50" style={styles.settingIcon} />
+        <Ionicons 
+          name={icon} 
+          size={22} 
+          color="#FFFFFF" 
+          style={styles.settingIcon} 
+        />
         <Text style={styles.settingTitle}>{title}</Text>
       </View>
       {type === 'switch' ? (
         <Switch
           value={value}
           onValueChange={onToggle}
-          trackColor={{ false: '#444', true: '#4CAF50' }}
+          trackColor={{ false: '#444', true: colors.track }}
           thumbColor={value ? '#FFFFFF' : '#FFFFFF'}
         />
       ) : type === 'language' ? (
@@ -48,44 +54,64 @@ export default function SettingsScreen() {
           <Text style={styles.languageButtonText}>
             {language === 'en' ? 'English' : 'اردو'}
           </Text>
-          <Ionicons name="chevron-forward" size={16} color="#888" />
+          <Ionicons name="chevron-forward" size={16} color="#AAAAAA" />
         </TouchableOpacity>
       ) : (
         <TouchableOpacity onPress={onToggle} style={styles.navigationButton}>
-          <Ionicons name="chevron-forward" size={20} color="#888" />
+          <Ionicons name="chevron-forward" size={20} color="#AAAAAA" />
         </TouchableOpacity>
       )}
     </View>
   );
 
+  // Color Theme Component
+  const ThemeOption = ({ colorKey }) => (
+    <TouchableOpacity 
+      style={[
+        styles.themeOption, 
+        { backgroundColor: themeColors[colorKey].primary },
+        theme === colorKey && styles.selectedThemeOption
+      ]}
+      onPress={() => setTheme(colorKey)}
+    >
+      {theme === colorKey && (
+        <Ionicons name="checkmark" size={18} color="#FFFFFF" />
+      )}
+    </TouchableOpacity>
+  );
+
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
+    <View style={styles.container}>
+      <StatusBar backgroundColor={colors.header} barStyle="light-content" />
+      <View style={[styles.header, { backgroundColor: colors.header }]}>
         <TouchableOpacity onPress={goBack} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+          <Ionicons name="chevron-back-outline" size={24} color="#FFFFFF" />
+          <Text style={styles.backText}>Home</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{translations['settings.title']}</Text>
-        <View style={{ width: 24 }} />
+        <Text style={styles.headerTitle}>
+          {translations['settings.title']}
+        </Text>
+        <View style={{width: 70}} />
       </View>
 
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.profileSection}>
-          <View style={styles.profileImageContainer}>
-            <Ionicons name="person-circle" size={80} color="#4CAF50" />
-          </View>
-          <Text style={styles.profileName}>Guest User</Text>
-          <TouchableOpacity style={styles.signInButton}>
-            <Text style={styles.signInButtonText}>Sign In</Text>
-          </TouchableOpacity>
-        </View>
-
+      <ScrollView style={[styles.scrollView, { backgroundColor: '#121212' }]} contentContainerStyle={styles.scrollContent}>
         <SettingsSection title={translations['settings.appSettings']}>
-          <SettingsItem
-            icon="moon-outline"
-            title={translations['settings.darkMode']}
-            value={darkMode}
-            onToggle={() => setDarkMode(!darkMode)}
-          />
+          <View style={styles.settingItem}>
+            <View style={styles.settingItemLeft}>
+              <Ionicons 
+                name="color-palette-outline" 
+                size={22} 
+                color="#FFFFFF" 
+                style={styles.settingIcon} 
+              />
+              <Text style={styles.settingTitle}>Theme Color</Text>
+            </View>
+            <View style={styles.themeOptions}>
+              <ThemeOption colorKey="green" />
+              <ThemeOption colorKey="blue" />
+              <ThemeOption colorKey="purple" />
+            </View>
+          </View>
           <SettingsItem
             icon="language-outline"
             title={translations['settings.language']}
@@ -102,31 +128,13 @@ export default function SettingsScreen() {
             value={prayerNotifications}
             onToggle={() => setPrayerNotifications(!prayerNotifications)}
           />
-          <SettingsItem
-            icon="alarm-outline"
-            title="Prayer Reminders (15 min before)"
-            value={reminderNotifications}
-            onToggle={() => setReminderNotifications(!reminderNotifications)}
-          />
-          <SettingsItem
-            icon="volume-high-outline"
-            title="Adhan Sound"
-            value={adhanSound}
-            onToggle={() => setAdhanSound(!adhanSound)}
-          />
-          <SettingsItem
-            icon="location-outline"
-            title={translations['settings.location']}
-            onToggle={() => {}}
-            type="navigation"
-          />
         </SettingsSection>
 
         <SettingsSection title={translations['settings.aboutApp']}>
           <SettingsItem
             icon="information-circle-outline"
             title="About Us"
-            onToggle={() => {}}
+            onToggle={() => router.push('/about-us')}
             type="navigation"
           />
           <SettingsItem
@@ -155,7 +163,7 @@ export default function SettingsScreen() {
           </Text>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -163,67 +171,40 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#121212',
+    paddingTop: 0,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    height: 56,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
-  },
-  backButton: {
-    padding: 8,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 54,
+    paddingBottom: 16,
+    height: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 54 : 100,
+    backgroundColor: '#1A7F4B',
+    width: '100%',
   },
   headerTitle: {
-    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '600',
+    color: '#FFFFFF',
+    textAlign: 'center',
   },
   scrollView: {
     flex: 1,
   },
-  profileSection: {
-    alignItems: 'center',
-    paddingVertical: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
-  },
-  profileImageContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#1E1E1E',
-    marginBottom: 16,
-  },
-  profileName: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  signInButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: '#4CAF50',
-    borderRadius: 20,
-  },
-  signInButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
+  scrollContent: {
+    paddingTop: 16,
   },
   section: {
-    marginTop: 24,
+    marginBottom: 24,
     paddingHorizontal: 16,
   },
   sectionTitle: {
-    color: '#4CAF50',
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 16,
+    color: '#FFFFFF',
   },
   sectionContent: {
     backgroundColor: '#1E1E1E',
@@ -248,14 +229,29 @@ const styles = StyleSheet.create({
   },
   settingTitle: {
     color: '#FFFFFF',
-    fontSize: 16,
+  },
+  themeOptions: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  themeOption: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectedThemeOption: {
+    borderColor: '#FFFFFF',
   },
   languageButton: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   languageButtonText: {
-    color: '#888',
+    color: '#FFFFFF',
     marginRight: 8,
   },
   navigationButton: {
@@ -263,10 +259,21 @@ const styles = StyleSheet.create({
   },
   versionContainer: {
     alignItems: 'center',
-    paddingVertical: 24,
+    marginTop: 24,
+    marginBottom: 40,
   },
   versionText: {
-    color: '#666',
+    color: '#888',
     fontSize: 14,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '500',
+    marginLeft: 4,
   },
 }); 

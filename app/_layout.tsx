@@ -1,4 +1,4 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -8,6 +8,7 @@ import { useEffect, useState, useRef } from 'react';
 import 'react-native-reanimated';
 import { AuthProvider } from '../context/AuthContext';
 import { LanguageProvider } from '../context/LanguageContext';
+import { ThemeProvider } from '../context/ThemeContext';
 import { checkIfFirstLaunch } from '../utils/storage';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -85,52 +86,54 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <LanguageProvider>
-        <ThemeProvider value={DefaultTheme}>
-          <Stack screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: 'white' },
-            animation: 'fade_from_bottom',
-            presentation: 'fullScreenModal',
-            animationDuration: 200,
-          }}>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="dua" options={{ headerShown: false }} />
-            <Stack.Screen name="subcategory" options={{ headerShown: false }} />
-            <Stack.Screen name="welcome" options={{ headerShown: false, gestureEnabled: false }} />
-            <Stack.Screen name="welcome-options" options={{ headerShown: false, gestureEnabled: false }} />
-            
-            {/* Policy group screens */}
-            <Stack.Screen 
-              name="(policy)" 
-              options={{ 
-                headerShown: false
-              }} 
-            />
-            
-            <Stack.Screen
-              name="login"
-              options={{
-                animation: 'slide_from_right',
-                presentation: 'card',
-                animationDuration: 200,
-              }}
-            />
-            <Stack.Screen
-              name="signup"
-              options={{
-                animation: 'slide_from_right',
-                presentation: 'card',
-                animationDuration: 200,
-              }}
-            />
-          </Stack>
-          <StatusBar style="light" />
-        </ThemeProvider>
-      </LanguageProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <NavigationThemeProvider value={DefaultTheme}>
+            <Stack screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: 'white' },
+              animation: 'fade_from_bottom',
+              presentation: 'fullScreenModal',
+              animationDuration: 200,
+            }}>
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="dua" options={{ headerShown: false }} />
+              <Stack.Screen name="subcategory" options={{ headerShown: false }} />
+              <Stack.Screen name="welcome" options={{ headerShown: false, gestureEnabled: false }} />
+              <Stack.Screen name="welcome-options" options={{ headerShown: false, gestureEnabled: false }} />
+              
+              {/* Policy group screens */}
+              <Stack.Screen 
+                name="(policy)" 
+                options={{ 
+                  headerShown: false
+                }} 
+              />
+              
+              <Stack.Screen
+                name="login"
+                options={{
+                  animation: 'slide_from_right',
+                  presentation: 'card',
+                  animationDuration: 200,
+                }}
+              />
+              <Stack.Screen
+                name="signup"
+                options={{
+                  animation: 'slide_from_right',
+                  presentation: 'card',
+                  animationDuration: 200,
+                }}
+              />
+            </Stack>
+            <StatusBar style="light" />
+          </NavigationThemeProvider>
+        </LanguageProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
