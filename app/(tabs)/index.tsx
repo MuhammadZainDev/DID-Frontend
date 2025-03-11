@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import React, { useState, useRef, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
+import { SvgXml } from 'react-native-svg';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -14,6 +15,9 @@ import UserAvatar from '@/components/UserAvatar';
 import CalligraphicDuaBox from '@/components/CalligraphicDuaBox';
 import { useLanguage } from '../../context/LanguageContext';
 import { API_URL } from '@/config/constants';
+import { searchDuaWithAI, DuaResponse } from '@/services/geminiService';
+import DuaModal from '@/components/DuaModal';
+import LoadingView from '@/components/LoadingView';
 
 // Category type definition
 interface Category {
@@ -28,12 +32,17 @@ export default function HomeScreen() {
   const [showSettings, setShowSettings] = useState(false);
   const [showLogoutMenu, setShowLogoutMenu] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const glowAnim = useRef(new Animated.Value(0)).current;
   const { translations } = useLanguage();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [totalDuas, setTotalDuas] = useState(104);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [showDuaModal, setShowDuaModal] = useState(false);
+  const [duaResult, setDuaResult] = useState<DuaResponse | null>(null);
 
   useEffect(() => {
     // Check if user is logged in
@@ -98,6 +107,28 @@ export default function HomeScreen() {
     }
   }, [showSettings]);
 
+  useEffect(() => {
+    // Animation for the search bar glow effect
+    const startGlowAnimation = () => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(glowAnim, {
+            toValue: 1,
+            duration: 1500,
+            useNativeDriver: false,
+          }),
+          Animated.timing(glowAnim, {
+            toValue: 0,
+            duration: 1500,
+            useNativeDriver: false,
+          }),
+        ])
+      ).start();
+    };
+    
+    startGlowAnimation();
+  }, []);
+
   const closeSettings = () => {
     Animated.timing(fadeAnim, {
       toValue: 0,
@@ -122,6 +153,43 @@ export default function HomeScreen() {
       console.error('Error logging out:', error);
     }
   };
+
+  const handleSearchSubmit = async () => {
+    if (!searchQuery.trim()) return;
+    
+    try {
+      setIsSearching(true);
+      const data = await searchDuaWithAI(searchQuery);
+      setDuaResult(data);
+      setShowDuaModal(true);
+    } catch (error) {
+      console.error('Search error:', error);
+      // You could show an error toast here
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Gemini logo SVG
+  const geminiLogoSvg = `
+    <svg xmlns="http://www.w3.org/2000/svg" height="1em" style="flex:none;line-height:1" viewBox="0 0 24 24" width="1em">
+      <title>Gemini</title>
+      <defs>
+        <linearGradient id="lobe-icons-gemini-fill" x1="0%" x2="68.73%" y1="100%" y2="30.395%">
+          <stop offset="0%" stop-color="#1C7DFF"/>
+          <stop offset="52.021%" stop-color="#1C69FF"/>
+          <stop offset="100%" stop-color="#F0DCD6"/>
+        </linearGradient>
+      </defs>
+      <path d="M12 24A14.304 14.304 0 000 12 14.304 14.304 0 0012 0a14.305 14.305 0 0012 12 14.305 14.305 0 00-12 12" fill="url(#lobe-icons-gemini-fill)" fill-rule="nonzero"/>
+    </svg>
+  `;
+  
+  // Shadow interpolation for the glow effect
+  const glowShadow = glowAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0px 0px 5px rgba(28, 125, 255, 0.3)', '0px 0px 10px rgba(28, 125, 255, 0.7)']
+  });
 
   return (
     <>
@@ -173,14 +241,47 @@ export default function HomeScreen() {
                 )}
               </View>
             </View>
-            <View style={styles.searchBar}>
+            <Animated.View 
+              style={[
+                styles.searchBar,
+                {
+                  shadowColor: '#1C7DFF',
+                  shadowOffset: { width: 0, height: 0 },
+                  shadowOpacity: 0.8,
+                  shadowRadius: glowAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [3, 8]
+                  }),
+                  elevation: glowAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [2, 6]
+                  }),
+                }
+              ]}
+            >
               <Ionicons name="search-outline" size={20} color="#88A398" style={styles.searchIcon} />
               <TextInput 
-                placeholder={translations['home.search_placeholder']}
+                placeholder={translations['home.search_placeholder'] || 'Search dua by AI'}
                 placeholderTextColor="#88A398"
                 style={styles.searchInput}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                onSubmitEditing={handleSearchSubmit}
+                returnKeyType="search"
               />
-            </View>
+              {searchQuery.length > 0 ? (
+                <TouchableOpacity 
+                  onPress={handleSearchSubmit}
+                  style={styles.sendButton}
+                >
+                  <Ionicons name="send" size={20} color="#4CAF50" />
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.geminiLogo}>
+                  <SvgXml xml={geminiLogoSvg} width={24} height={24} />
+                </View>
+              )}
+            </Animated.View>
           </SafeAreaView>
         </View>
 
@@ -285,6 +386,17 @@ export default function HomeScreen() {
           </Animated.View>
         </Animated.View>
       </Modal>
+
+      <LoadingView 
+        visible={isSearching}
+        message="Searching for dua..."
+      />
+      
+      <DuaModal
+        visible={showDuaModal}
+        dua={duaResult}
+        onClose={() => setShowDuaModal(false)}
+      />
     </>
   );
 }
@@ -374,6 +486,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 12,
     height: 48,
+    borderWidth: 1,
+    borderColor: '#2A2A2A',
   },
   searchIcon: {
     marginRight: 8,
@@ -540,5 +654,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#333333', // Dark handle for dark theme
     borderRadius: 3,
     marginBottom: 16,
+  },
+  sendButton: {
+    padding: 8,
+    marginLeft: 4,
+  },
+  geminiLogo: {
+    marginLeft: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
