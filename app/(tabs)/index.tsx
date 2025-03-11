@@ -11,6 +11,7 @@ import { ThemedView } from '@/components/ThemedView';
 import PrayerTimes from '@/components/PrayerTimes';
 import Settings from '@/components/Settings';
 import UserAvatar from '@/components/UserAvatar';
+import CalligraphicDuaBox from '@/components/CalligraphicDuaBox';
 import { useLanguage } from '../../context/LanguageContext';
 import { API_URL } from '@/config/constants';
 
@@ -30,6 +31,7 @@ export default function HomeScreen() {
   const { translations } = useLanguage();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [totalDuas, setTotalDuas] = useState(104);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -50,25 +52,38 @@ export default function HomeScreen() {
   }, []);
 
   useEffect(() => {
-    // Fetch categories from the API
-    const fetchCategories = async () => {
+    // Fetch categories and count total duas
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${API_URL}/api/categories`);
-        if (!response.ok) {
+        
+        // Fetch categories
+        const categoriesResponse = await fetch(`${API_URL}/api/categories`);
+        if (!categoriesResponse.ok) {
           throw new Error('Failed to fetch categories');
         }
-        const data = await response.json();
-        setCategories(data);
+        const categoriesData = await categoriesResponse.json();
+        setCategories(categoriesData);
+        
+        // Fetch subcategories to count duas
+        const subcategoriesResponse = await fetch(`${API_URL}/api/subcategories`);
+        if (!subcategoriesResponse.ok) {
+          throw new Error('Failed to fetch subcategories');
+        }
+        const subcategoriesData = await subcategoriesResponse.json();
+        
+        // Set total duas count (using subcategories count as an approximation)
+        setTotalDuas(subcategoriesData.length);
+        
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching categories:', error);
-        setError('Failed to load categories. Please try again later.');
+        console.error('Error fetching data:', error);
+        setError('Failed to load data. Please try again later.');
         setLoading(false);
       }
     };
 
-    fetchCategories();
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -184,11 +199,11 @@ export default function HomeScreen() {
             </ImageBackground>
           </View>
 
-          {/* Categories Grid */}
+          {/* Calligraphic Dua Box */}
           {loading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#4CAF50" />
-              <ThemedText style={styles.loadingText}>Loading categories...</ThemedText>
+              <ThemedText style={styles.loadingText}>Loading...</ThemedText>
             </View>
           ) : error ? (
             <View style={styles.errorContainer}>
@@ -199,7 +214,7 @@ export default function HomeScreen() {
                 onPress={() => {
                   setError('');
                   setLoading(true);
-                  // Fetch categories again
+                  // Fetch data again
                   fetch(`${API_URL}/api/categories`)
                     .then(response => {
                       if (!response.ok) throw new Error('Failed to fetch');
@@ -220,41 +235,10 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
           ) : (
-            <>
-              <View style={styles.sectionHeader}>
-                <ThemedText style={styles.sectionTitle}>Duas</ThemedText>
-                <TouchableOpacity onPress={() => router.push('/duas')}>
-                  <ThemedText style={styles.viewMoreText}>View More</ThemedText>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.grid}>
-                {categories.slice(0, 6).map((item) => (
-                  <TouchableOpacity 
-                    key={item.id} 
-                    style={styles.gridItem} 
-                    activeOpacity={0.7}
-                    onPress={() => router.push({
-                      pathname: '/subcategory',
-                      params: { categoryId: item.id }
-                    })}
-                  >
-                    <LinearGradient
-                      colors={['#202020', '#181818']}
-                      style={styles.categoryBox}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                    >
-                      <View style={styles.iconCircle}>
-                        <Ionicons name={item.icon as any} size={24} color="#1A7F4B" />
-                      </View>
-                      <ThemedText style={styles.gridLabel}>
-                        {translations[`category.${item.id}`] || item.name}
-                      </ThemedText>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </>
+            <CalligraphicDuaBox 
+              totalDuas={totalDuas} 
+              onPress={() => router.push('/duas')}
+            />
           )}
           <View style={styles.bottomPadding} />
         </ScrollView>
@@ -463,15 +447,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
   },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#FFFFFF', // White text for dark theme
-  },
   viewMoreText: {
     color: '#4CAF50',
     fontSize: 16,
     fontWeight: '600',
+  },
+  viewMoreLink: {
+    padding: 4,
   },
   grid: {
     flexDirection: 'row',

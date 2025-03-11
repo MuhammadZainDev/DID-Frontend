@@ -30,9 +30,7 @@ type Subcategory = {
   id: string;
   category_id: string;
   name: string;
-  reference: string;
   description: string;
-  arabic_text?: string;
 };
 
 export default function DuaScreen() {

@@ -140,7 +140,7 @@ export default function SettingsScreen() {
           <SettingsItem
             icon="mail-outline"
             title={translations['settings.contactUs']}
-            onToggle={() => {}}
+            onToggle={() => router.push('/contact-us')}
             type="navigation"
           />
           <SettingsItem

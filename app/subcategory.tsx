@@ -14,7 +14,6 @@ type IconName = keyof typeof Ionicons.glyphMap;
 interface Subcategory {
   id: string;
   name: string;
-  reference: string;
   description?: string;
   icon?: string;
 }
@@ -139,7 +138,6 @@ export default function SubcategoryScreen() {
                 </View>
                 <View style={styles.itemMain}>
                   <ThemedText style={styles.itemTitle}>{subcategory.name}</ThemedText>
-                  <ThemedText style={styles.itemReference}>{subcategory.reference || ''}</ThemedText>
                 </View>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#88A398" />
@@ -246,10 +244,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#333333',
     marginBottom: 4,
-  },
-  itemReference: {
-    fontSize: 12,
-    color: '#888888',
   },
   loadingContainer: {
     flex: 1,

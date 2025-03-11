@@ -238,7 +238,6 @@ export default function DuasScreen() {
 
           {/* Subcategories Grid */}
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Duas</Text>
             <Text style={styles.sectionSubtitle}>
               {selectedCategory === 'all' 
                 ? 'All categories' 
@@ -330,12 +329,6 @@ const styles = StyleSheet.create({
   sectionHeader: {
     paddingHorizontal: 20,
     paddingBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 4,
   },
   sectionSubtitle: {
     fontSize: 16,
