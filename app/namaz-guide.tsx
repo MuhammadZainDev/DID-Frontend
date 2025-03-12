@@ -268,14 +268,14 @@ export default function NamazGuidePage() {
       fontSize: 16,
       color: '#E0E0E0',
       lineHeight: 24,
-      textAlign: 'center',
+      textAlign: 'left',
       marginTop: 8,
     },
     boldDescription: {
       fontSize: 16,
       color: '#FFFFFF',
       lineHeight: 24,
-      textAlign: 'center',
+      textAlign: 'left',
       fontWeight: 'bold',
     },
   });
