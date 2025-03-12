@@ -10,10 +10,10 @@ import {
   SafeAreaView,
   ActivityIndicator,
   ScrollView,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
-import Logo from '../components/Logo';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function Signup() {
@@ -95,7 +95,7 @@ export default function Signup() {
   }, [error]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.content}
@@ -104,8 +104,19 @@ export default function Signup() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+
           <View style={styles.logoContainer}>
-            <Logo size={120} color="#0E8A3E" />
+            <Image
+              source={require('../assets/logo/logo.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
           </View>
 
           <Text style={styles.title}>Create Account</Text>
@@ -120,20 +131,26 @@ export default function Signup() {
             ) : null}
 
             <View style={styles.inputContainer}>
+              <View style={styles.inputIconContainer}>
+                <Ionicons name="person-outline" size={20} color="#888" />
+              </View>
               <TextInput
                 style={styles.input}
                 placeholder="Full Name"
-                placeholderTextColor="#999"
+                placeholderTextColor="#888"
                 value={name}
                 onChangeText={setName}
               />
             </View>
 
             <View style={styles.inputContainer}>
+              <View style={styles.inputIconContainer}>
+                <Ionicons name="mail-outline" size={20} color="#888" />
+              </View>
               <TextInput
                 style={styles.input}
                 placeholder="Email"
-                placeholderTextColor="#999"
+                placeholderTextColor="#888"
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize="none"
@@ -142,10 +159,13 @@ export default function Signup() {
             </View>
 
             <View style={styles.inputContainer}>
+              <View style={styles.inputIconContainer}>
+                <Ionicons name="lock-closed-outline" size={20} color="#888" />
+              </View>
               <TextInput
                 style={styles.input}
                 placeholder="Password"
-                placeholderTextColor="#999"
+                placeholderTextColor="#888"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -156,17 +176,20 @@ export default function Signup() {
               >
                 <Ionicons
                   name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                  size={24}
-                  color="#999"
+                  size={20}
+                  color="#888"
                 />
               </TouchableOpacity>
             </View>
 
             <View style={styles.inputContainer}>
+              <View style={styles.inputIconContainer}>
+                <Ionicons name="lock-closed-outline" size={20} color="#888" />
+              </View>
               <TextInput
                 style={styles.input}
                 placeholder="Confirm Password"
-                placeholderTextColor="#999"
+                placeholderTextColor="#888"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry={!showConfirmPassword}
@@ -177,8 +200,8 @@ export default function Signup() {
               >
                 <Ionicons
                   name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
-                  size={24}
-                  color="#999"
+                  size={20}
+                  color="#888"
                 />
               </TouchableOpacity>
             </View>
@@ -215,34 +238,45 @@ export default function Signup() {
           </Text>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#121212',
   },
   content: {
     flex: 1,
     padding: 24,
   },
+  backButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 10 : 20,
+    left: 0,
+    padding: 10,
+    zIndex: 10,
+  },
   logoContainer: {
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: Platform.OS === 'ios' ? 60 : 80,
     marginBottom: 40,
+  },
+  logo: {
+    width: 150,
+    height: 150,
   },
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#333',
+    color: '#FFFFFF',
     textAlign: 'center',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#CCCCCC',
     textAlign: 'center',
     marginBottom: 32,
   },
@@ -253,44 +287,63 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E8E8E8',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    height: 48,
+    borderColor: '#333333',
+    borderRadius: 12,
+    height: 52,
     marginVertical: 6,
+    backgroundColor: '#1E1E1E',
+  },
+  inputIconContainer: {
+    paddingLeft: 16,
+    paddingRight: 8,
   },
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: '#FFFFFF',
+    paddingVertical: 12,
   },
   iconContainer: {
-    padding: 8,
+    padding: 16,
+    borderLeftWidth: 1,
+    borderLeftColor: '#333333',
   },
   button: {
-    backgroundColor: '#0E8A3E',
-    height: 48,
+    backgroundColor: '#4CAF50',
+    height: 52,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 6,
+    shadowColor: '#4CAF50',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 8,
   },
   buttonDisabled: {
-    backgroundColor: '#0E8A3E80',
+    backgroundColor: 'rgba(76, 175, 80, 0.5)',
+    shadowOpacity: 0,
+    elevation: 0,
   },
   buttonText: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
   errorContainer: {
-    backgroundColor: '#FFE5E5',
+    backgroundColor: 'rgba(211, 47, 47, 0.1)',
     padding: 12,
     borderRadius: 12,
     marginBottom: 16,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    borderWidth: 1,
+    borderColor: '#D32F2F',
   },
   errorText: {
     color: '#D32F2F',
@@ -305,29 +358,29 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   linkText: {
-    color: '#666',
+    color: '#CCCCCC',
     fontSize: 14,
   },
   link: {
-    color: '#0E8A3E',
+    color: '#4CAF50',
     fontWeight: '600',
-  },
-  scrollContent: {
-    flexGrow: 1,
   },
   termsContainer: {
     paddingVertical: 16,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    backgroundColor: '#fff',
+    borderTopColor: '#333333',
+    backgroundColor: 'transparent',
   },
   termsText: {
     textAlign: 'center',
-    color: '#999',
+    color: '#888888',
     fontSize: 12,
     lineHeight: 18,
   },
   termsLink: {
-    color: '#0E8A3E',
+    color: '#4CAF50',
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
 }); 
