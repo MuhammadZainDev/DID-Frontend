@@ -41,6 +41,7 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isAISearching, setIsAISearching] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [showDuaModal, setShowDuaModal] = useState(false);
   const [duaResult, setDuaResult] = useState<DuaResponse | null>(null);
@@ -159,15 +160,16 @@ export default function HomeScreen() {
     if (!searchQuery.trim()) return;
     
     try {
-      setIsSearching(true);
+      setIsAISearching(true);
       const data = await searchDuaWithAI(searchQuery);
       setDuaResult(data);
       setShowDuaModal(true);
+      setSearchQuery(''); // Clear the search input
     } catch (error) {
       console.error('Search error:', error);
       // You could show an error toast here
     } finally {
-      setIsSearching(false);
+      setIsAISearching(false);
     }
   };
 
@@ -197,7 +199,7 @@ export default function HomeScreen() {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <SafeAreaView>
+          <SafeAreaView style={styles.safeArea}>
             <View style={styles.headerTop}>
               <ThemedText style={styles.title}>{translations['app.name']}</ThemedText>
               <View style={styles.headerIcons}>
@@ -213,7 +215,6 @@ export default function HomeScreen() {
                     if (user) {
                       setShowLogoutMenu(!showLogoutMenu);
                     } else {
-                      // Use replace instead of push for better navigation
                       router.replace('/login');
                     }
                   }}
@@ -224,22 +225,6 @@ export default function HomeScreen() {
                     <Ionicons name="person-outline" size={24} color="#FFFFFF" />
                   )}
                 </TouchableOpacity>
-                {showLogoutMenu && user && (
-                  <View style={styles.logoutMenu}>
-                    <View style={styles.userInfo}>
-                      <Text style={styles.userName}>{user.name}</Text>
-                      <Text style={styles.userEmail}>{user.email}</Text>
-                    </View>
-                    <View style={styles.divider} />
-                    <TouchableOpacity 
-                      style={styles.logoutButton}
-                      onPress={handleLogout}
-                    >
-                      <Ionicons name="log-out-outline" size={20} color="#FF3B30" style={styles.logoutIcon} />
-                      <Text style={styles.logoutText}>Logout</Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
               </View>
             </View>
             <Animated.View 
@@ -285,6 +270,25 @@ export default function HomeScreen() {
             </Animated.View>
           </SafeAreaView>
         </View>
+
+        {showLogoutMenu && user && (
+          <View style={styles.logoutMenuContainer}>
+            <View style={styles.logoutMenu}>
+              <View style={styles.userInfo}>
+                <Text style={styles.userName}>{user.name}</Text>
+                <Text style={styles.userEmail}>{user.email}</Text>
+              </View>
+              <View style={styles.divider} />
+              <TouchableOpacity 
+                style={styles.logoutButton}
+                onPress={handleLogout}
+              >
+                <Ionicons name="log-out-outline" size={20} color="#FF3B30" style={styles.logoutIcon} />
+                <Text style={styles.logoutText}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
 
         {/* Content */}
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -396,9 +400,14 @@ export default function HomeScreen() {
       </Modal>
 
       <LoadingView 
-        visible={isSearching}
-        message="Searching for dua..."
+        visible={isAISearching}
       />
+      
+      {isSearching && (
+        <View style={styles.overlay}>
+          <ActivityIndicator size="large" color="#4CAF50" />
+        </View>
+      )}
       
       <DuaModal
         visible={showDuaModal}
@@ -418,12 +427,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#121212', // Dark theme background
     paddingTop: Platform.OS === 'android' ? 20 : 0,
   },
+  safeArea: {
+    position: 'relative',
+    zIndex: 1,
+  },
   headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
+    position: 'relative',
   },
   title: {
     fontSize: 20,
@@ -441,12 +455,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  logoutMenu: {
+  logoutMenuContainer: {
     position: 'absolute',
-    top: 45,
-    right: 0,
+    top: Platform.OS === 'ios' ? 120 : 100,
+    right: 16,
+    zIndex: 9999,
+  },
+  logoutMenu: {
     width: 200,
-    backgroundColor: '#1E1E1E', // Dark theme popup
+    backgroundColor: '#1E1E1E',
     borderRadius: 8,
     padding: 16,
     shadowColor: '#000',
@@ -454,7 +471,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    zIndex: 1000,
   },
   userInfo: {
     marginBottom: 16,
@@ -671,5 +687,15 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

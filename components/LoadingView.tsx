@@ -1,12 +1,14 @@
 import React from 'react';
-import { Modal, View, ActivityIndicator, Text, StyleSheet } from 'react-native';
+import { Modal, View, StyleSheet, Image } from 'react-native';
 
 interface LoadingViewProps {
   visible: boolean;
   message?: string;
 }
 
-export default function LoadingView({ visible, message = 'Loading...' }: LoadingViewProps) {
+export default function LoadingView({ visible }: LoadingViewProps) {
+  if (!visible) return null;
+  
   return (
     <Modal
       transparent
@@ -14,10 +16,10 @@ export default function LoadingView({ visible, message = 'Loading...' }: Loading
       animationType="fade"
     >
       <View style={styles.overlay}>
-        <View style={styles.container}>
-          <ActivityIndicator size="large" color="#4CAF50" />
-          <Text style={styles.text}>{message}</Text>
-        </View>
+        <Image 
+          source={require('../assets/GIF/gemeni.gif')}
+          style={styles.gifLoader}
+        />
       </View>
     </Modal>
   );
@@ -26,21 +28,12 @@ export default function LoadingView({ visible, message = 'Loading...' }: Loading
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  container: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    width: '80%',
-    maxWidth: 300,
-  },
-  text: {
-    marginTop: 10,
-    color: '#333333',
-    fontSize: 16,
+  gifLoader: {
+    width: 100,
+    height: 100,
   },
 }); 

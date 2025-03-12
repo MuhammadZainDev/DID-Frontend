@@ -106,14 +106,6 @@ export default function WelcomeOptionsScreen() {
             <Text style={styles.signupText}>Sign up to sync your data across devices</Text>
             
             <TouchableOpacity
-              style={styles.googleButton}
-              onPress={handleGoogleSignup}
-            >
-              <GoogleLogo />
-              <Text style={styles.googleButtonText}>Continue with Google</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
               style={styles.emailButton}
               onPress={handleEmailSignup}
             >
