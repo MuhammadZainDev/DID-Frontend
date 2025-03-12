@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback } from 'react';
+import { useTheme } from '@/context/ThemeContext';
 
 import { getFavorites } from '@/services/favorites';
 import { API_URL } from '@/config/constants';
@@ -26,10 +27,12 @@ interface DisplayFavorite {
   description: string;
   isDua?: boolean;
   duaId?: string;
+  icon?: string;
 }
 
 export default function FavoritesScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const [favorites, setFavorites] = useState<DisplayFavorite[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -101,9 +104,10 @@ export default function FavoritesScreen() {
             name: dua.name,
             subcategoryId: dua.subcategory_id,
             subcategoryName: subcategory.name,
-            description: dua.description || '',
+            description: subcategory.description || '',
             isDua: true,
-            duaId: dua.id
+            duaId: dua.id,
+            icon: subcategory.icon || 'folder-outline'
           });
         } catch (error) {
           console.error('Error processing favorite:', error);
@@ -170,9 +174,9 @@ export default function FavoritesScreen() {
     >
       <View style={styles.favoriteContent}>
         <Ionicons 
-          name="folder-outline" 
+          name={(item.icon as any) || 'folder-outline'} 
           size={24} 
-          color="#0E8A3E" 
+          color={colors.primary}
           style={styles.favoriteIcon}
         />
         <View style={styles.favoriteTextContainer}>
@@ -180,7 +184,7 @@ export default function FavoritesScreen() {
           <Text style={styles.favoriteDescription}>{item.description}</Text>
         </View>
       </View>
-      <Ionicons name="chevron-forward" size={20} color="#999" />
+      <Ionicons name="chevron-forward" size={20} color={colors.primary} />
     </TouchableOpacity>
   );
 
@@ -188,7 +192,7 @@ export default function FavoritesScreen() {
     if (loading) {
       return (
         <View style={styles.emptyContainer}>
-          <ActivityIndicator size="large" color="#0E8A3E" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       );
     }
@@ -202,7 +206,7 @@ export default function FavoritesScreen() {
             Please login to view and manage your favorites
           </Text>
           <TouchableOpacity 
-            style={styles.loginButton}
+            style={[styles.loginButton, { backgroundColor: colors.primary }]}
             onPress={() => router.push('/login')}
           >
             <Text style={styles.loginButtonText}>Login</Text>
@@ -238,9 +242,9 @@ export default function FavoritesScreen() {
       <StatusBar style="light" />
       
       {/* Header */}
-      <LinearGradient colors={['#0E8A3E', '#085C29']} style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.header }]}>
         <Text style={styles.headerTitle}>Favorites</Text>
-      </LinearGradient>
+      </View>
       
       {/* Content */}
       {renderContent()}
@@ -251,7 +255,7 @@ export default function FavoritesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#121212',
   },
   header: {
     paddingTop: Platform.OS === 'ios' ? 50 : 40,
@@ -262,12 +266,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     color: 'white',
+    textAlign: 'center',
   },
   listContent: {
     padding: 16,
   },
   favoriteItem: {
-    backgroundColor: 'white',
+    backgroundColor: '#1E1E1E',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -276,14 +281,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 2,
   },
   favoriteContent: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
   },
   favoriteIcon: {
     marginRight: 16,
@@ -292,14 +297,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   favoriteName: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   favoriteDescription: {
     fontSize: 14,
-    color: '#666',
+    color: '#888888',
   },
   emptyContainer: {
     flex: 1,
@@ -310,19 +315,20 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: '#FFFFFF',
     marginTop: 16,
     marginBottom: 8,
+    textAlign: 'center',
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#666',
+    color: '#CCCCCC',
     textAlign: 'center',
     maxWidth: '80%',
     marginBottom: 20,
   },
   loginButton: {
-    backgroundColor: '#0E8A3E',
+    backgroundColor: '#4CAF50',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,

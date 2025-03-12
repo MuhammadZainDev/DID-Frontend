@@ -8,6 +8,7 @@ import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import { useLanguage } from '../../context/LanguageContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from '@/context/ThemeContext';
 
 // Configure notifications
 Notifications.setNotificationHandler({
@@ -66,6 +67,7 @@ export default function PrayerTimesScreen() {
   const isSchedulingRef = useRef(false);
   const { translations } = useLanguage();
   const [notificationPreferences, setNotificationPreferences] = useState<Record<string, boolean>>({});
+  const { colors } = useTheme();
 
   // Load notification preferences
   useEffect(() => {
@@ -312,7 +314,7 @@ export default function PrayerTimesScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0E8A3E" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -332,7 +334,7 @@ export default function PrayerTimesScreen() {
   if (!prayerTimes || !nextPrayer) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0E8A3E" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -377,7 +379,9 @@ export default function PrayerTimesScreen() {
         {/* Date Display */}
         <View style={styles.dateContainer}>
           <Text style={styles.gregorianDate}>{formattedDate}</Text>
-          <Text style={styles.hijriDate}>{hijriDate}</Text>
+          <Text style={[styles.dateText, { color: colors.primary }]}>
+            {hijriDate}
+          </Text>
         </View>
 
         {/* Prayer Times List */}
@@ -443,6 +447,7 @@ function PrayerTimeItem({
   notificationEnabled?: boolean;
   onToggleNotification?: () => void;
 }) {
+  const { colors } = useTheme();
   // Format time to 12-hour format
   const formatTime = (time: string) => {
     const [hours, minutes] = time.split(':');
@@ -477,7 +482,7 @@ function PrayerTimeItem({
   const backgroundImage = getBackgroundImage();
 
   return (
-    <View style={[styles.prayerTimeItem, isActive && styles.activePrayerItem]}>
+    <View style={[styles.prayerTimeItem, isActive && [styles.activePrayerItem, { borderLeftColor: colors.primary }]]}>
       {backgroundImage ? (
         <Image source={backgroundImage} style={styles.prayerBackgroundImage} />
       ) : null}
@@ -613,7 +618,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginBottom: 4,
   },
-  hijriDate: {
+  dateText: {
     fontSize: 14,
     fontWeight: '600',
     color: '#4CAF50', // Brighter green color for better visibility
@@ -634,7 +639,6 @@ const styles = StyleSheet.create({
   },
   activePrayerItem: {
     borderLeftWidth: 3,
-    borderLeftColor: '#0E8A3E',
   },
   prayerBackgroundImage: {
     position: 'absolute',

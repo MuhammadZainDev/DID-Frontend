@@ -26,10 +26,10 @@ export const themeColors: Record<ThemeColorKey, ThemeColorData> = {
     name: 'Blue'
   },
   purple: {
-    primary: '#9C27B0',
-    header: '#7B1FA2',
-    track: '#6A1B9A',
-    name: 'Purple'
+    primary: '#ffc735',
+    header: '#e6b330',
+    track: '#cc9f2b',
+    name: 'Gold'
   }
 };
 

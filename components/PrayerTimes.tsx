@@ -3,6 +3,7 @@ import { View, Text, ActivityIndicator, StyleSheet, TouchableOpacity, RefreshCon
 import { usePrayerTimes } from '@/hooks/usePrayerTimes';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '@/context/ThemeContext';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -19,6 +20,7 @@ const formatTime = (time: string) => {
 export default function PrayerTimes() {
   const { prayerTimes, loading, error, nextPrayer } = usePrayerTimes();
   const { translations } = useLanguage();
+  const { colors } = useTheme();
 
   if (loading) {
     return (

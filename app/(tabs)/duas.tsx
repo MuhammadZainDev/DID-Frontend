@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../../context/LanguageContext';
 import { useRouter } from 'expo-router';
 import { API_URL } from '@/config/constants';
+import { useTheme } from '@/context/ThemeContext';
 
 // Sample data for duas
 const sampleDuas = [
@@ -65,6 +66,7 @@ export default function DuasScreen() {
   const [searchText, setSearchText] = useState('');
   const { translations } = useLanguage();
   const router = useRouter();
+  const { colors } = useTheme();
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -110,17 +112,28 @@ export default function DuasScreen() {
     return matchesSearch && matchesCategory;
   });
 
-  // Render category item
+  // Update the selectedCategoryTag style dynamically
+  const dynamicStyles = {
+    selectedTag: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    }
+  };
+
+  // Render category item with dynamic styles
   const renderCategoryItem = (item: Category) => (
     <TouchableOpacity 
       key={item.id} 
-      style={[styles.categoryTag, selectedCategory === item.id && styles.selectedCategoryTag]} 
+      style={[
+        styles.categoryTag, 
+        selectedCategory === item.id && dynamicStyles.selectedTag
+      ]} 
       onPress={() => setSelectedCategory(item.id)}
     >
       <Ionicons 
         name={item.icon as any} 
         size={16} 
-        color={selectedCategory === item.id ? "#FFFFFF" : "#4CAF50"} 
+        color={selectedCategory === item.id ? "#FFFFFF" : colors.primary} 
         style={styles.categoryTagIcon}
       />
       <Text style={[styles.categoryTagText, selectedCategory === item.id && styles.selectedCategoryTagText]}>
@@ -140,7 +153,7 @@ export default function DuasScreen() {
       })}
     >
       <View style={styles.iconCircle}>
-        <Ionicons name={item.icon as any} size={24} color="#4CAF50" />
+        <Ionicons name={item.icon as any} size={24} color={colors.primary} />
       </View>
       <Text style={styles.subcategoryLabel}>
         {translations[`subcategory.${item.id}`] || item.name}
@@ -169,8 +182,7 @@ export default function DuasScreen() {
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#4CAF50" />
-          <Text style={styles.loadingText}>Loading duas...</Text>
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : error ? (
         <View style={styles.errorContainer}>
@@ -206,7 +218,7 @@ export default function DuasScreen() {
                 });
             }}
           >
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={[styles.retryButtonText, { color: colors.primary }]}>Retry</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -219,13 +231,16 @@ export default function DuasScreen() {
               contentContainerStyle={styles.categoryTagsContainer}
             >
               <TouchableOpacity 
-                style={[styles.categoryTag, selectedCategory === 'all' && styles.selectedCategoryTag]} 
+                style={[
+                  styles.categoryTag, 
+                  selectedCategory === 'all' && dynamicStyles.selectedTag
+                ]} 
                 onPress={() => setSelectedCategory('all')}
               >
                 <Ionicons 
                   name="apps-outline" 
                   size={16} 
-                  color={selectedCategory === 'all' ? "#FFFFFF" : "#4CAF50"} 
+                  color={selectedCategory === 'all' ? "#FFFFFF" : colors.primary} 
                   style={styles.categoryTagIcon}
                 />
                 <Text style={[styles.categoryTagText, selectedCategory === 'all' && styles.selectedCategoryTagText]}>

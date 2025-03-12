@@ -7,6 +7,7 @@ import { Audio } from 'expo-av';
 import { Text } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '@/context/ThemeContext';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -35,6 +36,7 @@ type Subcategory = {
 
 export default function DuaScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const { subcategoryId } = useLocalSearchParams();
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -261,29 +263,12 @@ export default function DuaScreen() {
   const renderActionButtons = (dua: any, index: number) => {
     return (
       <View style={styles.actionButtons}>
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={[styles.actionButton, { marginRight: 16 }]}>
           <Ionicons name="copy-outline" size={20} color="#E0E0E0" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
           <Ionicons name="share-social-outline" size={20} color="#E0E0E0" />
         </TouchableOpacity>
-        {index === 0 && dua.audio_path && (
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={() => playSound(require('../assets/audio/morning_dua.m4a'))}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#E0E0E0" size="small" />
-            ) : (
-              <Ionicons 
-                name={isPlaying ? "pause-outline" : "play-outline"} 
-                size={20} 
-                color="#E0E0E0" 
-              />
-            )}
-          </TouchableOpacity>
-        )}
       </View>
     );
   };
@@ -291,7 +276,7 @@ export default function DuaScreen() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.primary }]}>
         <SafeAreaView>
           <View style={styles.headerTop}>
             <TouchableOpacity 
@@ -301,9 +286,7 @@ export default function DuaScreen() {
               <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
             <ThemedText style={styles.title}>{subcategory?.name || 'Duas'}</ThemedText>
-            <TouchableOpacity style={styles.iconButton}>
-              <Ionicons name="bookmark-outline" size={24} color="white" />
-            </TouchableOpacity>
+            <View style={styles.iconButton} />
           </View>
         </SafeAreaView>
       </View>
@@ -320,13 +303,13 @@ export default function DuaScreen() {
             >
               {/* Bookmark Button */}
               <TouchableOpacity 
-                style={styles.bookmarkButton}
+                style={[styles.bookmarkButton, { backgroundColor: `${colors.primary}20` }]}
                 onPress={handleFavoriteToggle}
               >
                 <Ionicons 
                   name={isFavorite ? "bookmark" : "bookmark-outline"} 
                   size={22} 
-                  color="#E0E0E0" 
+                  color={colors.primary}
                 />
               </TouchableOpacity>
 
@@ -375,10 +358,9 @@ export default function DuaScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212', // Dark theme background
+    backgroundColor: '#121212',
   },
   header: {
-    backgroundColor: '#1A7F4B', // Slightly darker, less saturated green
     paddingHorizontal: 16,
     paddingBottom: 16,
     paddingTop: Platform.OS === 'ios' ? 50 : 16,
@@ -435,14 +417,13 @@ const styles = StyleSheet.create({
   duaTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#FFFFFF', // Changed from green to white
+    color: '#FFFFFF',
   },
   bookmarkButton: {
     position: 'absolute',
     top: 16,
     right: 16,
     zIndex: 10,
-    backgroundColor: 'rgba(26, 127, 75, 0.15)', // Very subtle green background
     borderRadius: 20,
     width: 36,
     height: 36,
@@ -454,7 +435,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     marginVertical: 8,
     width: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.06)', // Changed from green to neutral color
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     borderRadius: 12,
     paddingHorizontal: 16,
   },
@@ -462,13 +443,13 @@ const styles = StyleSheet.create({
     fontSize: 28,
     lineHeight: 46,
     textAlign: 'center',
-    color: '#E0E0E0', // Changed from green to light gray
+    color: '#E0E0E0',
     fontFamily: 'NotoKufi-Arabic',
     writingDirection: 'rtl',
   },
   divider: {
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.1)', // Subtle divider
+    backgroundColor: 'rgba(255,255,255,0.1)',
     marginVertical: 20,
   },
   translationContainer: {
@@ -478,7 +459,7 @@ const styles = StyleSheet.create({
   translationText: {
     fontSize: 16,
     lineHeight: 26,
-    color: '#EEEEEE', // Light grey text for better readability
+    color: '#EEEEEE',
   },
   referenceContainer: {
     marginTop: 16,
@@ -486,7 +467,7 @@ const styles = StyleSheet.create({
   },
   referenceText: {
     fontSize: 14,
-    color: 'rgba(200, 200, 200, 0.6)', // Changed from green-tinted to neutral gray
+    color: 'rgba(200, 200, 200, 0.6)',
     fontStyle: 'italic',
   },
   actionButtons: {
@@ -495,13 +476,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.1)', // Subtle border
+    borderTopColor: 'rgba(255,255,255,0.1)',
     paddingRight: 8,
-    gap: 16,
   },
   actionButton: {
     padding: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)', // Changed from green to neutral 
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 12,
     width: 36,
     height: 36,
@@ -515,16 +495,16 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginHorizontal: 8,
     padding: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)', // Changed from green to neutral
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     borderRadius: 12,
   },
   countText: {
     fontSize: 14,
-    color: '#FFFFFF', // White text for dark theme
+    color: '#FFFFFF',
   },
   translationDivider: {
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.1)', // Subtle divider
+    backgroundColor: 'rgba(255,255,255,0.1)',
     marginVertical: 16,
   },
   urduText: {
@@ -533,6 +513,6 @@ const styles = StyleSheet.create({
     lineHeight: 40,
     textAlign: 'right',
     writingDirection: 'rtl',
-    color: '#EEEEEE', // Light grey text for better readability
+    color: '#EEEEEE',
   },
 }); 
