@@ -13,6 +13,7 @@ import PrayerTimes from '@/components/PrayerTimes';
 import Settings from '@/components/Settings';
 import UserAvatar from '@/components/UserAvatar';
 import CalligraphicDuaBox from '@/components/CalligraphicDuaBox';
+import NamazGuideBox from '@/components/NamazGuideBox';
 import { useLanguage } from '../../context/LanguageContext';
 import { API_URL } from '@/config/constants';
 import { searchDuaWithAI, DuaResponse } from '@/services/geminiService';
@@ -336,10 +337,17 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
           ) : (
-            <CalligraphicDuaBox 
-              totalDuas={totalDuas} 
-              onPress={() => router.push('/duas')}
-            />
+            <>
+              <CalligraphicDuaBox 
+                totalDuas={totalDuas} 
+                onPress={() => router.push('/duas')}
+              />
+              
+              {/* Namaz Guide Box */}
+              <NamazGuideBox 
+                onPress={() => router.push('/namaz-guide')}
+              />
+            </>
           )}
           <View style={styles.bottomPadding} />
         </ScrollView>
