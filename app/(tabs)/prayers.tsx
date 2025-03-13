@@ -19,27 +19,6 @@ Notifications.setNotificationHandler({
   }),
 });
 
-// Store and retrieve notification status from persistent storage
-const storeNotificationStatus = async (prayerName: string, date: Date): Promise<void> => {
-  try {
-    const currentDate = new Date().toDateString();
-    await AsyncStorage.setItem(`notification_${prayerName}_${currentDate}`, 'scheduled');
-  } catch (error) {
-    console.error('Error storing notification status:', error);
-  }
-};
-
-const getNotificationStatus = async (prayerName: string): Promise<boolean> => {
-  try {
-    const currentDate = new Date().toDateString();
-    const status = await AsyncStorage.getItem(`notification_${prayerName}_${currentDate}`);
-    return status === 'scheduled';
-  } catch (error) {
-    console.error('Error retrieving notification status:', error);
-    return false;
-  }
-};
-
 // Store and retrieve user notification preferences for each prayer
 const savePrayerNotificationPreference = async (prayerName: string, enabled: boolean): Promise<void> => {
   try {
@@ -60,6 +39,26 @@ const getPrayerNotificationPreference = async (prayerName: string): Promise<bool
   }
 };
 
+// Global notification toggle functions
+export const saveGlobalNotificationPreference = async (enabled: boolean): Promise<void> => {
+  try {
+    await AsyncStorage.setItem('global_prayer_notifications', enabled ? 'enabled' : 'disabled');
+  } catch (error) {
+    console.error('Error saving global notification preference:', error);
+  }
+};
+
+export const getGlobalNotificationPreference = async (): Promise<boolean> => {
+  try {
+    const preference = await AsyncStorage.getItem('global_prayer_notifications');
+    // Default to enabled if no preference is set
+    return preference !== 'disabled';
+  } catch (error) {
+    console.error('Error retrieving global notification preference:', error);
+    return true;
+  }
+};
+
 export default function PrayerTimesScreen() {
   const { prayerTimes, loading, error, nextPrayer, refreshPrayerTimes } = usePrayerTimes();
   const [location, setLocation] = useState('Loading location...');
@@ -67,6 +66,7 @@ export default function PrayerTimesScreen() {
   const isSchedulingRef = useRef(false);
   const { translations } = useLanguage();
   const [notificationPreferences, setNotificationPreferences] = useState<Record<string, boolean>>({});
+  const [globalNotificationsEnabled, setGlobalNotificationsEnabled] = useState(true);
   const { colors } = useTheme();
 
   // Load notification preferences
@@ -80,6 +80,10 @@ export default function PrayerTimesScreen() {
       for (const prayer of prayers) {
         prefs[prayer] = await getPrayerNotificationPreference(prayer);
       }
+      
+      // Load global notification preference
+      const globalEnabled = await getGlobalNotificationPreference();
+      setGlobalNotificationsEnabled(globalEnabled);
       
       setNotificationPreferences(prefs);
     }
@@ -175,27 +179,28 @@ export default function PrayerTimesScreen() {
     }
   };
 
-  // Schedule prayer time notifications
+  // Re-schedule notifications whenever prayer times or notification preferences change
   useEffect(() => {
+    // Only proceed if we have prayer times data
+    if (!prayerTimes || isSchedulingRef.current) return;
+    
     async function schedulePrayerNotifications() {
       // Guard against multiple simultaneous calls
-      if (isSchedulingRef.current || !prayerTimes || !nextPrayer) return;
+      if (isSchedulingRef.current) return;
       
       isSchedulingRef.current = true;
       
       try {
-        // Check if notifications for this prayer have already been scheduled
-        const alreadyScheduled = await getNotificationStatus(nextPrayer.name);
-        if (alreadyScheduled) {
-          console.log(`Notifications for ${nextPrayer.name} already scheduled today. Skipping.`);
+        // Cancel any existing notifications before creating new ones
+        await Notifications.cancelAllScheduledNotificationsAsync();
+        
+        // If global notifications are disabled, don't schedule any notifications
+        if (!globalNotificationsEnabled) {
+          console.log('Global notifications are disabled. Not scheduling any prayer notifications.');
+          setNotificationsScheduled(false);
           isSchedulingRef.current = false;
           return;
         }
-        
-        console.log(`Scheduling notifications for prayer: ${nextPrayer.name}`);
-        
-        // Cancel any existing notifications before creating new ones
-        await Notifications.cancelAllScheduledNotificationsAsync();
         
         const prayersList = [
           { name: 'Fajr', time: prayerTimes.timings.Fajr },
@@ -205,77 +210,34 @@ export default function PrayerTimesScreen() {
           { name: 'Isha', time: prayerTimes.timings.Isha }
         ];
         
-        // Schedule for current prayer
-        const currentPrayerIndex = prayersList.findIndex(p => p.name === nextPrayer.name);
-        if (currentPrayerIndex !== -1) {
-          const currentPrayer = prayersList[currentPrayerIndex];
-          
+        // Schedule notifications for each prayer
+        for (const prayer of prayersList) {
           // Check if notifications are enabled for this prayer
-          const isEnabled = notificationPreferences[currentPrayer.name];
+          const isEnabled = notificationPreferences[prayer.name];
           if (!isEnabled) {
-            console.log(`Notifications for ${currentPrayer.name} are disabled by user preference. Skipping.`);
-          } else {
-            const currentPrayerTime = getPrayerTimeAsDate(currentPrayer.time);
-            const now = new Date();
-            
-            // 15 minutes before notification
-            const fifteenMinutesBefore = new Date(currentPrayerTime);
-            fifteenMinutesBefore.setMinutes(fifteenMinutesBefore.getMinutes() - 15);
-            
-            if (fifteenMinutesBefore > now) {
-              await scheduleNotification(
-                `${translations[`prayer.${currentPrayer.name.toLowerCase()}`] || currentPrayer.name} ${translations['prayer.time']}`,
-                `15 ${translations['prayer.remaining']} ${translations[`prayer.${currentPrayer.name.toLowerCase()}`] || currentPrayer.name} ${translations['prayer.time']}`,
-                fifteenMinutesBefore,
-                `${currentPrayer.name.toLowerCase()}-reminder-${new Date().getTime()}`
-              );
-            }
-            
-            // Prayer start notification
-            if (currentPrayerTime > now) {
-              await scheduleNotification(
-                `${translations[`prayer.${currentPrayer.name.toLowerCase()}`] || currentPrayer.name} ${translations['prayer.time']}`,
-                `${translations['prayer.time']} ${translations[`prayer.${currentPrayer.name.toLowerCase()}`] || currentPrayer.name}`,
-                currentPrayerTime,
-                `${currentPrayer.name.toLowerCase()}-start-${new Date().getTime()}`
-              );
-            }
+            console.log(`Notifications for ${prayer.name} are disabled by user preference. Skipping.`);
+            continue;
           }
           
-          // Get the next prayer for end notification
-          const nextPrayerIndex = (currentPrayerIndex + 1) % prayersList.length;
-          const nextPrayerObj = prayersList[nextPrayerIndex];
+          const prayerTime = getPrayerTimeAsDate(prayer.time);
+          const now = new Date();
           
-          // Check if notifications are enabled for next prayer
-          const isNextEnabled = notificationPreferences[nextPrayerObj.name];
-          if (!isNextEnabled && !isEnabled) {
-            console.log(`End notification skipped as both ${currentPrayer.name} and ${nextPrayerObj.name} notifications are disabled.`);
-          } else {
-            const nextPrayerTime = getPrayerTimeAsDate(nextPrayerObj.time);
-            const now = new Date();
+          // Only schedule if the prayer time is in the future
+          if (prayerTime > now) {
+            const translatedPrayerName = translations[`prayer.${prayer.name.toLowerCase()}`] || prayer.name;
             
-            // If next prayer is tomorrow (i.e., current prayer is Isha)
-            if (nextPrayerIndex === 0) {
-              nextPrayerTime.setDate(nextPrayerTime.getDate() + 1);
-            }
+            // Only schedule the start time notification (no 15-min reminders)
+            await scheduleNotification(
+              `${translatedPrayerName} ${translations['prayer.time']}`,
+              `${translatedPrayerName} ${translations['prayer.time']} ${translations['prayer.started']}`,
+              prayerTime,
+              `${prayer.name.toLowerCase()}-start-${new Date().getTime()}`
+            );
             
-            if (nextPrayerTime > now) {
-              // Get translated prayer names
-              const currentPrayerName = translations[`prayer.${currentPrayer.name.toLowerCase()}`] || currentPrayer.name;
-              const nextPrayerName = translations[`prayer.${nextPrayerObj.name.toLowerCase()}`] || nextPrayerObj.name;
-              
-              await scheduleNotification(
-                `${currentPrayerName} → ${nextPrayerName}`,
-                `${currentPrayerName} ${translations['prayer.time']} ${translations['prayer.ended']}. ${nextPrayerName} ${translations['prayer.time']} ${translations['prayer.started']}`,
-                nextPrayerTime,
-                `${currentPrayer.name.toLowerCase()}-end-${new Date().getTime()}`
-              );
-            }
+            console.log(`Scheduled notification for ${prayer.name} at ${prayerTime.toLocaleTimeString()}`);
           }
         }
         
-        // Store in AsyncStorage that we've scheduled notifications for this prayer today
-        await storeNotificationStatus(nextPrayer.name, new Date());
         setNotificationsScheduled(true);
         console.log('Prayer notifications scheduled successfully');
       } catch (error) {
@@ -286,29 +248,30 @@ export default function PrayerTimesScreen() {
     }
     
     schedulePrayerNotifications();
-  }, [prayerTimes, nextPrayer, notificationPreferences, translations]);
+  }, [prayerTimes, notificationPreferences, translations, globalNotificationsEnabled]);
 
   // Toggle notification preference for a specific prayer
   const togglePrayerNotification = async (prayerName: string): Promise<void> => {
+    try {
     // Get current state (default to true if not set)
     const currentState = notificationPreferences[prayerName] !== false;
     
     // Toggle the state
     const newState = !currentState;
     
-    // Update local state
+      // Save to AsyncStorage first
+      await savePrayerNotificationPreference(prayerName, newState);
+      
+      // Then update local state to trigger the useEffect for rescheduling
     setNotificationPreferences(prev => ({
       ...prev,
       [prayerName]: newState
     }));
     
-    // Save to AsyncStorage
-    await savePrayerNotificationPreference(prayerName, newState);
-    
-    // Force reschedule notifications
-    setNotificationsScheduled(false);
-    
     console.log(`Notifications for ${prayerName} ${newState ? 'enabled' : 'disabled'}`);
+    } catch (error) {
+      console.error('Error toggling notification preference:', error);
+    }
   };
 
   if (loading) {

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView, Platform, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme, themeColors } from '../context/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { getGlobalNotificationPreference, saveGlobalNotificationPreference } from '@/app/(tabs)/prayers';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -12,12 +13,40 @@ export default function SettingsScreen() {
   const { theme, colors, setTheme } = useTheme();
   const [prayerNotifications, setPrayerNotifications] = useState(true);
 
+  // Load global notification preference when component mounts
+  useEffect(() => {
+    async function loadNotificationPreference() {
+      try {
+        const isEnabled = await getGlobalNotificationPreference();
+        setPrayerNotifications(isEnabled);
+      } catch (error) {
+        console.error('Error loading notification preference:', error);
+      }
+    }
+    
+    loadNotificationPreference();
+  }, []);
+
   const goBack = () => {
     router.back();
   };
 
   const toggleLanguage = async () => {
     await setLanguage(language === 'en' ? 'ur' : 'en');
+  };
+  
+  // Toggle prayer notifications and save preference
+  const togglePrayerNotifications = async () => {
+    try {
+      const newValue = !prayerNotifications;
+      setPrayerNotifications(newValue);
+      await saveGlobalNotificationPreference(newValue);
+      console.log(`Global prayer notifications ${newValue ? 'enabled' : 'disabled'}`);
+    } catch (error) {
+      console.error('Error toggling prayer notifications:', error);
+      // Revert UI change on error
+      setPrayerNotifications(prayerNotifications);
+    }
   };
 
   const SettingsSection = ({ title, children }) => (
@@ -126,7 +155,7 @@ export default function SettingsScreen() {
             icon="notifications-outline"
             title={translations['settings.prayerNotifications']}
             value={prayerNotifications}
-            onToggle={() => setPrayerNotifications(!prayerNotifications)}
+            onToggle={togglePrayerNotifications}
           />
         </SettingsSection>
 
