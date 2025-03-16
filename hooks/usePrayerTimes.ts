@@ -143,8 +143,8 @@ export function usePrayerTimes() {
       setCurrentPrayer(current.name);
       const remaining = getTimeRemaining(next.date);
       setNextPrayer({
-        name: next.name,
-        time: convertTo12Hour(next.time),
+        name: current.name,
+        time: convertTo12Hour(current.time),
         remaining: remaining.timeString,
         totalSeconds: remaining.totalSeconds
       });
@@ -153,12 +153,10 @@ export function usePrayerTimes() {
 
   const fetchPrayerTimes = async () => {
     try {
-      console.log('Starting to fetch prayer times...');
       setLoading(true);
       setError(null);
 
       const { status } = await Location.requestForegroundPermissionsAsync();
-      console.log('Location permission status:', status);
       
       if (status !== 'granted') {
         setError('Location permission is required for prayer times');
@@ -167,11 +165,9 @@ export function usePrayerTimes() {
       }
 
       const location = await Location.getCurrentPositionAsync({});
-      console.log('Got location:', location.coords);
 
       const timestamp = Math.floor(Date.now() / 1000);
       const apiUrl = `${ALADHAN_API}/${timestamp}`;
-      console.log('Fetching from API:', apiUrl);
 
       const response = await axios.get(apiUrl, {
         params: {
@@ -184,7 +180,6 @@ export function usePrayerTimes() {
         timeout: 10000
       });
 
-      console.log('API Response:', response.data);
 
       if (response.data && response.data.code === 200 && response.data.data) {
         const prayerData: PrayerTimes = {
@@ -204,7 +199,6 @@ export function usePrayerTimes() {
           }
         };
 
-        console.log('Setting prayer times:', prayerData);
         setPrayerTimes(prayerData);
         updatePrayerStatus();
       } else {
