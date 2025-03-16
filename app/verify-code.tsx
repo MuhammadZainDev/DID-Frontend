@@ -7,14 +7,13 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   ActivityIndicator,
   ScrollView,
   Alert,
+  Image,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import Logo from '../components/Logo';
 import { useLanguage } from '../context/LanguageContext';
 
 // Use your actual IP address here
@@ -156,7 +155,7 @@ export default function VerifyCode() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}
@@ -164,16 +163,21 @@ export default function VerifyCode() {
         <ScrollView 
           contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
           <TouchableOpacity 
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#0E8A3E" />
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
           
           <View style={styles.logoContainer}>
-            <Logo size={80} />
+            <Image
+              source={require('../assets/logo/logo.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
           </View>
           
           <Text style={styles.title}>Verify Your Email</Text>
@@ -193,12 +197,18 @@ export default function VerifyCode() {
                   value={code[index]}
                   onChangeText={(text) => handleCodeChange(text, index)}
                   onKeyPress={(e) => handleKeyPress(e, index)}
-                  placeholderTextColor="#999"
+                  selectionColor="#4CAF50"
+                  placeholderTextColor="#666"
                 />
               ))}
             </View>
             
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            {error ? (
+              <View style={styles.errorContainer}>
+                <Ionicons name="alert-circle" size={20} color="#D32F2F" />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            ) : null}
             
             <TouchableOpacity
               style={[
@@ -230,47 +240,51 @@ export default function VerifyCode() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#121212',
   },
   keyboardAvoidingView: {
     flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
-    padding: 20,
+    padding: 24,
   },
   backButton: {
     position: 'absolute',
-    top: 10,
-    left: 10,
-    zIndex: 10,
+    top: Platform.OS === 'ios' ? 10 : 20,
+    left: 0,
     padding: 10,
+    zIndex: 10,
   },
   logoContainer: {
     alignItems: 'center',
-    marginTop: 60,
-    marginBottom: 30,
+    marginTop: Platform.OS === 'ios' ? 60 : 80,
+    marginBottom: 40,
+  },
+  logo: {
+    width: 150,
+    height: 150,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#0E8A3E',
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FFFFFF',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#666666',
+    fontSize: 16,
+    color: '#CCCCCC',
     textAlign: 'center',
-    marginBottom: 30,
-    paddingHorizontal: 20,
+    marginBottom: 32,
+    paddingHorizontal: 10,
   },
   formContainer: {
     width: '100%',
@@ -283,57 +297,79 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   codeInput: {
-    width: 45,
-    height: 50,
+    width: 48,
+    height: 56,
     borderWidth: 1,
-    borderColor: '#E5E5E5',
-    borderRadius: 8,
+    borderColor: '#333333',
+    borderRadius: 12,
     textAlign: 'center',
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333333',
+    color: '#FFFFFF',
+    backgroundColor: '#1E1E1E',
+  },
+  errorContainer: {
+    backgroundColor: 'rgba(211, 47, 47, 0.1)',
+    padding: 12,
+    borderRadius: 12,
+    marginVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: 1,
+    borderColor: '#D32F2F',
+    width: '100%',
   },
   errorText: {
-    color: '#FF3B30',
+    color: '#D32F2F',
     fontSize: 14,
-    marginBottom: 15,
-    textAlign: 'center',
+    flex: 1,
   },
   button: {
-    backgroundColor: '#0E8A3E',
-    borderRadius: 8,
-    height: 50,
+    backgroundColor: '#4CAF50',
+    borderRadius: 12,
+    height: 52,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 10,
     width: '100%',
+    shadowColor: '#4CAF50',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 8,
   },
   buttonDisabled: {
-    backgroundColor: '#A5D6A7',
+    backgroundColor: 'rgba(76, 175, 80, 0.5)',
+    shadowOpacity: 0,
+    elevation: 0,
   },
   buttonText: {
-    color: 'white',
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
   resendContainer: {
     flexDirection: 'row',
-    marginTop: 20,
+    marginTop: 24,
     alignItems: 'center',
     justifyContent: 'center',
   },
   resendText: {
-    color: '#666666',
+    color: '#CCCCCC',
     fontSize: 14,
     marginRight: 5,
   },
   resendButton: {
-    color: '#0E8A3E',
+    color: '#4CAF50',
     fontSize: 14,
     fontWeight: '500',
   },
   timerText: {
-    color: '#999999',
+    color: '#888888',
     fontSize: 14,
   },
 }); 

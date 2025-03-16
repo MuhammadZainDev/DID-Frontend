@@ -11,10 +11,10 @@ import {
   ActivityIndicator,
   ScrollView,
   Alert,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import Logo from '../components/Logo';
 import { useLanguage } from '../context/LanguageContext';
 
 // Use your actual IP address here
@@ -75,7 +75,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}
@@ -83,16 +83,21 @@ export default function ForgotPassword() {
         <ScrollView 
           contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
           <TouchableOpacity 
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#0E8A3E" />
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
           
           <View style={styles.logoContainer}>
-            <Logo size={80} />
+            <Image
+              source={require('../assets/logo/logo.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
           </View>
           
           <Text style={styles.title}>Forgot Password</Text>
@@ -102,11 +107,13 @@ export default function ForgotPassword() {
           
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
-              <Ionicons name="mail-outline" size={20} color="#88A398" style={styles.inputIcon} />
+              <View style={styles.inputIconContainer}>
+                <Ionicons name="mail-outline" size={20} color="#888" />
+              </View>
               <TextInput
                 style={styles.input}
-                placeholder="Enter your email address"
-                placeholderTextColor="#999"
+                placeholder="Email address"
+                placeholderTextColor="#888"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -114,7 +121,12 @@ export default function ForgotPassword() {
               />
             </View>
             
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            {error ? (
+              <View style={styles.errorContainer}>
+                <Ionicons name="alert-circle" size={20} color="#D32F2F" />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            ) : null}
             
             <TouchableOpacity
               style={[
@@ -130,93 +142,137 @@ export default function ForgotPassword() {
                 <Text style={styles.buttonText}>Send Verification Code</Text>
               )}
             </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.backToLoginContainer}
+              onPress={() => router.push('/login')}
+            >
+              <Text style={styles.backToLoginText}>Back to Login</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#121212',
   },
   keyboardAvoidingView: {
     flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
-    padding: 20,
+    padding: 24,
   },
   backButton: {
     position: 'absolute',
-    top: 10,
-    left: 10,
-    zIndex: 10,
+    top: Platform.OS === 'ios' ? 10 : 20,
+    left: 0,
     padding: 10,
+    zIndex: 10,
   },
   logoContainer: {
     alignItems: 'center',
-    marginTop: 60,
-    marginBottom: 30,
+    marginTop: Platform.OS === 'ios' ? 60 : 80,
+    marginBottom: 40,
+  },
+  logo: {
+    width: 150,
+    height: 150,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#0E8A3E',
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FFFFFF',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#666666',
+    fontSize: 16,
+    color: '#CCCCCC',
     textAlign: 'center',
-    marginBottom: 30,
-    paddingHorizontal: 20,
+    marginBottom: 32,
+    paddingHorizontal: 10,
   },
   formContainer: {
     width: '100%',
+    gap: 8,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E5E5E5',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 15,
-    height: 50,
+    borderColor: '#333333',
+    borderRadius: 12,
+    height: 52,
+    marginVertical: 6,
+    backgroundColor: '#1E1E1E',
   },
-  inputIcon: {
-    marginRight: 10,
+  inputIconContainer: {
+    paddingLeft: 16,
+    paddingRight: 8,
   },
   input: {
     flex: 1,
-    height: '100%',
     fontSize: 16,
-    color: '#333333',
+    color: '#FFFFFF',
+    paddingVertical: 12,
+  },
+  errorContainer: {
+    backgroundColor: 'rgba(211, 47, 47, 0.1)',
+    padding: 12,
+    borderRadius: 12,
+    marginVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: 1,
+    borderColor: '#D32F2F',
   },
   errorText: {
-    color: '#FF3B30',
+    color: '#D32F2F',
     fontSize: 14,
-    marginBottom: 15,
-    textAlign: 'center',
+    flex: 1,
   },
   button: {
-    backgroundColor: '#0E8A3E',
-    borderRadius: 8,
-    height: 50,
+    backgroundColor: '#4CAF50',
+    height: 52,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10,
+    marginTop: 16,
+    shadowColor: '#4CAF50',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 8,
   },
   buttonDisabled: {
-    backgroundColor: '#A5D6A7',
+    backgroundColor: 'rgba(76, 175, 80, 0.5)',
+    shadowOpacity: 0,
+    elevation: 0,
   },
   buttonText: {
-    color: 'white',
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
+  backToLoginContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 24,
+    padding: 8,
+  },
+  backToLoginText: {
+    color: '#4CAF50',
+    fontSize: 16,
+    fontWeight: '500',
+  }
 }); 
