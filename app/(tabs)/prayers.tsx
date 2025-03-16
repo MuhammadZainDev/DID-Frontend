@@ -159,17 +159,17 @@ export default function PrayerTimesScreen() {
       }
       
       // Schedule the notification
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title,
-        body,
-        sound: true,
-        priority: Notifications.AndroidNotificationPriority.HIGH,
-      },
-      trigger: {
-        date: scheduledTime,
-        channelId: 'prayer-times',
-      },
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title,
+          body,
+          sound: true,
+          priority: Notifications.AndroidNotificationPriority.HIGH,
+        },
+        trigger: {
+          date: scheduledTime,
+          channelId: 'prayer-times',
+        },
         identifier: identifier,
       });
       
@@ -226,12 +226,12 @@ export default function PrayerTimesScreen() {
           if (prayerTime > now) {
             const translatedPrayerName = translations[`prayer.${prayer.name.toLowerCase()}`] || prayer.name;
             
-            // Only schedule the start time notification (no 15-min reminders)
+            // Schedule notification exactly at prayer time
             await scheduleNotification(
               `${translatedPrayerName} ${translations['prayer.time']}`,
               `${translatedPrayerName} ${translations['prayer.time']} ${translations['prayer.started']}`,
               prayerTime,
-              `${prayer.name.toLowerCase()}-start-${new Date().getTime()}`
+              `${prayer.name.toLowerCase()}-time-${new Date().getTime()}`
             );
             
             console.log(`Scheduled notification for ${prayer.name} at ${prayerTime.toLocaleTimeString()}`);

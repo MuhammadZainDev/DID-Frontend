@@ -1,2 +1,2 @@
 // API configuration
-export const API_URL = 'http://192.168.0.107:5000'; // Your actual IP address 
+export const API_URL = 'https://duaonai-backend-production.up.railway.app'; // Production backend URL 
