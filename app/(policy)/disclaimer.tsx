@@ -75,7 +75,7 @@ export default function DisclaimerScreen() {
           
           <Text style={styles.sectionTitle}>App Information</Text>
           <Text style={styles.disclaimerText}>
-            Daily Islamic Dua is a mobile application designed to provide Islamic duas (supplications), prayer times, and related content for informational and educational purposes only.
+            Duaon AIis a mobile application designed to provide Islamic duas (supplications), prayer times, and related content for informational and educational purposes only.
           </Text>
           
           <Text style={styles.sectionTitle}>Content Accuracy</Text>

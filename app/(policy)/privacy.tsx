@@ -75,7 +75,7 @@ export default function PrivacyPolicyScreen() {
           
           <Text style={styles.sectionTitle}>Introduction</Text>
           <Text style={styles.policyText}>
-            Welcome to Daily Islamic Dua ("we," "our," or "us"). We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you about how we handle your personal information when you use our application and tell you about your privacy rights.
+            Welcome to Duaon AI ("we," "our," or "us"). We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you about how we handle your personal information when you use our application and tell you about your privacy rights.
           </Text>
           
           <Text style={styles.sectionTitle}>Information We Collect</Text>

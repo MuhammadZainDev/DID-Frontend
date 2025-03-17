@@ -17,7 +17,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 // English translations
 const enTranslations = {
   // Common
-  'app.name': 'Daily Islamic Dua',
+  'app.name': 'Duaon AI',
   
   // Tab names
   'tab.home': 'Home',
@@ -28,7 +28,7 @@ const enTranslations = {
   'tab.duas': 'Duas',
   
   // Home Screen
-  'home.search_placeholder': 'Search for duas...',
+  'home.search_placeholder': 'Find duas with AI guidance...',
   
   // Prayer Times
   'prayer.fajr': 'Fajr',
