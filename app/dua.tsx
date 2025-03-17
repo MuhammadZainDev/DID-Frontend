@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Platform, ActivityIndicator, Alert, Dimensions } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Platform, ActivityIndicator, Alert, Dimensions, Clipboard, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -49,6 +49,10 @@ export default function DuaScreen() {
   const [subcategoryDuas, setSubcategoryDuas] = useState<Dua[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const slideAnim = React.useRef(new Animated.Value(50)).current;
   
   useEffect(() => {
     const fetchData = async () => {
@@ -260,10 +264,58 @@ export default function DuaScreen() {
     }
   };
 
+  const copyToClipboard = (dua: Dua) => {
+    const textToCopy = `${dua.arabic_text}\n\n${dua.translation}\n\n${dua.urdu_translation ? dua.urdu_translation + '\n\n' : ''}Reference: ${dua.reference}`;
+    
+    Clipboard.setString(textToCopy);
+    
+    // Show custom toast instead of Alert
+    setToastMessage("Dua copied to clipboard");
+    setShowToast(true);
+    
+    // Animate toast in
+    slideAnim.setValue(50);
+    fadeAnim.setValue(0);
+    
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      })
+    ]).start();
+    
+    // Hide toast after 2 seconds
+    setTimeout(() => {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 50,
+          duration: 300,
+          useNativeDriver: true,
+        })
+      ]).start(() => {
+        setShowToast(false);
+      });
+    }, 2000);
+  };
+
   const renderActionButtons = (dua: any, index: number) => {
     return (
       <View style={styles.actionButtons}>
-        <TouchableOpacity style={[styles.actionButton, { marginRight: 16 }]}>
+        <TouchableOpacity 
+          style={[styles.actionButton, { marginRight: 16 }]}
+          onPress={() => copyToClipboard(dua)}
+        >
           <Ionicons name="copy-outline" size={20} color="#E0E0E0" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
@@ -291,66 +343,121 @@ export default function DuaScreen() {
         </SafeAreaView>
       </View>
 
-      {/* Content */}
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {subcategoryDuas.map((dua, index) => (
-          <View key={dua.id} style={styles.duaCardContainer}>
-            <LinearGradient
-              colors={['#202020', '#141414']}
-              style={styles.duaCard}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-            >
-              {/* Bookmark Button */}
-              <TouchableOpacity 
-                style={[styles.bookmarkButton, { backgroundColor: `${colors.primary}20` }]}
-                onPress={handleFavoriteToggle}
+      {/* Loading Indicator */}
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={styles.loadingText}>Loading duas...</Text>
+        </View>
+      ) : error ? (
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle-outline" size={50} color="#FF3B30" />
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity 
+            style={styles.retryButton}
+            onPress={() => {
+              setLoading(true);
+              setError('');
+              // Re-fetch data
+              fetch(`${API_URL}/api/subcategories/${subcategoryId}`)
+                .then(res => res.json())
+                .then(data => {
+                  setSubcategory(data);
+                  return fetch(`${API_URL}/api/duas/subcategory/${subcategoryId}`);
+                })
+                .then(res => res.json())
+                .then(data => {
+                  setSubcategoryDuas(data);
+                  setLoading(false);
+                })
+                .catch(err => {
+                  console.error(err);
+                  setError('Failed to load data. Please try again.');
+                  setLoading(false);
+                });
+            }}
+          >
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        /* Content - Only show when not loading */
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          {subcategoryDuas.map((dua, index) => (
+            <View key={dua.id} style={styles.duaCardContainer}>
+              <LinearGradient
+                colors={['#202020', '#141414']}
+                style={styles.duaCard}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
               >
-                <Ionicons 
-                  name={isFavorite ? "bookmark" : "bookmark-outline"} 
-                  size={22} 
-                  color={colors.primary}
-                />
-              </TouchableOpacity>
+                {/* Bookmark Button */}
+                <TouchableOpacity 
+                  style={[styles.bookmarkButton, { backgroundColor: `${colors.primary}20` }]}
+                  onPress={handleFavoriteToggle}
+                >
+                  <Ionicons 
+                    name={isFavorite ? "bookmark" : "bookmark-outline"} 
+                    size={22} 
+                    color={colors.primary}
+                  />
+                </TouchableOpacity>
 
-              <View style={styles.duaHeader}>
-                <ThemedText style={styles.duaTitle}>{dua.name}</ThemedText>
-              </View>
-              
-              <View style={styles.arabicContainer}>
-                <ThemedText style={styles.arabicText}>{dua.arabic_text}</ThemedText>
-              </View>
-              
-              <View style={styles.divider} />
-              
-              <View style={styles.translationContainer}>
-                <ThemedText style={styles.translationText}>{dua.translation}</ThemedText>
-                {dua.urdu_translation && (
-                  <>
-                    <View style={styles.translationDivider} />
-                    <ThemedText style={[styles.translationText, styles.urduText]}>
-                      {dua.urdu_translation}
-                    </ThemedText>
-                  </>
-                )}
-              </View>
-              
-              <View style={styles.referenceContainer}>
-                <ThemedText style={styles.referenceText}>Reference: {dua.reference}</ThemedText>
-              </View>
-              
-              {dua.count && (
-                <View style={styles.countContainer}>
-                  <ThemedText style={styles.countText}>Recite: {dua.count}</ThemedText>
+                <View style={styles.duaHeader}>
+                  <ThemedText style={styles.duaTitle}>{dua.name}</ThemedText>
                 </View>
-              )}
-              
-              {renderActionButtons(dua, index)}
-            </LinearGradient>
-          </View>
-        ))}
-        <View style={styles.bottomPadding} />
-      </ScrollView>
+                
+                <View style={styles.arabicContainer}>
+                  <ThemedText style={styles.arabicText}>{dua.arabic_text}</ThemedText>
+                </View>
+                
+                <View style={styles.divider} />
+                
+                <View style={styles.translationContainer}>
+                  <ThemedText style={styles.translationText}>{dua.translation}</ThemedText>
+                  {dua.urdu_translation && (
+                    <>
+                      <View style={styles.translationDivider} />
+                      <ThemedText style={[styles.translationText, styles.urduText]}>
+                        {dua.urdu_translation}
+                      </ThemedText>
+                    </>
+                  )}
+                </View>
+                
+                <View style={styles.referenceContainer}>
+                  <ThemedText style={styles.referenceText}>Reference: {dua.reference}</ThemedText>
+                </View>
+                
+                {dua.count && (
+                  <View style={styles.countContainer}>
+                    <ThemedText style={styles.countText}>Recite: {dua.count}</ThemedText>
+                  </View>
+                )}
+                
+                {renderActionButtons(dua, index)}
+              </LinearGradient>
+            </View>
+          ))}
+          <View style={styles.bottomPadding} />
+        </ScrollView>
+      )}
+      
+      {showToast && (
+        <Animated.View 
+          style={[
+            styles.toast, 
+            { 
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+              backgroundColor: colors.primary
+            }
+          ]}
+        >
+          <Ionicons name="checkmark-circle" size={20} color="white" />
+          <Text style={styles.toastText}>{toastMessage}</Text>
+        </Animated.View>
+      )}
     </View>
   );
 }
@@ -514,5 +621,63 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     writingDirection: 'rtl',
     color: '#EEEEEE',
+  },
+  toast: {
+    position: 'absolute',
+    bottom: 80,
+    left: 20,
+    right: 20,
+    backgroundColor: '#4CAF50',
+    borderRadius: 8,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 1000,
+  },
+  toastText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
+    marginLeft: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#121212',
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#FFFFFF',
+    fontSize: 16,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#121212',
+    padding: 20,
+  },
+  errorText: {
+    marginTop: 15,
+    color: '#FFFFFF',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  retryButton: {
+    marginTop: 20,
+    backgroundColor: '#333333',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
   },
 }); 

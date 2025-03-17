@@ -1,42 +1,13 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useFocusEffect } from 'expo-router';
-import Svg, { Path } from 'react-native-svg';
 
 const { width, height } = Dimensions.get('window');
 
-// Simple star SVG component
-const Star = ({ x, y, size, opacity }: { x: number, y: number, size: number, opacity: number }) => (
-  <Path
-    d={`M ${x} ${y-size} L ${x+size/4} ${y-size/4} L ${x+size} ${y} L ${x+size/4} ${y+size/4} L ${x} ${y+size} L ${x-size/4} ${y+size/4} L ${x-size} ${y} L ${x-size/4} ${y-size/4} Z`}
-    fill="white"
-    opacity={opacity}
-  />
-);
-
 export default function WelcomeScreen() {
   const router = useRouter();
-  const [stars, setStars] = useState<Array<{ id: number, x: number, y: number, size: number, opacity: number }>>([]);
   
-  // Generate random stars
-  useEffect(() => {
-    const generatedStars = [];
-    const numStars = 30;
-    
-    for (let i = 0; i < numStars; i++) {
-      generatedStars.push({
-        id: i,
-        x: Math.random() * width,
-        y: Math.random() * height,
-        size: Math.random() * 2 + 1,
-        opacity: Math.random() * 0.5 + 0.3
-      });
-    }
-    
-    setStars(generatedStars);
-  }, []);
-
   // Prevent auto-navigation when this screen regains focus
   useFocusEffect(
     useCallback(() => {
@@ -66,22 +37,20 @@ export default function WelcomeScreen() {
   };
 
   return (
-    <LinearGradient
-      colors={['#1A1B4B', '#2E0854', '#0C0522']}
-      style={styles.container}
-    >
-      {/* Stars background */}
-      <Svg width={width} height={height} style={styles.starsBackground}>
-        {stars.map(star => (
-          <Star 
-            key={star.id} 
-            x={star.x} 
-            y={star.y} 
-            size={star.size} 
-            opacity={star.opacity} 
-          />
-        ))}
-      </Svg>
+    <View style={styles.container}>
+      {/* Main gradient background */}
+      <LinearGradient
+        colors={['#121212', '#1e1e1e', '#242424']}
+        locations={[0, 0.5, 0.8]}
+        style={styles.upperGradient}
+      />
+      
+      {/* Bottom white gradient */}
+      <LinearGradient
+        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.1)']}
+        locations={[0, 0.5, 1]}
+        style={styles.bottomGradient}
+      />
       
       <View style={styles.contentContainer}>
         {/* Logo in center */}
@@ -119,38 +88,33 @@ export default function WelcomeScreen() {
           </TouchableOpacity>
         </View>
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#121212',
   },
-  starsBackground: {
+  upperGradient: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
+    height: height * 0.7,
+  },
+  bottomGradient: {
+    position: 'absolute',
     bottom: 0,
+    left: 0,
+    right: 0,
+    height: height * 0.3,
   },
   contentContainer: {
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  topTextContainer: {
-    width: '100%',
-    alignItems: 'center',
-    paddingHorizontal: 30,
-    position: 'absolute',
-    top: height * 0.08,
-  },
-  welcomeText: {
-    color: 'white',
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
   },
   logoContainer: {
     width: '100%',

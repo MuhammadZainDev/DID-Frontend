@@ -104,7 +104,7 @@ export default function PrivacyPolicyScreen() {
           <Text style={styles.policyText}>
             If you have any questions about this Privacy Policy, please contact us at:
           </Text>
-          <Text style={styles.contactEmail}>support@dailyislamicdua.com</Text>
+          <Text style={styles.contactEmail}>duaonai.official@gmail.com</Text>
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>

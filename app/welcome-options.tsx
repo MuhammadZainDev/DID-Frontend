@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -28,25 +28,6 @@ const Star = ({ x, y, size, opacity }: { x: number, y: number, size: number, opa
 
 export default function WelcomeOptionsScreen() {
   const router = useRouter();
-  const [stars, setStars] = useState<Array<{ id: number, x: number, y: number, size: number, opacity: number }>>([]);
-  
-  // Generate random stars
-  useEffect(() => {
-    const generatedStars = [];
-    const numStars = 30;
-    
-    for (let i = 0; i < numStars; i++) {
-      generatedStars.push({
-        id: i,
-        x: Math.random() * width,
-        y: Math.random() * height,
-        size: Math.random() * 2 + 1,
-        opacity: Math.random() * 0.5 + 0.3
-      });
-    }
-    
-    setStars(generatedStars);
-  }, []);
 
   const handleSkip = () => {
     router.replace('/(tabs)');
@@ -62,22 +43,20 @@ export default function WelcomeOptionsScreen() {
   };
 
   return (
-    <LinearGradient
-      colors={['#1A1B4B', '#2E0854', '#0C0522']}
-      style={styles.container}
-    >
-      {/* Stars background */}
-      <Svg width={width} height={height} style={styles.starsBackground}>
-        {stars.map(star => (
-          <Star 
-            key={star.id} 
-            x={star.x} 
-            y={star.y} 
-            size={star.size} 
-            opacity={star.opacity} 
-          />
-        ))}
-      </Svg>
+    <View style={styles.container}>
+      {/* Main gradient background */}
+      <LinearGradient
+        colors={['#121212', '#1e1e1e', '#242424']}
+        locations={[0, 0.5, 0.8]}
+        style={styles.upperGradient}
+      />
+      
+      {/* Bottom white gradient */}
+      <LinearGradient
+        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.1)']}
+        locations={[0, 0.5, 1]}
+        style={styles.bottomGradient}
+      />
       
       <View style={styles.contentContainer}>
         {/* Welcome text at top */}
@@ -98,136 +77,138 @@ export default function WelcomeOptionsScreen() {
         {/* Content and buttons at bottom */}
         <View style={styles.bottomContent}>
           <Text style={styles.descriptionText}>
-            Access authentic duas, prayer times, and personalized Islamic content 
-            to enhance your spiritual journey.
+            Sign up to access all features including personalized recommendations and saving your favorite duas.
           </Text>
           
-          <View style={styles.buttonsContainer}>
-            <Text style={styles.signupText}>Sign up to sync your data across devices</Text>
-            
-            <TouchableOpacity
-              style={styles.emailButton}
-              onPress={handleEmailSignup}
-            >
-              <Ionicons name="mail" size={20} color="white" />
+          <TouchableOpacity
+            style={styles.googleButton}
+            onPress={handleGoogleSignup}
+          >
+            <View style={styles.googleButtonContent}>
+              <GoogleLogo />
+              <Text style={styles.googleButtonText}>Continue with Google</Text>
+            </View>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={styles.emailButton}
+            onPress={handleEmailSignup}
+          >
+            <View style={styles.emailButtonContent}>
+              <Ionicons name="mail-outline" size={18} color="#FFFFFF" style={styles.emailIcon} />
               <Text style={styles.emailButtonText}>Continue with Email</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={styles.skipButton}
-              onPress={handleSkip}
-            >
-              <Text style={styles.skipButtonText}>Skip</Text>
-            </TouchableOpacity>
-          </View>
+            </View>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={styles.skipButton}
+            onPress={handleSkip}
+          >
+            <Text style={styles.skipButtonText}>Skip for now</Text>
+          </TouchableOpacity>
         </View>
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#121212',
   },
-  starsBackground: {
+  upperGradient: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
+    height: height * 0.7,
+  },
+  bottomGradient: {
+    position: 'absolute',
     bottom: 0,
+    left: 0,
+    right: 0,
+    height: height * 0.3,
   },
   contentContainer: {
     flex: 1,
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   topTextContainer: {
     width: '100%',
     alignItems: 'center',
-    paddingHorizontal: 30,
-    position: 'absolute',
-    top: height * 0.08,
-  },
-  logoContainer: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute',
-    top: height * 0.3,
-  },
-  logo: {
-    width: width * 0.4,
-    height: width * 0.4,
-  },
-  bottomContent: {
-    width: '100%',
-    alignItems: 'center',
-    paddingHorizontal: 30,
-    position: 'absolute',
-    bottom: 40,
+    paddingTop: 60,
+    paddingHorizontal: 20,
   },
   welcomeText: {
     color: 'white',
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 8,
   },
   subtitleText: {
-    color: 'white',
+    color: '#BBBBBB',
     fontSize: 16,
+    marginTop: 8,
     textAlign: 'center',
-    marginBottom: 5,
-    opacity: 0.9,
   },
-  descriptionText: {
-    color: 'white',
-    fontSize: 14,
-    textAlign: 'center',
-    opacity: 0.7,
-    lineHeight: 20,
-    marginBottom: 20,
+  logoContainer: {
+    width: 120,
+    height: 120,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  buttonsContainer: {
+  logo: {
+    width: '100%',
+    height: '100%',
+  },
+  bottomContent: {
     width: '100%',
     alignItems: 'center',
-    gap: 12,
-    marginTop: 10,
+    paddingHorizontal: 30,
+    paddingBottom: 40,
   },
-  signupText: {
-    color: 'white',
-    fontSize: 14,
+  descriptionText: {
+    color: '#BBBBBB',
+    fontSize: 16,
     textAlign: 'center',
-    marginBottom: 5,
-    opacity: 0.8,
+    marginBottom: 30,
+    lineHeight: 22,
   },
   googleButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: 'white',
+    borderRadius: 4,
+    paddingVertical: 12,
+    width: '100%',
+    marginBottom: 16,
+  },
+  googleButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 3,
-    width: '90%',
-    gap: 10,
   },
   googleButtonText: {
-    color: '#444',
+    color: '#333333',
     fontSize: 16,
     fontWeight: '500',
+    marginLeft: 10,
   },
   emailButton: {
     backgroundColor: '#5f3dc4',
+    borderRadius: 4,
+    paddingVertical: 12,
+    width: '100%',
+    marginBottom: 24,
+  },
+  emailButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 3,
-    width: '90%',
-    gap: 10,
+  },
+  emailIcon: {
+    marginRight: 10,
   },
   emailButtonText: {
     color: 'white',
@@ -235,12 +216,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   skipButton: {
-    paddingVertical: 15,
-    paddingHorizontal: 30,
+    paddingVertical: 8,
   },
   skipButtonText: {
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: 16,
-    fontWeight: '500',
+    color: '#AAAAAA',
+    fontSize: 14,
+    textDecorationLine: 'underline',
   },
 });

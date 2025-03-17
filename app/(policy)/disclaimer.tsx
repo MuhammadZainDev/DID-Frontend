@@ -97,7 +97,7 @@ export default function DisclaimerScreen() {
           <Text style={styles.disclaimerText}>
             If you have any questions or concerns about this disclaimer or any aspect of the application, please contact us at:
           </Text>
-          <Text style={styles.contactEmail}>support@dailyislamicdua.com</Text>
+          <Text style={styles.contactEmail}>duaonai.official@gmail.com</Text>
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>

@@ -289,7 +289,7 @@ export default function ContactUsScreen() {
               
               <View style={styles.contactItem}>
                 <Ionicons name="mail-outline" size={22} color={colors.primary} />
-                <Text style={styles.contactText}>support@duaon.com</Text>
+                <Text style={styles.contactText}>duaonai.official@gmail.com</Text>
               </View>
               
               <View style={styles.contactItem}>
