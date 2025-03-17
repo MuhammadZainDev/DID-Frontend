@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Platform, ActivityIndicator, Alert, Dimensions, Clipboard, Animated } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Platform, ActivityIndicator, Alert, Dimensions, Clipboard, Animated, Share } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,6 +8,7 @@ import { Text } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/context/ThemeContext';
+import ViewShot, { captureRef } from 'react-native-view-shot';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -53,6 +54,8 @@ export default function DuaScreen() {
   const [toastMessage, setToastMessage] = useState('');
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const slideAnim = React.useRef(new Animated.Value(50)).current;
+  const viewShotRefs = useRef<{[key: string]: any}>({});
+  const [isSharing, setIsSharing] = useState(false);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -309,6 +312,51 @@ export default function DuaScreen() {
     }, 2000);
   };
 
+  const handleShare = async (dua: Dua, index: number) => {
+    try {
+      // Set sharing mode to hide UI elements
+      setIsSharing(true);
+      
+      // Small delay to ensure state update has been rendered
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Capture the dua card as an image
+      if (viewShotRefs.current[dua.id]) {
+        const uri = await captureRef(viewShotRefs.current[dua.id], {
+          format: "jpg",
+          quality: 0.9,
+          result: "data-uri"
+        });
+        
+        // Turn off sharing mode to restore UI
+        setIsSharing(false);
+        
+        if (uri) {
+          // Share the captured image
+          const result = await Share.share({
+            title: dua.name,
+            message: `${dua.name} - Shared from Duaon AI`,
+            url: uri,
+          });
+          
+          if (result.action === Share.sharedAction) {
+            if (result.activityType) {
+              console.log('Shared with activity type:', result.activityType);
+            } else {
+              console.log('Shared successfully');
+            }
+          } else if (result.action === Share.dismissedAction) {
+            console.log('Share dismissed');
+          }
+        }
+      }
+    } catch (error) {
+      // Ensure UI is restored even if an error occurs
+      setIsSharing(false);
+      console.error('Error sharing dua:', error);
+    }
+  };
+
   const renderActionButtons = (dua: any, index: number) => {
     return (
       <View style={styles.actionButtons}>
@@ -318,7 +366,10 @@ export default function DuaScreen() {
         >
           <Ionicons name="copy-outline" size={20} color="#E0E0E0" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={() => handleShare(dua, index)}
+        >
           <Ionicons name="share-social-outline" size={20} color="#E0E0E0" />
         </TouchableOpacity>
       </View>
@@ -384,24 +435,33 @@ export default function DuaScreen() {
         /* Content - Only show when not loading */
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           {subcategoryDuas.map((dua, index) => (
-            <View key={dua.id} style={styles.duaCardContainer}>
+            <View 
+              key={dua.id} 
+              ref={(ref) => { viewShotRefs.current[dua.id] = ref; }}
+              style={[
+                styles.duaCardContainer,
+                isSharing && { borderRadius: 0 }
+              ]}
+            >
               <LinearGradient
                 colors={['#202020', '#141414']}
-                style={styles.duaCard}
+                style={[styles.duaCard, isSharing && { borderRadius: 0 }]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
               >
-                {/* Bookmark Button */}
-                <TouchableOpacity 
-                  style={[styles.bookmarkButton, { backgroundColor: `${colors.primary}20` }]}
-                  onPress={handleFavoriteToggle}
-                >
-                  <Ionicons 
-                    name={isFavorite ? "bookmark" : "bookmark-outline"} 
-                    size={22} 
-                    color={colors.primary}
-                  />
-                </TouchableOpacity>
+                {/* Bookmark Button - hide when sharing */}
+                {!isSharing && (
+                  <TouchableOpacity 
+                    style={[styles.bookmarkButton, { backgroundColor: `${colors.primary}20` }]}
+                    onPress={handleFavoriteToggle}
+                  >
+                    <Ionicons 
+                      name={isFavorite ? "bookmark" : "bookmark-outline"} 
+                      size={22} 
+                      color={colors.primary}
+                    />
+                  </TouchableOpacity>
+                )}
 
                 <View style={styles.duaHeader}>
                   <ThemedText style={styles.duaTitle}>{dua.name}</ThemedText>
@@ -435,7 +495,8 @@ export default function DuaScreen() {
                   </View>
                 )}
                 
-                {renderActionButtons(dua, index)}
+                {/* Action buttons - hide when sharing */}
+                {!isSharing && renderActionButtons(dua, index)}
               </LinearGradient>
             </View>
           ))}
