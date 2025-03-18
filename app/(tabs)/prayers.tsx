@@ -19,6 +19,25 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// Create Android notification channel for prayer times
+useEffect(() => {
+  async function createNotificationChannel() {
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('prayer-times', {
+        name: 'Prayer Times',
+        importance: Notifications.AndroidImportance.HIGH,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#0E8A3E',
+        sound: 'adhan.mp3', // This should match the filename in app.json
+        enableVibrate: true,
+      });
+      console.log('Created notification channel for prayer times');
+    }
+  }
+  
+  createNotificationChannel();
+}, []);
+
 // Store and retrieve user notification preferences for each prayer
 const savePrayerNotificationPreference = async (prayerName: string, enabled: boolean): Promise<void> => {
   try {
@@ -163,8 +182,12 @@ export default function PrayerTimesScreen() {
         content: {
           title,
           body,
-          sound: true,
+          sound: Platform.OS === 'android' ? 'adhan.mp3' : true,
           priority: Notifications.AndroidNotificationPriority.HIGH,
+          data: {
+            type: 'prayer-time',
+            prayerName: identifier.split('-')[0]
+          },
         },
         trigger: {
           date: scheduledTime,
@@ -198,6 +221,13 @@ export default function PrayerTimesScreen() {
         if (!globalNotificationsEnabled) {
           console.log('Global notifications are disabled. Not scheduling any prayer notifications.');
           setNotificationsScheduled(false);
+          isSchedulingRef.current = false;
+          return;
+        }
+        
+        // Null check for prayerTimes
+        if (!prayerTimes) {
+          console.log('Prayer times not available. Cannot schedule notifications.');
           isSchedulingRef.current = false;
           return;
         }

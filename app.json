@@ -53,10 +53,10 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/notification-icon.png",
-          "color": "#ffffff",
+          "icon": "./assets/images/icon.png",
+          "color": "#0E8A3E",
           "sounds": [
-            "./assets/notification-sound.wav"
+            "./assets/sounds/adhan.mp3"
           ]
         }
       ]
