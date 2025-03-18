@@ -1,3 +1,18 @@
+/*
+ * NOTE: About Push Notifications in Expo
+ * 
+ * The warning about "Push notifications functionality provided by expo-notifications will be removed from Expo Go in SDK 53" 
+ * means that to use push notifications properly, we need to create a development build instead of using Expo Go.
+ * 
+ * To create a development build, run:
+ * npx expo prebuild 
+ * npx expo run:android  (for Android)
+ * npx expo run:ios      (for iOS)
+ * 
+ * This will create native builds with full notification support.
+ * See: https://docs.expo.dev/develop/development-builds/introduction/
+ */
+
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack, Slot } from 'expo-router';

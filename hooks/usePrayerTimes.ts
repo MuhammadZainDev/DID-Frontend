@@ -103,6 +103,7 @@ export function usePrayerTimes() {
     if (!prayerTimes) return;
 
     const now = new Date();
+    // Define prayers with their times in order
     const prayers = [
       { name: 'Fajr', time: prayerTimes.timings.Fajr },
       { name: 'Sunrise', time: prayerTimes.timings.Sunrise },
@@ -112,43 +113,64 @@ export function usePrayerTimes() {
       { name: 'Isha', time: prayerTimes.timings.Isha }
     ];
 
-    let current = null;
-    let next = null;
-
     // Convert all prayer times to Date objects for today
     const prayerDates = prayers.map(prayer => ({
       ...prayer,
       date: getPrayerTimeAsDate(prayer.time)
     }));
+    
+    // Debug information
+    console.log('Current time:', now.toLocaleTimeString());
+    prayerDates.forEach(p => {
+      console.log(`${p.name} time: ${p.date.toLocaleTimeString()}`);
+    });
 
     // Find current and next prayers
+    let currentPrayerIndex = -1;
+    let nextPrayerIndex = 0;
+
+    // Find which prayer period we're currently in
     for (let i = 0; i < prayerDates.length; i++) {
-      if (now < prayerDates[i].date) {
-        current = i > 0 ? prayerDates[i - 1] : prayerDates[prayerDates.length - 1];
-        next = prayerDates[i];
+      if (now >= prayerDates[i].date) {
+        currentPrayerIndex = i;
+        nextPrayerIndex = (i + 1) % prayerDates.length;
+      } else {
         break;
       }
     }
 
-    // If we're after the last prayer of the day
-    if (!next) {
-      current = prayerDates[prayerDates.length - 1];
-      next = {
-        ...prayerDates[0],
-        date: new Date(prayerDates[0].date.getTime() + 24 * 60 * 60 * 1000) // Add 24 hours
-      };
+    // If we're before Fajr or after Isha
+    if (currentPrayerIndex === -1) {
+      // Before Fajr
+      currentPrayerIndex = prayerDates.length - 1; // Isha from yesterday
+      nextPrayerIndex = 0; // Fajr today
+    } else if (currentPrayerIndex === prayerDates.length - 1) {
+      // After Isha
+      nextPrayerIndex = 0; // Fajr tomorrow
     }
 
-    if (current && next) {
-      setCurrentPrayer(current.name);
-      const remaining = getTimeRemaining(next.date);
-      setNextPrayer({
-        name: current.name,
-        time: convertTo12Hour(current.time),
-        remaining: remaining.timeString,
-        totalSeconds: remaining.totalSeconds
-      });
+    // Get the current and next prayer objects
+    const current = prayerDates[currentPrayerIndex];
+    let next = prayerDates[nextPrayerIndex];
+
+    // If next prayer is tomorrow (Fajr), adjust the date
+    if (nextPrayerIndex === 0 && currentPrayerIndex === prayerDates.length - 1) {
+      const tomorrow = new Date(next.date);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      next = { ...next, date: tomorrow };
     }
+
+    console.log(`Current prayer: ${current.name}, Next prayer: ${next.name}`);
+
+    // Update state with the details
+    setCurrentPrayer(current.name);
+    const remaining = getTimeRemaining(next.date);
+    setNextPrayer({
+      name: next.name,
+      time: convertTo12Hour(next.time),
+      remaining: remaining.timeString,
+      totalSeconds: remaining.totalSeconds
+    });
   };
 
   const fetchPrayerTimes = async () => {

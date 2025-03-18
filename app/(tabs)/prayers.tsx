@@ -226,15 +226,23 @@ export default function PrayerTimesScreen() {
           if (prayerTime > now) {
             const translatedPrayerName = translations[`prayer.${prayer.name.toLowerCase()}`] || prayer.name;
             
+            // Generate a unique identifier that includes the date to prevent duplicates
+            const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+            const notificationId = `${prayer.name.toLowerCase()}-${today}`;
+            
+            console.log(`Attempting to schedule ${prayer.name} notification for ${prayerTime.toLocaleTimeString()}`);
+            
             // Schedule notification exactly at prayer time
             await scheduleNotification(
-              `${translatedPrayerName} ${translations['prayer.time']}`,
-              `${translatedPrayerName} ${translations['prayer.time']} ${translations['prayer.started']}`,
-              prayerTime,
-              `${prayer.name.toLowerCase()}-time-${new Date().getTime()}`
+              `${translatedPrayerName} ${translations['prayer.time']}`, // Title
+              `${translatedPrayerName} ${translations['prayer.time']} ${translations['prayer.started']}`, // Body
+              prayerTime, // Exact prayer time
+              notificationId // Unique ID
             );
             
-            console.log(`Scheduled notification for ${prayer.name} at ${prayerTime.toLocaleTimeString()}`);
+            console.log(`Scheduled notification for ${prayer.name} at ${prayerTime.toLocaleTimeString()} with ID: ${notificationId}`);
+          } else {
+            console.log(`Not scheduling ${prayer.name} as time has already passed: ${prayerTime.toLocaleTimeString()}`);
           }
         }
         
@@ -328,11 +336,16 @@ export default function PrayerTimesScreen() {
             <View style={styles.bannerContent}>
               <Text style={styles.locationText}>{location}</Text>
               <View style={styles.nextPrayerInfo}>
+                <Text style={styles.nextPrayerLabel}>
+                  {translations['prayer.nextPrayer']}
+                </Text>
                 <Text style={styles.nextPrayerName}>
                   {translations[`prayer.${nextPrayer.name.toLowerCase()}`] || nextPrayer.name}
                 </Text>
                 <Text style={styles.nextPrayerTime}>{nextPrayer.time}</Text>
-                <Text style={styles.remainingTime}>{nextPrayer.remaining}</Text>
+                <Text style={styles.remainingTime}>
+                  {translations['prayer.in']} {nextPrayer.remaining}
+                </Text>
               </View>
             </View>
             </View>
@@ -542,6 +555,12 @@ const styles = StyleSheet.create({
   },
   nextPrayerInfo: {
     alignItems: 'flex-start',
+  },
+  nextPrayerLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 4,
   },
   nextPrayerName: {
     fontSize: 24,
