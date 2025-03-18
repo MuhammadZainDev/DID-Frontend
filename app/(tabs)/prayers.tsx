@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import { View, StyleSheet, Text, Image, TouchableOpacity, ActivityIndicator, ScrollView, Platform, Alert, ImageBackground } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,25 +19,6 @@ Notifications.setNotificationHandler({
   }),
 });
 
-// Create Android notification channel for prayer times
-useEffect(() => {
-  async function createNotificationChannel() {
-    if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('prayer-times', {
-        name: 'Prayer Times',
-        importance: Notifications.AndroidImportance.HIGH,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#0E8A3E',
-        sound: 'adhan.mp3', // This should match the filename in app.json
-        enableVibrate: true,
-      });
-      console.log('Created notification channel for prayer times');
-    }
-  }
-  
-  createNotificationChannel();
-}, []);
-
 // Store and retrieve user notification preferences for each prayer
 const savePrayerNotificationPreference = async (prayerName: string, enabled: boolean): Promise<void> => {
   try {
@@ -50,11 +31,11 @@ const savePrayerNotificationPreference = async (prayerName: string, enabled: boo
 const getPrayerNotificationPreference = async (prayerName: string): Promise<boolean> => {
   try {
     const preference = await AsyncStorage.getItem(`prayer_notification_${prayerName.toLowerCase()}`);
-    // Default to enabled if no preference is set
+    // Always return true (enabled) unless explicitly disabled
     return preference !== 'disabled';
   } catch (error) {
     console.error('Error retrieving prayer notification preference:', error);
-    return true;
+    return true; // Default to enabled
   }
 };
 
@@ -70,11 +51,11 @@ export const saveGlobalNotificationPreference = async (enabled: boolean): Promis
 export const getGlobalNotificationPreference = async (): Promise<boolean> => {
   try {
     const preference = await AsyncStorage.getItem('global_prayer_notifications');
-    // Default to enabled if no preference is set
+    // Default to enabled unless explicitly disabled
     return preference !== 'disabled';
   } catch (error) {
     console.error('Error retrieving global notification preference:', error);
-    return true;
+    return true; // Default to enabled
   }
 };
 
@@ -87,6 +68,25 @@ export default function PrayerTimesScreen() {
   const [notificationPreferences, setNotificationPreferences] = useState<Record<string, boolean>>({});
   const [globalNotificationsEnabled, setGlobalNotificationsEnabled] = useState(true);
   const { colors } = useTheme();
+
+  // Create Android notification channel for prayer times
+  useEffect(() => {
+    async function createNotificationChannel() {
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('prayer-times', {
+          name: 'Prayer Times',
+          importance: Notifications.AndroidImportance.HIGH,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#0E8A3E',
+          sound: 'adhan.mp3', // This should match the filename in app.json
+          enableVibrate: true,
+        });
+        console.log('Created notification channel for prayer times');
+      }
+    }
+    
+    createNotificationChannel();
+  }, []);
 
   // Load notification preferences
   useEffect(() => {
@@ -397,40 +397,30 @@ export default function PrayerTimesScreen() {
             time={prayerTimes.timings.Fajr} 
             icon="sunny-outline" 
             isActive={nextPrayer.name === 'Fajr'}
-            notificationEnabled={notificationPreferences['Fajr']}
-            onToggleNotification={() => togglePrayerNotification('Fajr')}
           />
           <PrayerTimeItem 
             name={translations['prayer.dhuhr']} 
             time={prayerTimes.timings.Dhuhr} 
             icon="sunny-outline" 
             isActive={nextPrayer.name === 'Dhuhr'}
-            notificationEnabled={notificationPreferences['Dhuhr']}
-            onToggleNotification={() => togglePrayerNotification('Dhuhr')}
           />
           <PrayerTimeItem 
             name={translations['prayer.asr']} 
             time={prayerTimes.timings.Asr} 
             icon="sunny-outline" 
             isActive={nextPrayer.name === 'Asr'}
-            notificationEnabled={notificationPreferences['Asr']}
-            onToggleNotification={() => togglePrayerNotification('Asr')}
           />
           <PrayerTimeItem 
             name={translations['prayer.maghrib']} 
             time={prayerTimes.timings.Maghrib} 
             icon="moon-outline" 
             isActive={nextPrayer.name === 'Maghrib'}
-            notificationEnabled={notificationPreferences['Maghrib']}
-            onToggleNotification={() => togglePrayerNotification('Maghrib')}
           />
           <PrayerTimeItem 
             name={translations['prayer.isha']} 
             time={prayerTimes.timings.Isha} 
             icon="moon-outline" 
             isActive={nextPrayer.name === 'Isha'}
-            notificationEnabled={notificationPreferences['Isha']}
-            onToggleNotification={() => togglePrayerNotification('Isha')}
           />
         </View>
       </ScrollView>
@@ -442,16 +432,12 @@ function PrayerTimeItem({
   name, 
   time, 
   icon, 
-  isActive, 
-  notificationEnabled = true,
-  onToggleNotification 
+  isActive
 }: { 
   name: string; 
   time: string; 
   icon: string; 
   isActive: boolean;
-  notificationEnabled?: boolean;
-  onToggleNotification?: () => void;
 }) {
   const { colors } = useTheme();
   // Format time to 12-hour format
@@ -461,13 +447,6 @@ function PrayerTimeItem({
     const ampm = hour >= 12 ? 'PM' : 'AM';
     const hour12 = hour % 12 || 12;
     return `${hour12}:${minutes} ${ampm}`;
-  };
-
-  // We no longer need the internal state since it's now controlled by the parent
-  const toggleNotification = () => {
-    if (onToggleNotification) {
-      onToggleNotification();
-    }
   };
 
   // Get the correct background image based on prayer name
@@ -493,23 +472,12 @@ function PrayerTimeItem({
         <Image source={backgroundImage} style={styles.prayerBackgroundImage} />
       ) : null}
       <View style={styles.prayerItemOverlay}>
-      <View style={styles.prayerNameContainer}>
+        <View style={styles.prayerNameContainer}>
           <Ionicons name={icon as any} size={20} color="#FFFFFF" />
           <Text style={[styles.prayerName, { color: '#FFFFFF' }]}>{name}</Text>
-      </View>
-      <View style={styles.prayerTimeRight}>
+        </View>
+        <View style={styles.prayerTimeRight}>
           <Text style={[styles.prayerTime, { color: '#FFFFFF' }]}>{formatTime(time)}</Text>
-        <TouchableOpacity 
-          style={styles.notificationButton}
-          onPress={toggleNotification}
-          activeOpacity={0.7}
-        >
-          <Ionicons 
-            name={notificationEnabled ? "notifications" : "notifications-off-outline"} 
-            size={26} 
-              color={notificationEnabled ? "#FFFFFF" : "#AAAAAA"} 
-          />
-        </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -676,7 +644,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   prayerName: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: '600',
     marginLeft: 8,
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
@@ -689,15 +657,10 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   prayerTime: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: '500',
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 3,
-  },
-  notificationButton: {
-    padding: 5,
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
-    borderRadius: 20,
   },
 }); 
