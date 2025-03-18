@@ -8,6 +8,8 @@ import CustomSplash from '../components/CustomSplash';
 import { AuthProvider } from '../context/AuthContext';
 import { LanguageProvider } from '../context/LanguageContext';
 import { ThemeProvider } from '../context/ThemeContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../config/constants';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();

@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/context/ThemeContext';
 import ViewShot, { captureRef } from 'react-native-view-shot';
+import axios from 'axios';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -52,6 +53,7 @@ export default function DuaScreen() {
   const [error, setError] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error' | 'warning'>('success');
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const slideAnim = React.useRef(new Animated.Value(50)).current;
   const viewShotRefs = useRef<{[key: string]: any}>({});
@@ -204,76 +206,9 @@ export default function DuaScreen() {
     }
   };
 
-  const handleFavoriteToggle = async () => {
-    if (!subcategoryDuas || subcategoryDuas.length === 0) return;
-    
-    try {
-      const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        Alert.alert(
-          'Login Required',
-          'You need to login to save favorites',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Login', onPress: () => router.push('/login') }
-          ]
-        );
-        return;
-      }
-      
-      const dua = subcategoryDuas[0];
-      console.log('Dua being favorited:', dua);
-      console.log('SubcategoryId:', subcategoryId);
-      
-      setFavLoading(true);
-      
-      if (isFavorite) {
-        const result = await removeFavorite(dua.id);
-        console.log('Removed favorite result:', result);
-        setIsFavorite(false);
-      } else {
-        // Ensure that subcategoryId is the correct string format
-        const subcatId = String(subcategoryId);
-        console.log('Adding favorite with duaId:', dua.id, 'subcategoryId:', subcatId);
-        
-        const result = await addFavorite(dua.id, subcatId);
-        console.log('Added favorite result:', result);
-        setIsFavorite(true);
-      }
-    } catch (error: any) {
-      console.error('Error toggling favorite:', error);
-      
-      // More detailed error message
-      let errorMessage = 'Failed to update favorite status';
-      if (error.response) {
-        // Server responded with a status code that's not in range 200-299
-        console.log('Error data:', error.response.data);
-        console.log('Error status:', error.response.status);
-        
-        if (error.response.data?.error || error.response.data?.message) {
-          errorMessage = error.response.data.error || error.response.data.message;
-        }
-      } else if (error.request) {
-        // Request was made but no response received
-        errorMessage = 'No response from server. Please check your connection.';
-      } else {
-        // Something else happened
-        errorMessage = error.message || errorMessage;
-      }
-      
-      Alert.alert('Error', errorMessage);
-    } finally {
-      setFavLoading(false);
-    }
-  };
-
-  const copyToClipboard = (dua: Dua) => {
-    const textToCopy = `${dua.arabic_text}\n\n${dua.translation}\n\n${dua.urdu_translation ? dua.urdu_translation + '\n\n' : ''}Reference: ${dua.reference}`;
-    
-    Clipboard.setString(textToCopy);
-    
-    // Show custom toast instead of Alert
-    setToastMessage("Dua copied to clipboard");
+  const showToastMessage = (message: string, type: 'success' | 'error' | 'warning' = 'success') => {
+    setToastMessage(message);
+    setToastType(type);
     setShowToast(true);
     
     // Animate toast in
@@ -293,7 +228,7 @@ export default function DuaScreen() {
       })
     ]).start();
     
-    // Hide toast after 2 seconds
+    // Hide toast after appropriate time
     setTimeout(() => {
       Animated.parallel([
         Animated.timing(fadeAnim, {
@@ -309,7 +244,91 @@ export default function DuaScreen() {
       ]).start(() => {
         setShowToast(false);
       });
-    }, 2000);
+    }, type === 'error' ? 3000 : 2000); // Longer time for errors
+  };
+
+  const handleFavoriteToggle = async () => {
+    if (!subcategoryDuas || subcategoryDuas.length === 0) return;
+    
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        showToastMessage('Please log in to save favorites', 'warning');
+        setTimeout(() => {
+          router.push('/login');
+        }, 2000);
+        return;
+      }
+      
+      const dua = subcategoryDuas[0];
+      
+      // Convert IDs to numbers
+      const duaId = parseInt(dua.id);
+      const subcatId = parseInt(subcategoryId as string);
+      
+      console.log('Favoriting - duaId:', duaId, 'subcategoryId:', subcatId);
+      
+      setFavLoading(true);
+      
+      if (isFavorite) {
+        // Remove from favorites
+        await axios.delete(
+          `${API_URL}/api/favorites/${duaId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setIsFavorite(false);
+        
+        showToastMessage('Removed from favorites', 'success');
+      } else {
+        // Add to favorites
+        await axios.post(
+          `${API_URL}/api/favorites`,
+          { duaId, subcategoryId: subcatId },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+        setIsFavorite(true);
+        
+        showToastMessage('Added to favorites', 'success');
+      }
+    } catch (error: any) {
+      console.error('Error toggling favorite:', error);
+      
+      // More detailed error message
+      let errorMessage = 'Failed to update favorite status';
+      if (axios.isAxiosError(error)) {
+        console.log('Error status:', error.response?.status);
+        console.log('Error data:', error.response?.data);
+        
+        if (error.response?.status === 429) {
+          errorMessage = 'Too many requests. Please try again later.';
+        } else if (error.response?.data?.error) {
+          errorMessage = error.response.data.error;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      showToastMessage(errorMessage, 'error');
+    } finally {
+      setFavLoading(false);
+    }
+  };
+
+  const copyToClipboard = (dua: Dua) => {
+    const textToCopy = `${dua.arabic_text}\n\n${dua.translation}\n\n${dua.urdu_translation ? dua.urdu_translation + '\n\n' : ''}Reference: ${dua.reference}`;
+    
+    Clipboard.setString(textToCopy);
+    
+    showToastMessage("Dua copied to clipboard", "success");
   };
 
   const handleShare = async (dua: Dua, index: number) => {
@@ -367,10 +386,25 @@ export default function DuaScreen() {
           <Ionicons name="copy-outline" size={20} color="#E0E0E0" />
         </TouchableOpacity>
         <TouchableOpacity 
-          style={styles.actionButton}
+          style={[styles.actionButton, { marginRight: 16 }]}
           onPress={() => handleShare(dua, index)}
         >
           <Ionicons name="share-social-outline" size={20} color="#E0E0E0" />
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={handleFavoriteToggle}
+          disabled={favLoading}
+        >
+          {favLoading ? (
+            <ActivityIndicator size="small" color="#E0E0E0" />
+          ) : (
+            <Ionicons 
+              name={isFavorite ? "bookmark" : "bookmark-outline"} 
+              size={20} 
+              color="#E0E0E0" 
+            />
+          )}
         </TouchableOpacity>
       </View>
     );
@@ -449,20 +483,6 @@ export default function DuaScreen() {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
               >
-                {/* Bookmark Button - hide when sharing */}
-                {!isSharing && (
-                  <TouchableOpacity 
-                    style={[styles.bookmarkButton, { backgroundColor: `${colors.primary}20` }]}
-                    onPress={handleFavoriteToggle}
-                  >
-                    <Ionicons 
-                      name={isFavorite ? "bookmark" : "bookmark-outline"} 
-                      size={22} 
-                      color={colors.primary}
-                    />
-                  </TouchableOpacity>
-                )}
-
                 <View style={styles.duaHeader}>
                   <ThemedText style={styles.duaTitle}>{dua.name}</ThemedText>
                 </View>
@@ -511,11 +531,23 @@ export default function DuaScreen() {
             { 
               opacity: fadeAnim,
               transform: [{ translateY: slideAnim }],
-              backgroundColor: colors.primary
+              backgroundColor: toastType === 'success' ? '#4CAF50' : 
+                               toastType === 'error' ? '#FF3B30' : 
+                               toastType === 'warning' ? '#FF9500' : 
+                               colors.primary
             }
           ]}
         >
-          <Ionicons name="checkmark-circle" size={20} color="white" />
+          <Ionicons 
+            name={
+              toastType === 'success' ? "checkmark-circle" : 
+              toastType === 'error' ? "alert-circle" :
+              toastType === 'warning' ? "warning" : 
+              "information-circle"
+            } 
+            size={20} 
+            color="white" 
+          />
           <Text style={styles.toastText}>{toastMessage}</Text>
         </Animated.View>
       )}
