@@ -400,15 +400,18 @@ export default function DuaScreen() {
       setIsSharing(true);
       
       // Small delay to ensure state update has been rendered
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 300));
       
       // Capture the dua card as an image
       if (viewShotRefs.current[dua.id]) {
+        console.log('Capturing viewShot for dua:', dua.id);
         const uri = await captureRef(viewShotRefs.current[dua.id], {
           format: "jpg",
           quality: 0.9,
-          result: "data-uri"
+          result: "data-uri",
         });
+        
+        console.log('Captured URI:', uri);
         
         // Turn off sharing mode to restore UI
         setIsSharing(false);
@@ -430,12 +433,20 @@ export default function DuaScreen() {
           } else if (result.action === Share.dismissedAction) {
             console.log('Share dismissed');
           }
+        } else {
+          console.log('No URI captured');
+          showToastMessage('Failed to capture image', 'error');
         }
+      } else {
+        console.log('ViewShot ref not found for dua:', dua.id);
+        setIsSharing(false);
+        showToastMessage('Failed to capture dua card', 'error');
       }
     } catch (error) {
       // Ensure UI is restored even if an error occurs
       setIsSharing(false);
       console.error('Error sharing dua:', error);
+      showToastMessage('Error sharing dua', 'error');
     }
   };
 
@@ -549,12 +560,20 @@ export default function DuaScreen() {
         /* Content - Only show when not loading */
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           {subcategoryDuas.map((dua, index) => (
-            <View 
+            <ViewShot 
               key={dua.id} 
               ref={(ref) => { viewShotRefs.current[dua.id] = ref; }}
               style={[
                 styles.duaCardContainer,
-                isSharing && { borderRadius: 0 }
+                isSharing && { 
+                  borderRadius: 0,
+                  margin: 0,
+                  padding: 0,
+                  // Keep natural dimensions when sharing
+                  alignSelf: 'stretch',
+                  width: undefined,
+                  height: undefined
+                }
               ]}
             >
               <LinearGradient
@@ -598,7 +617,7 @@ export default function DuaScreen() {
                 {/* Action buttons - hide when sharing */}
                 {!isSharing && renderActionButtons(dua, index)}
               </LinearGradient>
-            </View>
+            </ViewShot>
           ))}
           <View style={styles.bottomPadding} />
         </ScrollView>

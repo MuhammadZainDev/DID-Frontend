@@ -6,7 +6,6 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme, themeColors } from '../context/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getGlobalNotificationPreference, saveGlobalNotificationPreference } from '@/app/(tabs)/prayers';
-import { DevResetButton } from '@/components/DevResetButton';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -193,8 +192,6 @@ export default function SettingsScreen() {
           </Text>
         </View>
       </ScrollView>
-
-      <DevResetButton />
     </View>
   );
 }
