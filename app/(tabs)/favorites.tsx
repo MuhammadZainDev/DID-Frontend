@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Platform, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Platform, Alert, ActivityIndicator, StatusBar as RNStatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -141,16 +141,12 @@ export default function FavoritesScreen() {
             duaId: item.duaId 
           });
           
-          // First verify that the subcategory actually exists
-          const subcategory = subcategoriesData.subcategories
-            .flatMap(cat => cat.subcategories)
-            .find(sub => sub.id === item.subcategoryId);
-            
-          console.log('Found subcategory?', !!subcategory, subcategory?.name);
-          
-          // Verify that a dua exists for this subcategory
-          const dua = duasData.duas.find(d => d.subcategory_id === item.subcategoryId);
-          console.log('Found dua for subcategory?', !!dua, dua?.name);
+          // First verify that the subcategory exists in local data
+          // This is just for logging/debugging purposes
+          console.log('Navigating to subcategory ID:', item.subcategoryId);
+          if (item.subcategoryName) {
+            console.log('Subcategory name:', item.subcategoryName);
+          }
           
           // Navigate to dua screen with the subcategory ID
           router.push(`/dua?subcategoryId=${item.subcategoryId}`);
@@ -243,7 +239,9 @@ export default function FavoritesScreen() {
       
       {/* Header */}
       <View style={[styles.header, { backgroundColor: colors.header }]}>
+        <View style={styles.backButtonPlaceholder}></View>
         <Text style={styles.headerTitle}>Favorites</Text>
+        <View style={{width: 70}} />
       </View>
       
       {/* Content */}
@@ -258,15 +256,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#121212',
   },
   header: {
-    paddingTop: Platform.OS === 'ios' ? 50 : 40,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'android' ? 50 : 54,
+    paddingBottom: 16,
+    height: Platform.OS === 'android' ? 100 : 100,
+    backgroundColor: '#1A7F4B',
+    width: '100%',
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: 'white',
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
     textAlign: 'center',
+  },
+  backButtonPlaceholder: {
+    width: 70,
   },
   listContent: {
     padding: 16,

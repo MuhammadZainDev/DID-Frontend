@@ -413,19 +413,14 @@ export default function DuaScreen() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={[styles.header, { backgroundColor: colors.primary }]}>
-        <SafeAreaView>
-          <View style={styles.headerTop}>
-            <TouchableOpacity 
-              style={styles.backButton} 
-              onPress={() => router.back()}
-            >
-              <Ionicons name="arrow-back" size={24} color="white" />
-            </TouchableOpacity>
-            <ThemedText style={styles.title}>{subcategory?.name || 'Duas'}</ThemedText>
-            <View style={styles.iconButton} />
-          </View>
-        </SafeAreaView>
+      <View style={[styles.header, { backgroundColor: colors.header }]}>
+        <View style={styles.headerContent}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="chevron-back-outline" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>{subcategory?.name || 'Duas'}</Text>
+          <View style={{width: 70}} />
+        </View>
       </View>
 
       {/* Loading Indicator */}
@@ -561,26 +556,37 @@ const styles = StyleSheet.create({
     backgroundColor: '#121212',
   },
   header: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    paddingTop: Platform.OS === 'ios' ? 50 : 16,
-  },
-  headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: Platform.OS === 'android' ? 40 : 0,
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'android' ? 50 : 54,
+    paddingBottom: 16,
+    height: Platform.OS === 'android' ? 100 : 100,
+    width: '100%',
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
   },
   backButton: {
-    padding: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 70,
   },
-  title: {
+  backText: {
     color: 'white',
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: '600',
+    marginLeft: 4,
   },
-  iconButton: {
-    padding: 8,
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    textAlign: 'center',
   },
   scrollView: {
     flex: 1,
