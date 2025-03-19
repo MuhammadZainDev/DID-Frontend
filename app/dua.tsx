@@ -106,7 +106,7 @@ export default function DuaScreen() {
           if (!subcategoryResponse.ok) throw new Error('Failed to fetch subcategory');
           subcategoryData = await subcategoryResponse.json();
           
-          const duasResponse = await fetch(`${API_URL}/api/duas/subcategory/${subcategoryId}`);
+        const duasResponse = await fetch(`${API_URL}/api/duas/subcategory/${subcategoryId}`);
           if (!duasResponse.ok) throw new Error('Failed to fetch duas');
           duasData = await duasResponse.json();
           
@@ -319,7 +319,7 @@ export default function DuaScreen() {
         showToastMessage('Please log in to save favorites', 'warning');
         setTimeout(() => {
           router.push('/login');
-        }, 2000);
+    }, 2000);
         return;
       }
       
@@ -480,10 +480,10 @@ export default function DuaScreen() {
         <View style={styles.headerContent}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Ionicons name="chevron-back-outline" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
+            </TouchableOpacity>
           <Text style={styles.headerTitle}>{subcategory?.name || 'Duas'}</Text>
           <View style={{width: 70}} />
-        </View>
+          </View>
       </View>
 
       {/* Loading Indicator */}
@@ -518,7 +518,7 @@ export default function DuaScreen() {
                 
                 setSubcategory(subcategoryData);
                 setSubcategoryDuas(duasData);
-                setLoading(false);
+                  setLoading(false);
               } catch (networkError) {
                 console.log('Network error in retry, trying cache:', networkError);
                 
@@ -538,7 +538,7 @@ export default function DuaScreen() {
                   setError('Failed to load data. Please check your connection and try again.');
                 }
                 
-                setLoading(false);
+                  setLoading(false);
               }
             }}
           >

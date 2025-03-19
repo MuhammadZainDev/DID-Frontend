@@ -38,19 +38,8 @@ export default function WelcomeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Main gradient background */}
-      <LinearGradient
-        colors={['#121212', '#1e1e1e', '#242424']}
-        locations={[0, 0.5, 0.8]}
-        style={styles.upperGradient}
-      />
-      
-      {/* Bottom white gradient */}
-      <LinearGradient
-        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.05)', 'rgba(255,255,255,0.1)']}
-        locations={[0, 0.5, 1]}
-        style={styles.bottomGradient}
-      />
+      {/* Solid background instead of gradients */}
+      <View style={styles.solidBackground} />
       
       <View style={styles.contentContainer}>
         {/* Logo in center */}
@@ -79,9 +68,9 @@ export default function WelcomeScreen() {
               <Text style={styles.linkText}>Disclaimer</Text>
             </TouchableOpacity>
           </View>
-
-          <TouchableOpacity
-            style={styles.continueButton}
+          
+          <TouchableOpacity 
+            style={styles.continueButton} 
             onPress={handleContinue}
           >
             <Text style={styles.continueButtonText}>Continue</Text>
@@ -97,19 +86,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#121212',
   },
-  upperGradient: {
+  solidBackground: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    height: height * 0.7,
-  },
-  bottomGradient: {
-    position: 'absolute',
     bottom: 0,
-    left: 0,
-    right: 0,
-    height: height * 0.3,
+    backgroundColor: '#121212',
   },
   contentContainer: {
     flex: 1,
@@ -151,7 +134,7 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
   continueButton: {
-    backgroundColor: '#5f3dc4',
+    backgroundColor: '#1A7F4B',
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 3,
