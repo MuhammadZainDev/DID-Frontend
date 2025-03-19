@@ -5,6 +5,8 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useRouter } from 'expo-router';
 import { API_URL } from '@/config/constants';
 import { useTheme } from '@/context/ThemeContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
 
 // Sample data for duas
 const sampleDuas = [
@@ -78,26 +80,88 @@ export default function DuasScreen() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Fetch categories
-        const categoriesResponse = await fetch(`${API_URL}/api/categories`);
-        if (!categoriesResponse.ok) {
-          throw new Error('Failed to fetch categories');
+        let categoriesData;
+        let subcategoriesData;
+        let fromCache = false;
+        
+        // First try to load from cache immediately to avoid any delay
+        try {
+          const cachedCategories = await AsyncStorage.getItem('categories_cache');
+          const cachedSubcategories = await AsyncStorage.getItem('subcategories_cache');
+          
+          if (cachedCategories && cachedSubcategories) {
+            categoriesData = JSON.parse(cachedCategories);
+            subcategoriesData = JSON.parse(cachedSubcategories);
+            
+            // Set the data immediately from cache for instant display
+            setCategories(categoriesData);
+            setSubcategories(subcategoriesData);
+            console.log('Loaded initial data from cache');
+            fromCache = true;
+          }
+        } catch (cacheError) {
+          console.log('Error loading from cache:', cacheError);
         }
-        const categoriesData = await categoriesResponse.json();
-        setCategories(categoriesData);
-
-        // Fetch subcategories
-        const subcategoriesResponse = await fetch(`${API_URL}/api/subcategories`);
-        if (!subcategoriesResponse.ok) {
-          throw new Error('Failed to fetch subcategories');
+        
+        // Then try to fetch fresh data from network
+        try {
+          const netInfo = await NetInfo.fetch();
+          if (!netInfo.isConnected) {
+            console.log('No internet connection, using cached data only');
+            if (fromCache) {
+              setLoading(false);
+              return; // Use cached data and exit
+            } else {
+              throw new Error('No internet connection and no cached data');
+            }
+          }
+          
+          // Try to fetch categories from network
+          const categoriesResponse = await fetch(`${API_URL}/api/categories`);
+          if (!categoriesResponse.ok) throw new Error('Failed to fetch categories');
+          categoriesData = await categoriesResponse.json();
+          
+          // Try to fetch subcategories from network
+          const subcategoriesResponse = await fetch(`${API_URL}/api/subcategories`);
+          if (!subcategoriesResponse.ok) throw new Error('Failed to fetch subcategories');
+          subcategoriesData = await subcategoriesResponse.json();
+          
+          // Save to cache for offline use
+          await AsyncStorage.setItem('categories_cache', JSON.stringify(categoriesData));
+          await AsyncStorage.setItem('subcategories_cache', JSON.stringify(subcategoriesData));
+          
+          // Update with fresh data
+          setCategories(categoriesData);
+          setSubcategories(subcategoriesData);
+          console.log('Updated with fresh data from network');
+        } catch (networkError) {
+          console.log('Network error:', networkError);
+          if (!fromCache) {
+            // If we haven't loaded from cache yet and network failed
+            const cachedCategories = await AsyncStorage.getItem('categories_cache');
+            const cachedSubcategories = await AsyncStorage.getItem('subcategories_cache');
+            
+            if (cachedCategories && cachedSubcategories) {
+              categoriesData = JSON.parse(cachedCategories);
+              subcategoriesData = JSON.parse(cachedSubcategories);
+              setCategories(categoriesData);
+              setSubcategories(subcategoriesData);
+              fromCache = true;
+              console.log('Loaded data from cache after network error');
+            } else {
+              throw new Error('No internet connection and no cached data available');
+            }
+          }
         }
-        const subcategoriesData = await subcategoriesResponse.json();
-        setSubcategories(subcategoriesData);
         
         setLoading(false);
+        
+        if (fromCache) {
+          setError('Showing cached data (offline mode). Connect to internet for latest content.');
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
-        setError('Failed to load data. Please try again later.');
+        setError('Failed to load data. Please check your internet connection and try again.');
         setLoading(false);
       }
     };
@@ -190,32 +254,48 @@ export default function DuasScreen() {
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity 
             style={styles.retryButton}
-            onPress={() => {
+            onPress={async () => {
               setError('');
               setLoading(true);
-              // Refetch data
-              fetch(`${API_URL}/api/categories`)
-                .then(response => {
-                  if (!response.ok) throw new Error('Failed to fetch');
-                  return response.json();
-                })
-                .then(data => {
-                  setCategories(data);
-                  return fetch(`${API_URL}/api/subcategories`);
-                })
-                .then(response => {
-                  if (!response.ok) throw new Error('Failed to fetch');
-                  return response.json();
-                })
-                .then(data => {
-                  setSubcategories(data);
-                  setLoading(false);
-                })
-                .catch(err => {
-                  console.error('Error fetching data:', err);
-                  setError('Failed to load data. Please try again later.');
-                  setLoading(false);
-                });
+              
+              try {
+                // Try to fetch from network first
+                const categoriesResponse = await fetch(`${API_URL}/api/categories`);
+                if (!categoriesResponse.ok) throw new Error('Failed to fetch');
+                const categoriesData = await categoriesResponse.json();
+                
+                const subcategoriesResponse = await fetch(`${API_URL}/api/subcategories`);
+                if (!subcategoriesResponse.ok) throw new Error('Failed to fetch');
+                const subcategoriesData = await subcategoriesResponse.json();
+                
+                // Save to cache
+                await AsyncStorage.setItem('categories_cache', JSON.stringify(categoriesData));
+                await AsyncStorage.setItem('subcategories_cache', JSON.stringify(subcategoriesData));
+                
+                setCategories(categoriesData);
+                setSubcategories(subcategoriesData);
+                setLoading(false);
+              } catch (error) {
+                console.error('Network error in retry, trying cache:', error);
+                
+                // Try to load from cache
+                try {
+                  const cachedCategories = await AsyncStorage.getItem('categories_cache');
+                  const cachedSubcategories = await AsyncStorage.getItem('subcategories_cache');
+                  
+                  if (cachedCategories && cachedSubcategories) {
+                    setCategories(JSON.parse(cachedCategories));
+                    setSubcategories(JSON.parse(cachedSubcategories));
+                    setError('Showing cached data (offline mode). Some features may be limited.');
+                  } else {
+                    setError('No internet connection and no cached data available.');
+                  }
+                } catch (cacheError) {
+                  setError('Failed to load data. Please check your connection and try again.');
+                }
+                
+                setLoading(false);
+              }
             }}
           >
             <Text style={[styles.retryButtonText, { color: colors.primary }]}>Retry</Text>

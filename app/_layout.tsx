@@ -25,11 +25,67 @@ import { LanguageProvider } from '../context/LanguageContext';
 import { ThemeProvider } from '../context/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../config/constants';
+import NetInfo from '@react-native-community/netinfo';
 
 const { width } = Dimensions.get('window');
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
+
+// Function to prefetch and cache all app data
+const prefetchAllData = async () => {
+  try {
+    console.log('Starting to prefetch all app data...');
+    const netInfo = await NetInfo.fetch();
+    
+    if (!netInfo.isConnected) {
+      console.log('No internet connection, skipping prefetch');
+      return;
+    }
+    
+    // 1. Fetch all categories
+    console.log('Fetching categories...');
+    const categoriesResponse = await fetch(`${API_URL}/api/categories`);
+    if (!categoriesResponse.ok) throw new Error('Failed to fetch categories');
+    const categoriesData = await categoriesResponse.json();
+    await AsyncStorage.setItem('categories_cache', JSON.stringify(categoriesData));
+    
+    // 2. Fetch all subcategories
+    console.log('Fetching subcategories...');
+    const subcategoriesResponse = await fetch(`${API_URL}/api/subcategories`);
+    if (!subcategoriesResponse.ok) throw new Error('Failed to fetch subcategories');
+    const subcategoriesData = await subcategoriesResponse.json();
+    await AsyncStorage.setItem('subcategories_cache', JSON.stringify(subcategoriesData));
+    
+    // 3. Fetch duas for each subcategory
+    console.log('Fetching duas for each subcategory...');
+    for (const subcategory of subcategoriesData) {
+      const subcategoryId = subcategory.id;
+      try {
+        const duasResponse = await fetch(`${API_URL}/api/duas/subcategory/${subcategoryId}`);
+        if (!duasResponse.ok) continue;
+        
+        const duasData = await duasResponse.json();
+        
+        // Save subcategory and its duas to cache
+        await AsyncStorage.setItem(`subcategory_${subcategoryId}`, JSON.stringify(subcategory));
+        await AsyncStorage.setItem(`duas_${subcategoryId}`, JSON.stringify(duasData));
+        
+        console.log(`Cached subcategory ${subcategory.name} with ${duasData.length} duas`);
+      } catch (error) {
+        console.error(`Error caching subcategory ${subcategoryId}:`, error);
+        // Continue with other subcategories even if one fails
+      }
+    }
+    
+    // 4. Save timestamp of last successful prefetch
+    await AsyncStorage.setItem('last_prefetch_timestamp', Date.now().toString());
+    console.log('All data prefetched and cached successfully');
+    
+  } catch (error) {
+    console.error('Error during prefetch:', error);
+  }
+};
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -42,6 +98,37 @@ export default function RootLayout() {
   const [progress, setProgress] = useState(0);
   const progressAnim = new Animated.Value(0);
   const fadeAnim = new Animated.Value(0);
+  const [prefetchingData, setPrefetchingData] = useState(false);
+  const [prefetchProgress, setPrefetchProgress] = useState(0);
+
+  // Prefetch all data when app starts
+  useEffect(() => {
+    const checkAndPrefetchData = async () => {
+      if (fontsLoaded) {
+        try {
+          // Check when was the last prefetch
+          const lastPrefetch = await AsyncStorage.getItem('last_prefetch_timestamp');
+          const shouldPrefetch = !lastPrefetch || 
+                                (Date.now() - parseInt(lastPrefetch)) > 24 * 60 * 60 * 1000; // 24 hours
+          
+          if (shouldPrefetch) {
+            console.log('Starting data prefetch');
+            setPrefetchingData(true);
+            // Start prefetching data
+            await prefetchAllData();
+            setPrefetchingData(false);
+          } else {
+            console.log('Skipping prefetch, data is recent');
+          }
+        } catch (error) {
+          console.error('Error during prefetch check:', error);
+          setPrefetchingData(false);
+        }
+      }
+    };
+    
+    checkAndPrefetchData();
+  }, [fontsLoaded]);
 
   useEffect(() => {
     async function prepare() {
@@ -72,8 +159,25 @@ export default function RootLayout() {
             });
           }, 30);
 
-          // Wait for fonts and a minimum duration
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          // Wait for fonts and prefetching to complete
+          await new Promise(resolve => {
+            const checkPrefetch = () => {
+              if (!prefetchingData && progress >= 0.8) {
+                clearInterval(checkInterval);
+                resolve(null);
+              }
+            };
+            
+            const checkInterval = setInterval(checkPrefetch, 100);
+            // Add a timeout to ensure we don't wait forever
+            setTimeout(() => {
+              clearInterval(checkInterval);
+              resolve(null);
+            }, 5000);
+          });
+          
+          // Give a little extra time for UI to finalize
+          await new Promise(resolve => setTimeout(resolve, 500));
           
           // Once everything is ready, hide the splash screen
           await SplashScreen.hideAsync();

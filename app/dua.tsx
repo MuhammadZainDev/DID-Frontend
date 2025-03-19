@@ -10,6 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/context/ThemeContext';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import axios from 'axios';
+import NetInfo from '@react-native-community/netinfo';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -64,26 +65,88 @@ export default function DuaScreen() {
       try {
         setLoading(true);
         
-        // Fetch subcategory details
-        const subcategoryResponse = await fetch(`${API_URL}/api/subcategories/${subcategoryId}`);
-        if (!subcategoryResponse.ok) {
-          throw new Error('Failed to fetch subcategory');
-        }
-        const subcategoryData = await subcategoryResponse.json();
+        let subcategoryData;
+        let duasData;
+        let fromCache = false;
         
-        // Fetch duas for this subcategory
-        const duasResponse = await fetch(`${API_URL}/api/duas/subcategory/${subcategoryId}`);
-        if (!duasResponse.ok) {
-          throw new Error('Failed to fetch duas');
+        // First try to load from cache immediately
+        try {
+          const cachedSubcategory = await AsyncStorage.getItem(`subcategory_${subcategoryId}`);
+          const cachedDuas = await AsyncStorage.getItem(`duas_${subcategoryId}`);
+          
+          if (cachedSubcategory && cachedDuas) {
+            subcategoryData = JSON.parse(cachedSubcategory);
+            duasData = JSON.parse(cachedDuas);
+            
+            // Set data immediately from cache
+            setSubcategory(subcategoryData);
+            setSubcategoryDuas(duasData);
+            fromCache = true;
+            console.log('Initially loaded dua data from cache');
+          }
+        } catch (cacheError) {
+          console.log('Error loading dua from cache:', cacheError);
         }
-        const duasData = await duasResponse.json();
         
-        setSubcategory(subcategoryData);
-        setSubcategoryDuas(duasData);
+        // Then try to fetch fresh data from network
+        try {
+          const netInfo = await NetInfo.fetch();
+          if (!netInfo.isConnected) {
+            console.log('No internet connection, using cached dua data only');
+            if (fromCache) {
+              setLoading(false);
+              return; // Use cached data and exit
+            } else {
+              throw new Error('No internet connection and no cached data');
+            }
+          }
+          
+          // Try to fetch from network first
+          const subcategoryResponse = await fetch(`${API_URL}/api/subcategories/${subcategoryId}`);
+          if (!subcategoryResponse.ok) throw new Error('Failed to fetch subcategory');
+          subcategoryData = await subcategoryResponse.json();
+          
+          const duasResponse = await fetch(`${API_URL}/api/duas/subcategory/${subcategoryId}`);
+          if (!duasResponse.ok) throw new Error('Failed to fetch duas');
+          duasData = await duasResponse.json();
+          
+          // Cache the data for offline use
+          await AsyncStorage.setItem(`subcategory_${subcategoryId}`, JSON.stringify(subcategoryData));
+          await AsyncStorage.setItem(`duas_${subcategoryId}`, JSON.stringify(duasData));
+          
+          // Update with fresh data
+          setSubcategory(subcategoryData);
+          setSubcategoryDuas(duasData);
+          console.log('Updated dua data from network');
+        } catch (networkError) {
+          console.log('Network error fetching dua:', networkError);
+          
+          if (!fromCache) {
+            // If we haven't loaded from cache yet and network failed, try cache again
+            const cachedSubcategory = await AsyncStorage.getItem(`subcategory_${subcategoryId}`);
+            const cachedDuas = await AsyncStorage.getItem(`duas_${subcategoryId}`);
+            
+            if (cachedSubcategory && cachedDuas) {
+              subcategoryData = JSON.parse(cachedSubcategory);
+              duasData = JSON.parse(cachedDuas);
+              setSubcategory(subcategoryData);
+              setSubcategoryDuas(duasData);
+              fromCache = true;
+              console.log('Loaded dua data from cache after network error');
+            } else {
+              throw new Error('No internet connection and no cached data available for this dua');
+            }
+          }
+        }
+        
         setLoading(false);
+        
+        if (fromCache && !(await NetInfo.fetch()).isConnected) {
+          showToastMessage('Showing cached data (offline mode)', 'warning');
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
-        setError('Failed to load data. Please try again later.');
+        setError('Failed to load data. Please check your internet connection and try again.');
         setLoading(false);
       }
     };
@@ -435,26 +498,48 @@ export default function DuaScreen() {
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity 
             style={styles.retryButton}
-            onPress={() => {
+            onPress={async () => {
               setLoading(true);
               setError('');
-              // Re-fetch data
-              fetch(`${API_URL}/api/subcategories/${subcategoryId}`)
-                .then(res => res.json())
-                .then(data => {
-                  setSubcategory(data);
-                  return fetch(`${API_URL}/api/duas/subcategory/${subcategoryId}`);
-                })
-                .then(res => res.json())
-                .then(data => {
-                  setSubcategoryDuas(data);
-                  setLoading(false);
-                })
-                .catch(err => {
-                  console.error(err);
-                  setError('Failed to load data. Please try again.');
-                  setLoading(false);
-                });
+              
+              try {
+                // Try to fetch from network
+                const subcategoryResponse = await fetch(`${API_URL}/api/subcategories/${subcategoryId}`);
+                if (!subcategoryResponse.ok) throw new Error('Network request failed');
+                const subcategoryData = await subcategoryResponse.json();
+                
+                const duasResponse = await fetch(`${API_URL}/api/duas/subcategory/${subcategoryId}`);
+                if (!duasResponse.ok) throw new Error('Network request failed');
+                const duasData = await duasResponse.json();
+                
+                // Cache the new data
+                await AsyncStorage.setItem(`subcategory_${subcategoryId}`, JSON.stringify(subcategoryData));
+                await AsyncStorage.setItem(`duas_${subcategoryId}`, JSON.stringify(duasData));
+                
+                setSubcategory(subcategoryData);
+                setSubcategoryDuas(duasData);
+                setLoading(false);
+              } catch (networkError) {
+                console.log('Network error in retry, trying cache:', networkError);
+                
+                // Try to load from cache
+                try {
+                  const cachedSubcategory = await AsyncStorage.getItem(`subcategory_${subcategoryId}`);
+                  const cachedDuas = await AsyncStorage.getItem(`duas_${subcategoryId}`);
+                  
+                  if (cachedSubcategory && cachedDuas) {
+                    setSubcategory(JSON.parse(cachedSubcategory));
+                    setSubcategoryDuas(JSON.parse(cachedDuas));
+                    showToastMessage('Showing cached data (offline mode)', 'warning');
+                  } else {
+                    setError('No internet connection and no cached data available.');
+                  }
+                } catch (cacheError) {
+                  setError('Failed to load data. Please check your connection and try again.');
+                }
+                
+                setLoading(false);
+              }
             }}
           >
             <Text style={styles.retryButtonText}>Retry</Text>
