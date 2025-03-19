@@ -48,6 +48,52 @@ export interface PrayerTimes {
   };
 }
 
+// Separate function to fetch prayer times that can be reused anywhere
+export const fetchPrayerTimes = async (latitude: number, longitude: number): Promise<PrayerTimes | null> => {
+  try {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const apiUrl = `${ALADHAN_API}/${timestamp}`;
+
+    const response = await axios.get(apiUrl, {
+      params: {
+        latitude: latitude,
+        longitude: longitude,
+        method: 2, // ISNA
+        school: 1, // Hanafi
+        tune: "0,0,0,0,0,0"
+      },
+      timeout: 10000
+    });
+
+    if (response.data && response.data.code === 200 && response.data.data) {
+      const prayerData: PrayerTimes = {
+        timings: {
+          Fajr: response.data.data.timings.Fajr,
+          Sunrise: response.data.data.timings.Sunrise,
+          Dhuhr: response.data.data.timings.Dhuhr,
+          Asr: response.data.data.timings.Asr,
+          Maghrib: response.data.data.timings.Maghrib,
+          Isha: response.data.data.timings.Isha
+        },
+        date: response.data.data.date,
+        meta: {
+          latitude: latitude,
+          longitude: longitude,
+          timezone: response.data.data.meta.timezone
+        }
+      };
+
+      return prayerData;
+    } else {
+      console.error('Invalid response from prayer times API');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching prayer times:', error);
+    return null;
+  }
+};
+
 export function usePrayerTimes() {
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimes | null>(null);
   const [loading, setLoading] = useState(true);
@@ -111,6 +157,7 @@ export function usePrayerTimes() {
     if (!prayerTimes) return;
 
     const now = new Date();
+    
     // Define prayers with their times in order
     const prayers = [
       { name: 'Fajr', time: prayerTimes.timings.Fajr },
@@ -152,8 +199,6 @@ export function usePrayerTimes() {
     // Get the current and next prayer objects
     const current = prayerDates[currentPrayerIndex];
     const next = prayerDates[nextPrayerIndex];
-    
-    console.log(`Current prayer: ${current.name}, Next prayer: ${next.name}`);
 
     // Update state with the details
     setCurrentPrayer(current.name);
@@ -166,7 +211,7 @@ export function usePrayerTimes() {
     });
   };
 
-  const fetchPrayerTimes = async () => {
+  const refreshPrayerTimes = async () => {
     try {
       setLoading(true);
       setError(null);
@@ -180,40 +225,13 @@ export function usePrayerTimes() {
       }
 
       const location = await Location.getCurrentPositionAsync({});
-
-      const timestamp = Math.floor(Date.now() / 1000);
-      const apiUrl = `${ALADHAN_API}/${timestamp}`;
-
-      const response = await axios.get(apiUrl, {
-        params: {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-          method: 2, // ISNA
-          school: 1, // Hanafi
-          tune: "0,0,0,0,0,0"
-        },
-        timeout: 10000
-      });
-
-
-      if (response.data && response.data.code === 200 && response.data.data) {
-        const prayerData: PrayerTimes = {
-          timings: {
-            Fajr: response.data.data.timings.Fajr,
-            Sunrise: response.data.data.timings.Sunrise,
-            Dhuhr: response.data.data.timings.Dhuhr,
-            Asr: response.data.data.timings.Asr,
-            Maghrib: response.data.data.timings.Maghrib,
-            Isha: response.data.data.timings.Isha
-          },
-          date: response.data.data.date,
-          meta: {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-            timezone: response.data.data.meta.timezone
-          }
-        };
-
+      
+      const prayerData = await fetchPrayerTimes(
+        location.coords.latitude,
+        location.coords.longitude
+      );
+      
+      if (prayerData) {
         setPrayerTimes(prayerData);
         updatePrayerStatus();
       } else {
@@ -240,7 +258,7 @@ export function usePrayerTimes() {
   };
 
   useEffect(() => {
-    fetchPrayerTimes();
+    refreshPrayerTimes();
   }, []);
 
   // Update prayer status every second
@@ -257,6 +275,6 @@ export function usePrayerTimes() {
     error,
     currentPrayer,
     nextPrayer,
-    refreshPrayerTimes: fetchPrayerTimes
+    refreshPrayerTimes
   };
 } 

@@ -26,6 +26,13 @@ import { ThemeProvider } from '../context/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../config/constants';
 import NetInfo from '@react-native-community/netinfo';
+import { 
+  setupNotificationChannel, 
+  requestNotificationPermissions, 
+  schedulePrayerNotifications,
+  registerBackgroundTask,
+  startAppStateMonitoring
+} from '../utils/notifications';
 
 const { width } = Dimensions.get('window');
 
@@ -100,6 +107,38 @@ export default function RootLayout() {
   const fadeAnim = new Animated.Value(0);
   const [prefetchingData, setPrefetchingData] = useState(false);
   const [prefetchProgress, setPrefetchProgress] = useState(0);
+
+  // Initialize notification system
+  useEffect(() => {
+    const initializeNotifications = async () => {
+      try {
+        // Set up notification channel (Android only)
+        await setupNotificationChannel();
+        
+        // Request notification permissions
+        const permissionGranted = await requestNotificationPermissions();
+        
+        if (permissionGranted) {
+          // Register background task for prayer notifications
+          await registerBackgroundTask();
+          
+          // Schedule initial prayer notifications
+          await schedulePrayerNotifications();
+          
+          // Start monitoring app state for prayer notifications
+          startAppStateMonitoring();
+          
+          console.log('Notification system initialized successfully');
+        } else {
+          console.log('Notification permissions not granted');
+        }
+      } catch (error) {
+        console.error('Error initializing notification system:', error);
+      }
+    };
+    
+    initializeNotifications();
+  }, []);
 
   // Prefetch all data when app starts
   useEffect(() => {

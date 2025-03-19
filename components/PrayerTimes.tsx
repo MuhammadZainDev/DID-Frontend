@@ -18,7 +18,7 @@ const formatTime = (time: string) => {
 };
 
 export default function PrayerTimes() {
-  const { prayerTimes, loading, error, nextPrayer } = usePrayerTimes();
+  const { prayerTimes, loading, error, nextPrayer, currentPrayer } = usePrayerTimes();
   const { translations } = useLanguage();
   const { colors } = useTheme();
 
@@ -59,11 +59,11 @@ export default function PrayerTimes() {
         {prayerTimes.date.gregorian.day} {prayerTimes.date.gregorian.month.en} {prayerTimes.date.gregorian.year}
       </Text>
 
-      <Text style={styles.nextPrayerLabel}>{translations['prayer.nextPrayer']}</Text>
+      <Text style={styles.nextPrayerLabel}>{translations['prayer.currentPrayer'] || 'Current Prayer'}</Text>
       
       <View style={styles.prayerRow}>
         <Text style={styles.prayerName}>
-          {translations[`prayer.${nextPrayer.name.toLowerCase()}`] || nextPrayer.name}
+          {translations[`prayer.${currentPrayer?.toLowerCase()}`] || currentPrayer}
         </Text>
         <View style={styles.timeContainer}>
           <Text style={styles.prayerTime}>{formatTime(nextPrayer.time)}</Text>
@@ -112,6 +112,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#EEEEEE',
     marginBottom: 20,
+  },
+  prayerLabel: {
+    fontSize: 14,
+    color: '#CCCCCC',
+    marginBottom: 8,
+  },
+  currentPrayerContainer: {
+    marginBottom: 12,
+  },
+  currentPrayerName: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#4CAF50',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginVertical: 12,
   },
   nextPrayerLabel: {
     fontSize: 14,

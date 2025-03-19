@@ -60,7 +60,7 @@ export const getGlobalNotificationPreference = async (): Promise<boolean> => {
 };
 
 export default function PrayerTimesScreen() {
-  const { prayerTimes, loading, error, nextPrayer, refreshPrayerTimes } = usePrayerTimes();
+  const { prayerTimes, loading, error, nextPrayer, currentPrayer, refreshPrayerTimes } = usePrayerTimes();
   const [location, setLocation] = useState('Loading location...');
   const [notificationsScheduled, setNotificationsScheduled] = useState(false);
   const isSchedulingRef = useRef(false);
@@ -367,10 +367,10 @@ export default function PrayerTimesScreen() {
               <Text style={styles.locationText}>{location}</Text>
               <View style={styles.nextPrayerInfo}>
                 <Text style={styles.nextPrayerLabel}>
-                  {translations['prayer.nextPrayer']}
+                  {translations['prayer.currentPrayer'] || 'Current Prayer'}
                 </Text>
                 <Text style={styles.nextPrayerName}>
-                  {translations[`prayer.${nextPrayer.name.toLowerCase()}`] || nextPrayer.name}
+                  {translations[`prayer.${currentPrayer?.toLowerCase()}`] || currentPrayer}
                 </Text>
                 <Text style={styles.nextPrayerTime}>{nextPrayer.time}</Text>
                 <Text style={styles.remainingTime}>
@@ -397,30 +397,35 @@ export default function PrayerTimesScreen() {
             time={prayerTimes.timings.Fajr} 
             icon="sunny-outline" 
             isActive={nextPrayer.name === 'Fajr'}
+            isCurrent={currentPrayer === 'Fajr'}
           />
           <PrayerTimeItem 
             name={translations['prayer.dhuhr']} 
             time={prayerTimes.timings.Dhuhr} 
             icon="sunny-outline" 
             isActive={nextPrayer.name === 'Dhuhr'}
+            isCurrent={currentPrayer === 'Dhuhr'}
           />
           <PrayerTimeItem 
             name={translations['prayer.asr']} 
             time={prayerTimes.timings.Asr} 
-            icon="sunny-outline" 
+            icon="partly-sunny-outline" 
             isActive={nextPrayer.name === 'Asr'}
+            isCurrent={currentPrayer === 'Asr'}
           />
           <PrayerTimeItem 
             name={translations['prayer.maghrib']} 
             time={prayerTimes.timings.Maghrib} 
             icon="moon-outline" 
             isActive={nextPrayer.name === 'Maghrib'}
+            isCurrent={currentPrayer === 'Maghrib'}
           />
           <PrayerTimeItem 
             name={translations['prayer.isha']} 
             time={prayerTimes.timings.Isha} 
             icon="moon-outline" 
             isActive={nextPrayer.name === 'Isha'}
+            isCurrent={currentPrayer === 'Isha'}
           />
         </View>
       </ScrollView>
@@ -432,17 +437,19 @@ function PrayerTimeItem({
   name, 
   time, 
   icon, 
-  isActive
+  isActive,
+  isCurrent
 }: { 
   name: string; 
   time: string; 
   icon: string; 
   isActive: boolean;
+  isCurrent: boolean;
 }) {
   const { colors } = useTheme();
   // Format time to 12-hour format
-  const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(':');
+  const formatTime = (timeStr: string) => {
+    const [hours, minutes] = timeStr.split(':');
     const hour = parseInt(hours);
     const ampm = hour >= 12 ? 'PM' : 'AM';
     const hour12 = hour % 12 || 12;
@@ -467,7 +474,10 @@ function PrayerTimeItem({
   const backgroundImage = getBackgroundImage();
 
   return (
-    <View style={[styles.prayerTimeItem, isActive && [styles.activePrayerItem, { borderLeftColor: colors.primary }]]}>
+    <View style={[
+      styles.prayerTimeItem, 
+      isActive && [styles.activePrayerItem]
+    ]}>
       {backgroundImage ? (
         <Image source={backgroundImage} style={styles.prayerBackgroundImage} />
       ) : null}
@@ -475,6 +485,11 @@ function PrayerTimeItem({
         <View style={styles.prayerNameContainer}>
           <Ionicons name={icon as any} size={20} color="#FFFFFF" />
           <Text style={[styles.prayerName, { color: '#FFFFFF' }]}>{name}</Text>
+          {isCurrent && (
+            <View style={styles.currentPrayerBadge}>
+              <Text style={styles.currentPrayerBadgeText}>Current</Text>
+            </View>
+          )}
         </View>
         <View style={styles.prayerTimeRight}>
           <Text style={[styles.prayerTime, { color: '#FFFFFF' }]}>{formatTime(time)}</Text>
@@ -550,6 +565,28 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 3,
+  },
+  currentPrayerInfo: {
+    alignItems: 'flex-start',
+  },
+  currentPrayerLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  currentPrayerName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+  },
+  prayerDivider: {
+    height: 1,
+    backgroundColor: '#333333',
+    marginVertical: 10,
   },
   nextPrayerInfo: {
     alignItems: 'flex-start',
@@ -662,5 +699,20 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 3,
+  },
+  currentPrayerBadge: {
+    backgroundColor: '#0E8A3E',
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  currentPrayerBadgeText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  currentPrayerItem: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#0E8A3E',
   },
 }); 
