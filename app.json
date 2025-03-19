@@ -8,6 +8,11 @@
     "scheme": "duaonai",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/logo/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#121212"
+    },
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
@@ -36,15 +41,6 @@
     },
     "plugins": [
       "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/logo/logo.png",
-          "imageResizeMode": "contain",
-          "backgroundColor": "#121212",
-          "imageWidth": 200
-        }
-      ],
       [
         "expo-location",
         {

@@ -366,9 +366,7 @@ export default function PrayerTimesScreen() {
             <View style={styles.bannerContent}>
               <Text style={styles.locationText}>{location}</Text>
               <View style={styles.nextPrayerInfo}>
-                <Text style={styles.nextPrayerLabel}>
-                  {translations['prayer.currentPrayer'] || 'Current Prayer'}
-                </Text>
+             
                 <Text style={styles.nextPrayerName}>
                   {translations[`prayer.${currentPrayer?.toLowerCase()}`] || currentPrayer}
                 </Text>

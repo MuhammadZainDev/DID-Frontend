@@ -173,56 +173,20 @@ export default function RootLayout() {
     async function prepare() {
       try {
         if (fontsLoaded) {
-          // Fade in animation for logo and text
+          // Fade in animation for logo 
           Animated.timing(fadeAnim, {
             toValue: 1,
-            duration: 800,
+            duration: 1000,
             useNativeDriver: true,
           }).start();
           
-          // Start progress animation
-          Animated.timing(progressAnim, {
-            toValue: 1,
-            duration: 1500,
-            useNativeDriver: false,
-          }).start();
-
-          // Simulate loading progress
-          let interval = setInterval(() => {
-            setProgress(prev => {
-              if (prev >= 1) {
-                clearInterval(interval);
-                return 1;
-              }
-              return prev + 0.02;
-            });
-          }, 30);
-
-          // Wait for fonts and prefetching to complete
-          await new Promise(resolve => {
-            const checkPrefetch = () => {
-              if (!prefetchingData && progress >= 0.8) {
-                clearInterval(checkInterval);
-                resolve(null);
-              }
-            };
-            
-            const checkInterval = setInterval(checkPrefetch, 100);
-            // Add a timeout to ensure we don't wait forever
-            setTimeout(() => {
-              clearInterval(checkInterval);
-              resolve(null);
-            }, 5000);
-          });
-          
-          // Give a little extra time for UI to finalize
-          await new Promise(resolve => setTimeout(resolve, 500));
+          // Wait for fonts to complete loading
+          await new Promise(resolve => setTimeout(resolve, 1500));
           
           // Once everything is ready, hide the splash screen
           await SplashScreen.hideAsync();
           
           setAppReady(true);
-          clearInterval(interval);
         }
       } catch (e) {
         console.warn('Error in prepare:', e);
@@ -232,12 +196,6 @@ export default function RootLayout() {
 
     prepare();
   }, [fontsLoaded]);
-
-  // This value is used by <Animated.View> for the width
-  const progressWidth = progressAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, width * 0.7],
-  });
 
   // Show nothing until fonts are loaded
   if (!fontsLoaded) {
@@ -258,25 +216,6 @@ export default function RootLayout() {
                     resizeMode="contain"
                   />
                 </Animated.View>
-                
-                <Animated.Text style={[styles.welcomeText, { opacity: fadeAnim }]}>
-                  Welcome to Duaon AI
-                </Animated.Text>
-                
-                <Animated.Text style={[styles.subtitleText, { opacity: fadeAnim }]}>
-                  Your Daily Islamic Companion
-                </Animated.Text>
-                
-                <View style={styles.progressContainer}>
-                  <View style={styles.progressBar}>
-                    <Animated.View 
-                      style={[
-                        styles.progress, 
-                        { width: progressWidth }
-                      ]} 
-                    />
-                  </View>
-                </View>
               </View>
             ) : (
               <React.Fragment>
@@ -350,39 +289,9 @@ const styles = StyleSheet.create({
     height: width * 0.5,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
   },
   logo: {
     width: '100%',
     height: '100%',
   },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitleText: {
-    fontSize: 16,
-    color: '#9B9B9B',
-    textAlign: 'center',
-    marginBottom: 30,
-  },
-  progressContainer: {
-    position: 'absolute',
-    bottom: 60,
-    width: width * 0.7,
-  },
-  progressBar: {
-    width: '100%',
-    height: 3,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 3,
-  },
-  progress: {
-    height: '100%',
-    backgroundColor: 'rgba(255,255,255,0.5)',
-    borderRadius: 3,
-  }
 });
