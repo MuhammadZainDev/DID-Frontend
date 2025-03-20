@@ -16,6 +16,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { addFavorite, removeFavorite, checkFavorite } from '@/services/favorites';
 import { API_URL } from '@/config/constants';
+import { useLanguage } from '@/context/LanguageContext';
 
 type Dua = {
   id: string;
@@ -40,6 +41,7 @@ type Subcategory = {
 export default function DuaScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const { language } = useLanguage();
   const { subcategoryId } = useLocalSearchParams();
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -64,7 +66,7 @@ export default function DuaScreen() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        setError(null);
+        setError('');
         
         let subcategoryData;
         let duasData;
@@ -475,7 +477,7 @@ export default function DuaScreen() {
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Ionicons name="chevron-back-outline" size={24} color="#FFFFFF" />
             </TouchableOpacity>
-          <Text style={styles.headerTitle}>{subcategory?.name || 'Duas'}</Text>
+          <Text style={styles.headerTitle}>Dua</Text>
           <View style={{width: 70}} />
           </View>
       </View>
@@ -577,7 +579,7 @@ export default function DuaScreen() {
                 
                 <View style={styles.translationContainer}>
                   <ThemedText style={styles.translationText}>{dua.translation}</ThemedText>
-                  {dua.urdu_translation && (
+                  {(dua.urdu_translation && language === 'ur') && (
                     <>
                       <View style={styles.translationDivider} />
                       <ThemedText style={[styles.translationText, styles.urduText]}>

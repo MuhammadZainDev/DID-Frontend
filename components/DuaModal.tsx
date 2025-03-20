@@ -5,6 +5,7 @@ import { DuaResponse } from '@/services/geminiService';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/context/ThemeContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { captureRef } from 'react-native-view-shot';
 
 interface DuaModalProps {
@@ -15,6 +16,7 @@ interface DuaModalProps {
 
 export default function DuaModal({ visible, dua, onClose }: DuaModalProps) {
   const { colors } = useTheme();
+  const { language } = useLanguage();
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -161,10 +163,14 @@ export default function DuaModal({ visible, dua, onClose }: DuaModalProps) {
                 
                 <View style={styles.translationContainer}>
                   <ThemedText style={styles.translationText}>{dua.english_translation}</ThemedText>
-                  <View style={styles.translationDivider} />
-                  <ThemedText style={[styles.translationText, styles.urduText]}>
-                    {dua.urdu_translation}
-                  </ThemedText>
+                  {language === 'ur' && dua.urdu_translation && (
+                    <>
+                      <View style={styles.translationDivider} />
+                      <ThemedText style={[styles.translationText, styles.urduText]}>
+                        {dua.urdu_translation}
+                      </ThemedText>
+                    </>
+                  )}
                 </View>
                 
                 <View style={styles.referenceContainer}>

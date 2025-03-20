@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/fonts.css';
 
-const DuaCard = ({ dua }) => {
+const DuaCard = ({ dua, language = 'en' }) => {
   return (
     <div className="dua-card">
       <h2>{dua.name}</h2>
@@ -12,9 +12,11 @@ const DuaCard = ({ dua }) => {
         </div>
         
         <div className="translations">
-          <div className="urdu-section">
-            <p className="urdu-text">{dua.urdu_translation}</p>
-          </div>
+          {language === 'ur' && dua.urdu_translation && (
+            <div className="urdu-section">
+              <p className="urdu-text">{dua.urdu_translation}</p>
+            </div>
+          )}
           
           <div className="english-section">
             <p>{dua.translation}</p>
@@ -23,7 +25,7 @@ const DuaCard = ({ dua }) => {
         
         <div className="dua-details">
           <p className="description">{dua.description}</p>
-          <p className="count">Recite: {dua.count}</p>
+          {dua.count && <p className="count">Recite: {dua.count}</p>}
         </div>
       </div>
     </div>

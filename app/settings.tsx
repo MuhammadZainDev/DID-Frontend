@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView, Platform, StatusBar, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useLanguage } from '../context/LanguageContext';
@@ -12,6 +12,7 @@ export default function SettingsScreen() {
   const { language, setLanguage, translations } = useLanguage();
   const { theme, colors, setTheme } = useTheme();
   const [prayerNotifications, setPrayerNotifications] = useState(true);
+  const [showUpcomingFeatureModal, setShowUpcomingFeatureModal] = useState(false);
 
   // Load global notification preference when component mounts
   useEffect(() => {
@@ -94,20 +95,36 @@ export default function SettingsScreen() {
   );
 
   // Color Theme Component
-  const ThemeOption = ({ colorKey }) => (
-    <TouchableOpacity 
-      style={[
-        styles.themeOption, 
-        { backgroundColor: themeColors[colorKey].primary },
-        theme === colorKey && styles.selectedThemeOption
-      ]}
-      onPress={() => setTheme(colorKey)}
-    >
-      {theme === colorKey && (
-        <Ionicons name="checkmark" size={18} color="#FFFFFF" />
-      )}
-    </TouchableOpacity>
-  );
+  const ThemeOption = ({ colorKey }) => {
+    const isDisabled = colorKey === 'blue' || colorKey === 'purple';
+    
+    const handlePress = () => {
+      if (isDisabled) {
+        setShowUpcomingFeatureModal(true);
+      } else {
+        setTheme(colorKey);
+      }
+    };
+    
+    return (
+      <TouchableOpacity 
+        style={[
+          styles.themeOption, 
+          { backgroundColor: themeColors[colorKey].primary },
+          theme === colorKey && styles.selectedThemeOption,
+          isDisabled && styles.disabledThemeOption
+        ]}
+        onPress={handlePress}
+      >
+        {theme === colorKey && (
+          <Ionicons name="checkmark" size={18} color="#FFFFFF" />
+        )}
+        {isDisabled && (
+          <Ionicons name="lock-closed" size={12} color="rgba(255, 255, 255, 0.7)" />
+        )}
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -191,6 +208,30 @@ export default function SettingsScreen() {
             {translations['app.name']} v1.0.0
           </Text>
         </View>
+
+        {/* Feature coming soon modal */}
+        <Modal
+          transparent={true}
+          visible={showUpcomingFeatureModal}
+          animationType="fade"
+          onRequestClose={() => setShowUpcomingFeatureModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Ionicons name="information-circle-outline" size={48} color={colors.primary} style={styles.modalIcon} />
+              <Text style={styles.modalTitle}>Coming Soon!</Text>
+              <Text style={styles.modalText}>
+                Additional theme colors will be available in Duaon AI v1.1 update.
+              </Text>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: colors.primary }]}
+                onPress={() => setShowUpcomingFeatureModal(false)}
+              >
+                <Text style={styles.modalButtonText}>OK</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     </View>
   );
@@ -275,6 +316,10 @@ const styles = StyleSheet.create({
   selectedThemeOption: {
     borderColor: '#FFFFFF',
   },
+  disabledThemeOption: {
+    opacity: 0.6,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
   languageButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -304,5 +349,42 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     marginLeft: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  modalContainer: {
+    width: '80%',
+    backgroundColor: '#1E1E1E',
+    borderRadius: 12,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalIcon: {
+    marginBottom: 15,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 14,
+    color: '#CCCCCC',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 6,
+  },
+  modalButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
 }); 
