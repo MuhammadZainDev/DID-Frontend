@@ -21,11 +21,6 @@ export default function Settings() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Prayer Settings</Text>
         <SettingItem 
-          icon="notifications-outline" 
-          title="Prayer Notifications"
-          subtitle="Manage prayer time notifications"
-        />
-        <SettingItem 
           icon="location-outline" 
           title="Location"
           subtitle="Set your prayer location"
@@ -48,11 +43,6 @@ export default function Settings() {
           icon="language-outline" 
           title="Language"
           subtitle="English"
-        />
-        <SettingItem 
-          icon="notifications-circle-outline" 
-          title="Sound Settings"
-          subtitle="Adhan and notifications"
         />
       </View>
 

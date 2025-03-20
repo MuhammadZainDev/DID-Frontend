@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/context/ThemeContext';
 import ViewShot, { captureRef } from 'react-native-view-shot';
+import * as Sharing from 'expo-sharing';
 import axios from 'axios';
 import NetInfo from '@react-native-community/netinfo';
 
@@ -53,7 +54,7 @@ export default function DuaScreen() {
   const [subcategory, setSubcategory] = useState<Subcategory | null>(null);
   const [subcategoryDuas, setSubcategoryDuas] = useState<Dua[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>('');
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'success' | 'error' | 'warning'>('success');
@@ -61,13 +62,20 @@ export default function DuaScreen() {
   const slideAnim = React.useRef(new Animated.Value(50)).current;
   const viewShotRefs = useRef<{[key: string]: any}>({});
   const [isSharing, setIsSharing] = useState(false);
+  const [soundObjects, setSoundObjects] = useState<{[key: number]: Audio.Sound}>({});
   
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      
+      if (!subcategoryId) {
+        setError('No subcategory ID found');
+        setLoading(false);
+        return;
+      }
+      
       try {
-        setLoading(true);
-        setError('');
-        
         let subcategoryData;
         let duasData;
         let fromCache = false;
@@ -75,63 +83,73 @@ export default function DuaScreen() {
         // Check network status first
         const netInfo = await NetInfo.fetch();
         
-        // If we're online, try to fetch from network
+        // Always try to load from cache first
+        const cachedSubcategory = await AsyncStorage.getItem(`subcategory_${subcategoryId}_cache`);
+        const cachedDuas = await AsyncStorage.getItem(`duas_${subcategoryId}_cache`);
+        
+        if (cachedSubcategory && cachedDuas) {
+          // We have cached data, use it
+          subcategoryData = JSON.parse(cachedSubcategory);
+          duasData = JSON.parse(cachedDuas);
+          setSubcategory(subcategoryData);
+          setSubcategoryDuas(duasData);
+          fromCache = true;
+          console.log('Loaded dua data from cache');
+        }
+        
+        // If we're online, try to fetch from network in the background
         if (netInfo.isConnected) {
           try {
             // Try to fetch data from network
             const subcategoryResponse = await fetch(`${API_URL}/api/subcategories/${subcategoryId}`);
-            if (!subcategoryResponse.ok) throw new Error('Failed to fetch subcategory data');
-            subcategoryData = await subcategoryResponse.json();
-            
-            const duasResponse = await fetch(`${API_URL}/api/duas/subcategory/${subcategoryId}`);
-            if (!duasResponse.ok) throw new Error('Failed to fetch duas data');
-            duasData = await duasResponse.json();
-            
-            // Save to cache for offline use
-            await AsyncStorage.setItem(`subcategory_${subcategoryId}_cache`, JSON.stringify(subcategoryData));
-            await AsyncStorage.setItem(`duas_${subcategoryId}_cache`, JSON.stringify(duasData));
-            
-            setSubcategory(subcategoryData);
-            setSubcategoryDuas(duasData);
+            if (subcategoryResponse.ok) {
+              subcategoryData = await subcategoryResponse.json();
+              
+              const duasResponse = await fetch(`${API_URL}/api/duas/subcategory/${subcategoryId}`);
+              if (duasResponse.ok) {
+                duasData = await duasResponse.json();
+                
+                // Save to cache for offline use
+                await AsyncStorage.setItem(`subcategory_${subcategoryId}_cache`, JSON.stringify(subcategoryData));
+                await AsyncStorage.setItem(`duas_${subcategoryId}_cache`, JSON.stringify(duasData));
+                
+                // Only update UI if we didn't already set from cache or if data changed
+                if (!fromCache) {
+                  setSubcategory(subcategoryData);
+                  setSubcategoryDuas(duasData);
+                }
+                
+                console.log('Successfully fetched fresh data from network');
+              }
+            }
           } catch (networkError) {
-            console.log('Network error:', networkError);
-            
-            // Try to load from cache if network request fails
-            const cachedSubcategory = await AsyncStorage.getItem(`subcategory_${subcategoryId}_cache`);
-            const cachedDuas = await AsyncStorage.getItem(`duas_${subcategoryId}_cache`);
-            
-            if (cachedSubcategory && cachedDuas) {
-              subcategoryData = JSON.parse(cachedSubcategory);
-              duasData = JSON.parse(cachedDuas);
-              setSubcategory(subcategoryData);
-              setSubcategoryDuas(duasData);
-              fromCache = true;
-              console.log('Loaded dua data from cache after network error');
-            } else {
-              throw new Error('Failed to fetch data and no cache available');
+            console.log('Network error (silent):', networkError);
+            // Don't set error state if we already have cached data
+            if (!fromCache) {
+              console.log('No cached data available and network failed');
             }
           }
-        } else {
-          // Device is offline, try to load from cache
-          console.log('Device is offline, trying to load from cache');
-          const cachedSubcategory = await AsyncStorage.getItem(`subcategory_${subcategoryId}_cache`);
-          const cachedDuas = await AsyncStorage.getItem(`duas_${subcategoryId}_cache`);
-          
-          if (cachedSubcategory && cachedDuas) {
-            subcategoryData = JSON.parse(cachedSubcategory);
-            duasData = JSON.parse(cachedDuas);
-            setSubcategory(subcategoryData);
-            setSubcategoryDuas(duasData);
-            fromCache = true;
-          } else {
-            throw new Error('No internet connection and no cached data available for this dua');
-          }
+        } else if (!fromCache) {
+          // Device is offline and no cache available
+          setError('No internet connection and no cached data available. Please connect to the internet and try again.');
         }
         
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setError('Failed to load data. Please check your internet connection and try again.');
+        // Set up audio files if we have data from either source
+        if (duasData && duasData.length > 0) {
+          const initialSoundObjects: {[key: number]: Audio.Sound} = {};
+          for (let i = 0; i < duasData.length; i++) {
+            if (duasData[i].audio_path) {
+              const soundObject = new Audio.Sound();
+              initialSoundObjects[i] = soundObject;
+            }
+          }
+          setSoundObjects(initialSoundObjects);
+        }
+        
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to load duas. Please try again later.');
+      } finally {
         setLoading(false);
       }
     };
@@ -387,13 +405,23 @@ export default function DuaScreen() {
       // Small delay to ensure state update has been rendered
       await new Promise(resolve => setTimeout(resolve, 300));
       
+      // Check if sharing is available on this device
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (!isAvailable) {
+        showToastMessage('Sharing is not available on this device', 'error');
+        setIsSharing(false);
+        return;
+      }
+      
       // Capture the dua card as an image
       if (viewShotRefs.current[dua.id]) {
         console.log('Capturing viewShot for dua:', dua.id);
         const uri = await captureRef(viewShotRefs.current[dua.id], {
           format: "jpg",
           quality: 0.9,
-          result: "data-uri",
+          result: "tmpfile",  // Use tmpfile for both platforms
+          width: 1024,
+          height: 1024 * 1.5,
         });
         
         console.log('Captured URI:', uri);
@@ -402,21 +430,17 @@ export default function DuaScreen() {
         setIsSharing(false);
         
         if (uri) {
-          // Share the captured image
-          const result = await Share.share({
-            title: dua.name,
-            message: `${dua.name} - Shared from Duaon AI`,
-            url: uri,
-          });
-          
-          if (result.action === Share.sharedAction) {
-            if (result.activityType) {
-              console.log('Shared with activity type:', result.activityType);
-            } else {
-              console.log('Shared successfully');
-            }
-          } else if (result.action === Share.dismissedAction) {
-            console.log('Share dismissed');
+          try {
+            // With expo-sharing, we can share the file directly
+            await Sharing.shareAsync(uri, {
+              dialogTitle: dua.name,
+              mimeType: 'image/jpeg',
+              UTI: 'public.jpeg'
+            });
+            console.log('Shared successfully');
+          } catch (shareError) {
+            console.error('Error during share:', shareError);
+            showToastMessage('Error sharing image', 'error');
           }
         } else {
           console.log('No URI captured');
@@ -435,6 +459,22 @@ export default function DuaScreen() {
     }
   };
 
+  const handleTextShare = async (dua: Dua) => {
+    try {
+      const textToShare = `${dua.name}\n\n${dua.arabic_text}\n\n${dua.translation}\n\n${dua.urdu_translation ? dua.urdu_translation + '\n\n' : ''}Reference: ${dua.reference}\n\nShared from Duaon AI`;
+      
+      await Share.share({
+        message: textToShare,
+        title: dua.name
+      });
+      
+      console.log('Text shared successfully');
+    } catch (error) {
+      console.error('Error sharing text:', error);
+      showToastMessage('Error sharing dua text', 'error');
+    }
+  };
+
   const renderActionButtons = (dua: any, index: number) => {
     return (
       <View style={styles.actionButtons}>
@@ -449,6 +489,12 @@ export default function DuaScreen() {
           onPress={() => handleShare(dua, index)}
         >
           <Ionicons name="share-social-outline" size={20} color="#E0E0E0" />
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.actionButton, { marginRight: 16 }]}
+          onPress={() => handleTextShare(dua)}
+        >
+          <Ionicons name="text-outline" size={20} color="#E0E0E0" />
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.actionButton}

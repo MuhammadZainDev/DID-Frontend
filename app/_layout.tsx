@@ -1,16 +1,8 @@
 /*
- * NOTE: About Push Notifications in Expo
+ * NOTE: About App Initialization
  * 
- * The warning about "Push notifications functionality provided by expo-notifications will be removed from Expo Go in SDK 53" 
- * means that to use push notifications properly, we need to create a development build instead of using Expo Go.
- * 
- * To create a development build, run:
- * npx expo prebuild 
- * npx expo run:android  (for Android)
- * npx expo run:ios      (for iOS)
- * 
- * This will create native builds with full notification support.
- * See: https://docs.expo.dev/develop/development-builds/introduction/
+ * This file handles the root layout and initialization of the app.
+ * It loads fonts, sets up providers, and handles the initial splash screen.
  */
 
 import React, { useEffect, useState } from 'react';
@@ -19,78 +11,45 @@ import { useFonts } from 'expo-font';
 import { Stack, Slot } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { View, StyleSheet, Animated, Dimensions, Image, Text } from 'react-native';
+import { View, StyleSheet, Animated, Dimensions, Image, Text, Platform } from 'react-native';
 import { AuthProvider } from '../context/AuthContext';
 import { LanguageProvider } from '../context/LanguageContext';
 import { ThemeProvider } from '../context/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../config/constants';
 import NetInfo from '@react-native-community/netinfo';
-import { 
-  setupNotificationChannel, 
-  requestNotificationPermissions, 
-  schedulePrayerNotifications,
-  registerBackgroundTask,
-  startAppStateMonitoring
-} from '../utils/notifications';
 
 const { width } = Dimensions.get('window');
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
-// Function to prefetch and cache all app data
+// Prefetch all needed data to improve first load experience
 const prefetchAllData = async () => {
   try {
-    console.log('Starting to prefetch all app data...');
+    // Check network connection
     const netInfo = await NetInfo.fetch();
-    
     if (!netInfo.isConnected) {
       console.log('No internet connection, skipping prefetch');
       return;
     }
-    
-    // 1. Fetch all categories
-    console.log('Fetching categories...');
+
+    // Fetch categories
     const categoriesResponse = await fetch(`${API_URL}/api/categories`);
-    if (!categoriesResponse.ok) throw new Error('Failed to fetch categories');
     const categoriesData = await categoriesResponse.json();
     await AsyncStorage.setItem('categories_cache', JSON.stringify(categoriesData));
-    
-    // 2. Fetch all subcategories
-    console.log('Fetching subcategories...');
-    const subcategoriesResponse = await fetch(`${API_URL}/api/subcategories`);
-    if (!subcategoriesResponse.ok) throw new Error('Failed to fetch subcategories');
-    const subcategoriesData = await subcategoriesResponse.json();
-    await AsyncStorage.setItem('subcategories_cache', JSON.stringify(subcategoriesData));
-    
-    // 3. Fetch duas for each subcategory
-    console.log('Fetching duas for each subcategory...');
-    for (const subcategory of subcategoriesData) {
-      const subcategoryId = subcategory.id;
-      try {
-        const duasResponse = await fetch(`${API_URL}/api/duas/subcategory/${subcategoryId}`);
-        if (!duasResponse.ok) continue;
-        
-        const duasData = await duasResponse.json();
-        
-        // Save subcategory and its duas to cache
-        await AsyncStorage.setItem(`subcategory_${subcategoryId}`, JSON.stringify(subcategory));
-        await AsyncStorage.setItem(`duas_${subcategoryId}`, JSON.stringify(duasData));
-        
-        console.log(`Cached subcategory ${subcategory.name} with ${duasData.length} duas`);
-      } catch (error) {
-        console.error(`Error caching subcategory ${subcategoryId}:`, error);
-        // Continue with other subcategories even if one fails
-      }
-    }
-    
-    // 4. Save timestamp of last successful prefetch
+    console.log('Categories data prefetched and cached');
+
+    // Fetch featured duas
+    const featuredResponse = await fetch(`${API_URL}/api/duas/featured`);
+    const featuredData = await featuredResponse.json();
+    await AsyncStorage.setItem('featured_duas_cache', JSON.stringify(featuredData));
+    console.log('Featured duas prefetched and cached');
+
+    // Store timestamp of last prefetch
     await AsyncStorage.setItem('last_prefetch_timestamp', Date.now().toString());
-    console.log('All data prefetched and cached successfully');
-    
   } catch (error) {
-    console.error('Error during prefetch:', error);
+    console.error('Error during data prefetch:', error);
   }
 };
 
@@ -101,44 +60,8 @@ export default function RootLayout() {
     'NotoKufi-Arabic': require('../assets/fonts/NotoKufi-Arabic-Variable-Font.ttf'),
   });
 
+  // Remove unnecessary states
   const [appReady, setAppReady] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const progressAnim = new Animated.Value(0);
-  const fadeAnim = new Animated.Value(0);
-  const [prefetchingData, setPrefetchingData] = useState(false);
-  const [prefetchProgress, setPrefetchProgress] = useState(0);
-
-  // Initialize notification system
-  useEffect(() => {
-    const initializeNotifications = async () => {
-      try {
-        // Set up notification channel (Android only)
-        await setupNotificationChannel();
-        
-        // Request notification permissions
-        const permissionGranted = await requestNotificationPermissions();
-        
-        if (permissionGranted) {
-          // Register background task for prayer notifications
-          await registerBackgroundTask();
-          
-          // Schedule initial prayer notifications
-          await schedulePrayerNotifications();
-          
-          // Start monitoring app state for prayer notifications
-          startAppStateMonitoring();
-          
-          console.log('Notification system initialized successfully');
-        } else {
-          console.log('Notification permissions not granted');
-        }
-      } catch (error) {
-        console.error('Error initializing notification system:', error);
-      }
-    };
-    
-    initializeNotifications();
-  }, []);
 
   // Prefetch all data when app starts
   useEffect(() => {
@@ -152,16 +75,13 @@ export default function RootLayout() {
           
           if (shouldPrefetch) {
             console.log('Starting data prefetch');
-            setPrefetchingData(true);
-            // Start prefetching data
-            await prefetchAllData();
-            setPrefetchingData(false);
+            // Start prefetching data in background
+            prefetchAllData();
           } else {
             console.log('Skipping prefetch, data is recent');
           }
         } catch (error) {
           console.error('Error during prefetch check:', error);
-          setPrefetchingData(false);
         }
       }
     };
@@ -173,19 +93,8 @@ export default function RootLayout() {
     async function prepare() {
       try {
         if (fontsLoaded) {
-          // Fade in animation for logo 
-          Animated.timing(fadeAnim, {
-            toValue: 1,
-            duration: 1000,
-            useNativeDriver: true,
-          }).start();
-          
-          // Wait for fonts to complete loading
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          
-          // Once everything is ready, hide the splash screen
+          // Hide splash screen immediately after fonts are loaded
           await SplashScreen.hideAsync();
-          
           setAppReady(true);
         }
       } catch (e) {
@@ -209,13 +118,11 @@ export default function RootLayout() {
           <NavigationThemeProvider value={DefaultTheme}>
             {!appReady ? (
               <View style={styles.loadingContainer}>
-                <Animated.View style={[styles.logoContainer, { opacity: fadeAnim }]}>
-                  <Image
-                    source={require('../assets/logo/logo.png')}
-                    style={styles.logo}
-                    resizeMode="contain"
-                  />
-                </Animated.View>
+                <Image
+                  source={require('../assets/logo/logo.png')}
+                  style={styles.logo}
+                  resizeMode="contain"
+                />
               </View>
             ) : (
               <React.Fragment>
@@ -284,14 +191,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#121212',
   },
-  logoContainer: {
+  logo: {
     width: width * 0.5,
     height: width * 0.5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logo: {
-    width: '100%',
-    height: '100%',
   },
 });

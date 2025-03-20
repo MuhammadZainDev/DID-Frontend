@@ -6,6 +6,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SvgXml } from 'react-native-svg';
+import NetInfo from '@react-native-community/netinfo';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -67,29 +68,68 @@ export default function HomeScreen() {
     const fetchData = async () => {
       try {
         setLoading(true);
+        setError(null);
         
-        // Fetch categories
-        const categoriesResponse = await fetch(`${API_URL}/api/categories`);
-        if (!categoriesResponse.ok) {
-          throw new Error('Failed to fetch categories');
+        let categoriesData = [];
+        let subcategoriesData = [];
+        let fromCache = false;
+        
+        // Try to load from cache first
+        const cachedCategories = await AsyncStorage.getItem('categories_cache');
+        const cachedSubcategories = await AsyncStorage.getItem('subcategories_cache');
+        
+        if (cachedCategories && cachedSubcategories) {
+          categoriesData = JSON.parse(cachedCategories);
+          subcategoriesData = JSON.parse(cachedSubcategories);
+          setCategories(categoriesData);
+          setTotalDuas(subcategoriesData.length);
+          fromCache = true;
+          console.log('Loaded categories from cache on home screen');
         }
-        const categoriesData = await categoriesResponse.json();
-        setCategories(categoriesData);
         
-        // Fetch subcategories to count duas
-        const subcategoriesResponse = await fetch(`${API_URL}/api/subcategories`);
-        if (!subcategoriesResponse.ok) {
-          throw new Error('Failed to fetch subcategories');
+        // Check network state
+        const netInfo = await NetInfo.fetch();
+        
+        // If online, try to fetch fresh data in the background
+        if (netInfo.isConnected) {
+          try {
+            const categoriesResponse = await fetch(`${API_URL}/api/categories`);
+            if (categoriesResponse.ok) {
+              categoriesData = await categoriesResponse.json();
+              
+              const subcategoriesResponse = await fetch(`${API_URL}/api/subcategories`);
+              if (subcategoriesResponse.ok) {
+                subcategoriesData = await subcategoriesResponse.json();
+                
+                // Cache the fresh data
+                await AsyncStorage.setItem('categories_cache', JSON.stringify(categoriesData));
+                await AsyncStorage.setItem('subcategories_cache', JSON.stringify(subcategoriesData));
+                
+                // Only update UI if we didn't already set from cache
+                if (!fromCache) {
+                  setCategories(categoriesData);
+                  setTotalDuas(subcategoriesData.length);
+                }
+                
+                console.log('Successfully fetched fresh data from network on home screen');
+              }
+            }
+          } catch (networkError) {
+            console.log('Network error (silent):', networkError);
+            // Don't set error state if we already have cached data
+            if (!fromCache) {
+              console.log('No cached data available and network failed on home screen');
+              setError('Could not connect to server. Check your internet connection and try again.');
+            }
+          }
+        } else if (!fromCache) {
+          // If we're offline and have no cache, show a message
+          setError('No internet connection and no cached data available. Please connect to the internet and try again.');
         }
-        const subcategoriesData = await subcategoriesResponse.json();
-        
-        // Set total duas count (using subcategories count as an approximation)
-        setTotalDuas(subcategoriesData.length);
-        
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
         setError('Failed to load data. Please try again later.');
+      } finally {
         setLoading(false);
       }
     };

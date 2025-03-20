@@ -46,16 +46,6 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Allow Duaon AI to use your location to show accurate prayer times for your area."
         }
-      ],
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/images/icon.png",
-          "color": "#0E8A3E",
-          "sounds": [
-            "./assets/sounds/adhan.mp3"
-          ]
-        }
       ]
     ],
     "experiments": {

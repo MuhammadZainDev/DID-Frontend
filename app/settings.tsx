@@ -1,53 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView, Platform, StatusBar, Modal } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView, Platform, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme, themeColors } from '../context/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getGlobalNotificationPreference, saveGlobalNotificationPreference } from '@/app/(tabs)/prayers';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { language, setLanguage, translations } = useLanguage();
   const { theme, colors, setTheme } = useTheme();
-  const [prayerNotifications, setPrayerNotifications] = useState(true);
-  const [showUpcomingFeatureModal, setShowUpcomingFeatureModal] = useState(false);
-
-  // Load global notification preference when component mounts
-  useEffect(() => {
-    async function loadNotificationPreference() {
-      try {
-        const isEnabled = await getGlobalNotificationPreference();
-        setPrayerNotifications(isEnabled);
-      } catch (error) {
-        console.error('Error loading notification preference:', error);
-      }
-    }
-    
-    loadNotificationPreference();
-  }, []);
 
   const goBack = () => {
     router.back();
   };
 
   const toggleLanguage = async () => {
-    await setLanguage(language === 'en' ? 'ur' : 'en');
-  };
-  
-  // Toggle prayer notifications and save preference
-  const togglePrayerNotifications = async () => {
-    try {
-      const newValue = !prayerNotifications;
-      setPrayerNotifications(newValue);
-      await saveGlobalNotificationPreference(newValue);
-      console.log(`Global prayer notifications ${newValue ? 'enabled' : 'disabled'}`);
-    } catch (error) {
-      console.error('Error toggling prayer notifications:', error);
-      // Revert UI change on error
-      setPrayerNotifications(prayerNotifications);
-    }
+    const newLanguage = language === 'en' ? 'ur' : 'en';
+    await setLanguage(newLanguage);
   };
 
   const SettingsSection = ({ title, children }) => (
@@ -96,14 +66,8 @@ export default function SettingsScreen() {
 
   // Color Theme Component
   const ThemeOption = ({ colorKey }) => {
-    const isDisabled = colorKey === 'blue' || colorKey === 'purple';
-    
     const handlePress = () => {
-      if (isDisabled) {
-        setShowUpcomingFeatureModal(true);
-      } else {
-        setTheme(colorKey);
-      }
+      setTheme(colorKey);
     };
     
     return (
@@ -111,16 +75,12 @@ export default function SettingsScreen() {
         style={[
           styles.themeOption, 
           { backgroundColor: themeColors[colorKey].primary },
-          theme === colorKey && styles.selectedThemeOption,
-          isDisabled && styles.disabledThemeOption
+          theme === colorKey && styles.selectedThemeOption
         ]}
         onPress={handlePress}
       >
         {theme === colorKey && (
           <Ionicons name="checkmark" size={18} color="#FFFFFF" />
-        )}
-        {isDisabled && (
-          <Ionicons name="lock-closed" size={12} color="rgba(255, 255, 255, 0.7)" />
         )}
       </TouchableOpacity>
     );
@@ -139,7 +99,7 @@ export default function SettingsScreen() {
         </Text>
         <View style={{width: 70}} />
       </View>
-
+      
       <ScrollView style={[styles.scrollView, { backgroundColor: '#121212' }]} contentContainerStyle={styles.scrollContent}>
         <SettingsSection title={translations['settings.appSettings']}>
           <View style={styles.settingItem}>
@@ -167,71 +127,42 @@ export default function SettingsScreen() {
           />
         </SettingsSection>
 
-        <SettingsSection title={translations['settings.prayerSettings']}>
-          <SettingsItem
-            icon="notifications-outline"
-            title={translations['settings.prayerNotifications']}
-            value={prayerNotifications}
-            onToggle={togglePrayerNotifications}
-          />
-        </SettingsSection>
-
         <SettingsSection title={translations['settings.aboutApp']}>
           <SettingsItem
             icon="information-circle-outline"
             title="About Us"
             onToggle={() => router.push('/about-us')}
             type="navigation"
+            value={false}
           />
           <SettingsItem
             icon="mail-outline"
             title={translations['settings.contactUs']}
             onToggle={() => router.push('/contact-us')}
             type="navigation"
+            value={false}
           />
           <SettingsItem
             icon="star-outline"
             title={translations['settings.rate']}
             onToggle={() => {}}
             type="navigation"
+            value={false}
           />
           <SettingsItem
             icon="share-social-outline"
             title={translations['settings.share']}
             onToggle={() => {}}
             type="navigation"
+            value={false}
           />
         </SettingsSection>
-
+        
         <View style={styles.versionContainer}>
           <Text style={styles.versionText}>
             {translations['app.name']} v1.0.0
           </Text>
         </View>
-
-        {/* Feature coming soon modal */}
-        <Modal
-          transparent={true}
-          visible={showUpcomingFeatureModal}
-          animationType="fade"
-          onRequestClose={() => setShowUpcomingFeatureModal(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContainer}>
-              <Ionicons name="information-circle-outline" size={48} color={colors.primary} style={styles.modalIcon} />
-              <Text style={styles.modalTitle}>Coming Soon!</Text>
-              <Text style={styles.modalText}>
-                Additional theme colors will be available in Duaon AI v1.1 update.
-              </Text>
-              <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: colors.primary }]}
-                onPress={() => setShowUpcomingFeatureModal(false)}
-              >
-                <Text style={styles.modalButtonText}>OK</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
       </ScrollView>
     </View>
   );
@@ -241,24 +172,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#121212',
-    paddingTop: 0,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 54,
+    paddingTop: Platform.OS === 'ios' ? 50 : 16,
     paddingBottom: 16,
-    height: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 54 : 100,
-    backgroundColor: '#1A7F4B',
-    width: '100%',
+    backgroundColor: '#0E8A3E',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
-    color: '#FFFFFF',
-    textAlign: 'center',
+    color: 'white',
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   scrollView: {
     flex: 1,
@@ -285,8 +216,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingVertical: 16,
     paddingHorizontal: 16,
-    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#333',
   },
@@ -298,7 +229,9 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   settingTitle: {
+    fontSize: 16,
     color: '#FFFFFF',
+    marginLeft: 8,
   },
   themeOptions: {
     flexDirection: 'row',
@@ -316,10 +249,6 @@ const styles = StyleSheet.create({
   selectedThemeOption: {
     borderColor: '#FFFFFF',
   },
-  disabledThemeOption: {
-    opacity: 0.6,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-  },
   languageButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -333,58 +262,16 @@ const styles = StyleSheet.create({
   },
   versionContainer: {
     alignItems: 'center',
-    marginTop: 24,
-    marginBottom: 40,
+    marginVertical: 24,
   },
   versionText: {
-    color: '#888',
     fontSize: 14,
-  },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    color: '#AAAAAA',
   },
   backText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '500',
     marginLeft: 4,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-  },
-  modalContainer: {
-    width: '80%',
-    backgroundColor: '#1E1E1E',
-    borderRadius: 12,
-    padding: 20,
-    alignItems: 'center',
-  },
-  modalIcon: {
-    marginBottom: 15,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 10,
-  },
-  modalText: {
-    fontSize: 14,
-    color: '#CCCCCC',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  modalButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 6,
-  },
-  modalButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
   },
 }); 

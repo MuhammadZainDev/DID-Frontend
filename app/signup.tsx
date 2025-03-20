@@ -228,15 +228,6 @@ export default function Signup() {
             </View>
           </View>
         </ScrollView>
-
-        <View style={styles.termsContainer}>
-          <Text style={styles.termsText}>
-            By continuing, you agree to our{' '}
-            <Text style={styles.termsLink}>Terms of Service</Text>
-            {' '}and{' '}
-            <Text style={styles.termsLink}>Privacy Policy</Text>
-          </Text>
-        </View>
       </KeyboardAvoidingView>
     </View>
   );
@@ -364,21 +355,6 @@ const styles = StyleSheet.create({
   link: {
     color: '#4CAF50',
     fontWeight: '600',
-  },
-  termsContainer: {
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#333333',
-    backgroundColor: 'transparent',
-  },
-  termsText: {
-    textAlign: 'center',
-    color: '#888888',
-    fontSize: 12,
-    lineHeight: 18,
-  },
-  termsLink: {
-    color: '#4CAF50',
   },
   scrollContent: {
     flexGrow: 1,

@@ -81,75 +81,71 @@ export default function DuasScreen() {
   // Load categories and subcategories
   useEffect(() => {
     const fetchData = async () => {
-      // Skip if we're already retrying
-      if (isRetrying.current) return;
-
       try {
         setLoading(true);
-        setError('');
+        setError(null);
         
         let categoriesData: Category[] = [];
         let subcategoriesData: Subcategory[] = [];
         let fromCache = false;
         
-        // Check network state first
+        // Always try to load from cache first
+        const cachedCategories = await AsyncStorage.getItem('categories_cache');
+        const cachedSubcategories = await AsyncStorage.getItem('subcategories_cache');
+        
+        if (cachedCategories && cachedSubcategories) {
+          // We have cached data, use it immediately
+          categoriesData = JSON.parse(cachedCategories);
+          subcategoriesData = JSON.parse(cachedSubcategories);
+          setCategories(categoriesData);
+          setSubcategories(subcategoriesData);
+          fromCache = true;
+          console.log('Loaded duas categories from cache');
+        }
+        
+        // Check network state
         const netInfo = await NetInfo.fetch();
         
-        // If online, try network request - only check isConnected, not isInternetReachable
+        // If online, try to get fresh data in the background
         if (netInfo.isConnected) {
           try {
             const categoriesResponse = await fetch(`${API_URL}/api/categories`);
-            if (!categoriesResponse.ok) throw new Error('Failed to fetch categories');
-            categoriesData = await categoriesResponse.json();
-            
-            const subcategoriesResponse = await fetch(`${API_URL}/api/subcategories`);
-            if (!subcategoriesResponse.ok) throw new Error('Failed to fetch subcategories');
-            subcategoriesData = await subcategoriesResponse.json();
-            
-            // Cache successful network response
-            await AsyncStorage.setItem('categories_cache', JSON.stringify(categoriesData));
-            await AsyncStorage.setItem('subcategories_cache', JSON.stringify(subcategoriesData));
-            
+            if (categoriesResponse.ok) {
+              categoriesData = await categoriesResponse.json();
+              
+              const subcategoriesResponse = await fetch(`${API_URL}/api/subcategories`);
+              if (subcategoriesResponse.ok) {
+                subcategoriesData = await subcategoriesResponse.json();
+                
+                // Cache successful network response
+                await AsyncStorage.setItem('categories_cache', JSON.stringify(categoriesData));
+                await AsyncStorage.setItem('subcategories_cache', JSON.stringify(subcategoriesData));
+                
+                // Only update UI if we didn't already set from cache
+                if (!fromCache) {
+                  setCategories(categoriesData);
+                  setSubcategories(subcategoriesData);
+                }
+                
+                console.log('Successfully fetched fresh categories data from network');
+              }
+            }
           } catch (networkError) {
-            console.log('Network request failed, falling back to cache:', networkError);
-            
-            // If network request fails, try cache
-            const cachedCategories = await AsyncStorage.getItem('categories_cache');
-            const cachedSubcategories = await AsyncStorage.getItem('subcategories_cache');
-            
-            if (cachedCategories && cachedSubcategories) {
-              categoriesData = JSON.parse(cachedCategories);
-              subcategoriesData = JSON.parse(cachedSubcategories);
-              fromCache = true;
-            } else {
-              throw new Error('Failed to fetch data and no cache available');
+            console.log('Network error (silent):', networkError);
+            // Don't set error state if we already have cached data
+            if (!fromCache) {
+              console.log('No cached data available and network failed');
+              setError('Could not connect to server. Check your internet connection and try again.');
             }
           }
-        } else {
-          // If offline, try to load from cache
-          console.log('Device is offline, trying to load from cache');
-          const cachedCategories = await AsyncStorage.getItem('categories_cache');
-          const cachedSubcategories = await AsyncStorage.getItem('subcategories_cache');
-          
-          if (cachedCategories && cachedSubcategories) {
-            categoriesData = JSON.parse(cachedCategories);
-            subcategoriesData = JSON.parse(cachedSubcategories);
-            fromCache = true;
-          } else {
-            throw new Error('No internet connection and no cached data available');
-          }
+        } else if (!fromCache) {
+          // If we're offline and have no cache, show a message
+          setError('No internet connection and no cached data available. Please connect to the internet and try again.');
         }
-        
-        // Update state with fetched data
-        setCategories(categoriesData);
-        setSubcategories(subcategoriesData);
-        setLoading(false);
-        
-        // Remove offline mode message completely
-        setError(''); // Always clear any error if we loaded data successfully
       } catch (error) {
         console.error('Error fetching data:', error);
-        setError('Failed to load data. Please check your internet connection and try again.');
+        setError('Failed to load duas categories. Please try again later.');
+      } finally {
         setLoading(false);
       }
     };

@@ -3,6 +3,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -30,27 +32,86 @@ export default function SubcategoryScreen() {
     const fetchData = async () => {
       try {
         setLoading(true);
+        setError(null);
         
-        // Fetch category details
-        const categoryResponse = await fetch(`${API_URL}/api/categories/${categoryId}`);
-        if (!categoryResponse.ok) {
-          throw new Error('Failed to fetch category');
+        if (!categoryId) {
+          setError('Category ID is missing');
+          setLoading(false);
+          return;
         }
-        const categoryData = await categoryResponse.json();
         
-        // Fetch subcategories for this category
-        const subcategoriesResponse = await fetch(`${API_URL}/api/subcategories/category/${categoryId}`);
-        if (!subcategoriesResponse.ok) {
-          throw new Error('Failed to fetch subcategories');
+        let categoryData = null;
+        let subcategoriesData = [];
+        let fromCache = false;
+        
+        // Try to load from cache first
+        const cachedCategories = await AsyncStorage.getItem('categories_cache');
+        const cachedSubcategories = await AsyncStorage.getItem('subcategories_cache');
+        
+        if (cachedCategories && cachedSubcategories) {
+          const allCategories = JSON.parse(cachedCategories);
+          const allSubcategories = JSON.parse(cachedSubcategories);
+          
+          // Find the current category
+          categoryData = allCategories.find(cat => cat.id === parseInt(categoryId));
+          
+          // Filter subcategories for this category
+          subcategoriesData = allSubcategories.filter(
+            subcat => subcat.category_id === parseInt(categoryId)
+          );
+          
+          if (categoryData && subcategoriesData.length > 0) {
+            setCategory(categoryData);
+            setSubcategories(subcategoriesData);
+            fromCache = true;
+            console.log('Loaded category and subcategories from cache');
+          }
         }
-        const subcategoriesData = await subcategoriesResponse.json();
         
-        setCategory(categoryData);
-        setSubcategories(subcategoriesData);
-        setLoading(false);
+        // Check network state
+        const netInfo = await NetInfo.fetch();
+        
+        // If online, try to fetch fresh data
+        if (netInfo.isConnected) {
+          try {
+            // Fetch category data
+            const categoryResponse = await fetch(`${API_URL}/api/categories/${categoryId}`);
+            if (categoryResponse.ok) {
+              categoryData = await categoryResponse.json();
+              
+              // Fetch subcategories for this category
+              const subcategoriesResponse = await fetch(
+                `${API_URL}/api/categories/${categoryId}/subcategories`
+              );
+              
+              if (subcategoriesResponse.ok) {
+                subcategoriesData = await subcategoriesResponse.json();
+                
+                // Only update UI if we didn't already set from cache
+                if (!fromCache) {
+                  setCategory(categoryData);
+                  setSubcategories(subcategoriesData);
+                }
+                
+                console.log('Successfully fetched fresh category data from network');
+              }
+            }
+          } catch (networkError) {
+            console.log('Network error (silent):', networkError);
+            // Don't set error state if we already have cached data
+            if (!fromCache) {
+              console.log('No cached data available and network failed');
+              setError('Could not connect to server. Check your internet connection and try again.');
+            }
+          }
+        } else if (!fromCache) {
+          // If we're offline and have no cache, show a message
+          setError('No internet connection and no cached data available. Please connect to the internet and try again.');
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
-        setError('Failed to load data. Please try again later.');
+        setError('Failed to load category data. Please try again later.');
+      } finally {
         setLoading(false);
       }
     };

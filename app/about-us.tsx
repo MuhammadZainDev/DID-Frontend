@@ -25,7 +25,7 @@ export default function AboutUsScreen() {
     {
       icon: 'time-outline',
       title: 'Prayer Times',
-      description: 'Accurate prayer times with notifications and Qibla direction.'
+      description: 'Accurate prayer times and Qibla direction.'
     },
     {
       icon: 'bookmark-outline',

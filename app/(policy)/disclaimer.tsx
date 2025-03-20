@@ -1,17 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, SafeAreaView, StatusBar, BackHandler } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
-
-// Create a simplified star background without logo text
-const StarBackground = () => {
-  return (
-    <View style={styles.starsBackground}>
-      {/* Just a colored background - no stars or text */}
-    </View>
-  );
-};
 
 const { width, height } = Dimensions.get('window');
 
@@ -21,40 +11,25 @@ export default function DisclaimerScreen() {
   // Prevent auto-redirect by handling back button and screen focus
   useFocusEffect(
     useCallback(() => {
-      console.log('Disclaimer screen focused');
-      
-      // Handle hardware back button (Android)
       const onBackPress = () => {
-        console.log('Back button pressed on Android');
         handleBack();
-        return true; // Prevent default behavior
+        return true;
       };
-      
-      // Add event listener for hardware back button
+
       BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      
-      // Cleanup function
-      return () => {
-        console.log('Disclaimer screen unfocused');
+
+      return () =>
         BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-      };
     }, [])
   );
 
+  // Handle back button press
   const handleBack = () => {
-    console.log('Back button pressed on Disclaimer');
-    // Use router.back() instead of navigate/push to ensure proper navigation
     router.back();
   };
 
   return (
-    <LinearGradient
-      colors={['#1A1B4B', '#2E0854', '#0C0522']}
-      style={styles.container}
-    >
-      {/* Simple background without logo text */}
-      <StarBackground />
-      
+    <View style={styles.container}>      
       <SafeAreaView style={styles.safeArea}>
         <StatusBar barStyle="light-content" />
         
@@ -63,73 +38,96 @@ export default function DisclaimerScreen() {
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="white" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Disclaimer</Text>
+          <Text style={styles.headerTitle}>Terms of Service</Text>
           <View style={styles.rightPlaceholder} />
         </View>
         
         {/* Content */}
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
-          <Text style={styles.disclaimerText}>
-            Last Updated: 10/03/2025
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          <Text style={styles.policyText}>
+            Welcome to DuaonAI. By using our application, you agree to the following terms and conditions.
           </Text>
           
-          <Text style={styles.sectionTitle}>App Information</Text>
-          <Text style={styles.disclaimerText}>
-            Duaon AIis a mobile application designed to provide Islamic duas (supplications), prayer times, and related content for informational and educational purposes only.
+          <Text style={styles.sectionTitle}>Usage Guidelines</Text>
+          <Text style={styles.policyText}>
+            DuaonAI is designed to provide access to Islamic duas and prayer times. The content is provided for informational and educational purposes only.
           </Text>
           
-          <Text style={styles.sectionTitle}>Content Accuracy</Text>
-          <Text style={styles.disclaimerText}>
-            While we make every effort to ensure the accuracy of the content provided in this application, we make no guarantees regarding the completeness, reliability, or accuracy of this information. The duas, translations, and Islamic content are compiled from various authentic sources, but any perceived errors or inaccuracies should be brought to our attention.
+          <Text style={styles.sectionTitle}>Intellectual Property</Text>
+          <Text style={styles.policyText}>
+            All content, including duas, translations, and artwork, is either owned by DuaonAI or used with permission. You may not reproduce, distribute, or create derivative works without our consent.
           </Text>
           
-          <Text style={styles.sectionTitle}>Prayer Times</Text>
-          <Text style={styles.disclaimerText}>
-            Prayer times are calculated based on geographical location and astronomical calculations. These times should be considered approximate, and users are encouraged to verify with their local mosques or Islamic centers.
+          <Text style={styles.sectionTitle}>User Accounts</Text>
+          <Text style={styles.policyText}>
+            You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account. You agree to notify us immediately of any unauthorized use of your account.
           </Text>
           
-          <Text style={styles.sectionTitle}>User Responsibility</Text>
-          <Text style={styles.disclaimerText}>
-            Users are responsible for how they use this application and the information it provides. We are not liable for any misuse, misinterpretation, or any consequences arising from the use of this application.
+          <Text style={styles.sectionTitle}>Disclaimer of Warranties</Text>
+          <Text style={styles.policyText}>
+            <Text style={styles.boldText}>DuaonAI is provided "as is" without warranties of any kind.</Text> While we strive for accuracy, we do not guarantee that the content, including prayer times and duas, is completely accurate, current, or error-free.
+          </Text>
+          
+          <Text style={styles.sectionTitle}>Religious Accuracy</Text>
+          <Text style={styles.policyText}>
+            While we make every effort to ensure the accuracy of religious content, users are encouraged to verify with their local mosques or Islamic centers.
+          </Text>
+          
+          <Text style={styles.sectionTitle}>Limitation of Liability</Text>
+          <Text style={styles.policyText}>
+            Under no circumstances shall DuaonAI be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use or inability to use the application.
+          </Text>
+          
+          <Text style={styles.sectionTitle}>Termination</Text>
+          <Text style={styles.policyText}>
+            We reserve the right to terminate or suspend access to our application at any time, without prior notice, for conduct that we believe violates these Terms of Service.
+          </Text>
+          
+          <Text style={styles.sectionTitle}>Governing Law</Text>
+          <Text style={styles.policyText}>
+            These Terms shall be governed by and construed in accordance with the laws of the jurisdiction in which DuaonAI operates, without regard to its conflict of law provisions.
+          </Text>
+          
+          <Text style={styles.sectionTitle}>Changes to Terms</Text>
+          <Text style={styles.policyText}>
+            We may update these terms from time to time. We will notify you of any changes by posting the new Terms on this page and updating the "last updated" date.
           </Text>
           
           <Text style={styles.sectionTitle}>Contact Us</Text>
-          <Text style={styles.disclaimerText}>
-            If you have any questions or concerns about this disclaimer or any aspect of the application, please contact us at:
+          <Text style={styles.policyText}>
+            If you have any questions about these Terms, please contact us at:
           </Text>
           <Text style={styles.contactEmail}>duaonai.official@gmail.com</Text>
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  starsBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'transparent',
+    backgroundColor: '#121212',
   },
   safeArea: {
     flex: 1,
-    paddingTop: StatusBar.currentHeight || 0,
-    zIndex: 1,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
     paddingVertical: 16,
+    paddingHorizontal: 16,
   },
   backButton: {
-    padding: 8,
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 20,
@@ -154,15 +152,19 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginBottom: 8,
   },
-  disclaimerText: {
+  policyText: {
     fontSize: 16,
     color: 'rgba(255, 255, 255, 0.9)',
     marginBottom: 12,
     lineHeight: 24,
   },
+  boldText: {
+    fontWeight: 'bold',
+    color: 'white',
+  },
   contactEmail: {
     fontSize: 16,
-    color: '#7C4DFF',
+    color: '#4CAF50',
     marginTop: 8,
     fontWeight: 'bold',
   },

@@ -207,12 +207,16 @@ export default function Login() {
         </ScrollView>
 
         <View style={styles.termsContainer}>
-          <Text style={styles.termsText}>
-            By continuing, you agree to our{' '}
-            <Text style={styles.termsLink}>Terms of Service</Text>
-            {' '}and{' '}
-            <Text style={styles.termsLink}>Privacy Policy</Text>
-          </Text>
+          <View style={styles.termsRow}>
+            <Text style={styles.termsText}>By continuing, you agree to our </Text>
+            <TouchableOpacity onPress={() => router.push('/(policy)/disclaimer')}>
+              <Text style={styles.termsLink}>Terms of Service</Text>
+            </TouchableOpacity>
+            <Text style={styles.termsText}> and </Text>
+            <TouchableOpacity onPress={() => router.push('/(policy)/privacy')}>
+              <Text style={styles.termsLink}>Privacy Policy</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </View>
@@ -344,18 +348,26 @@ const styles = StyleSheet.create({
   },
   termsContainer: {
     paddingVertical: 16,
+    paddingHorizontal: 24,
     borderTopWidth: 1,
     borderTopColor: '#333333',
     backgroundColor: 'transparent',
+    marginBottom: 12,
+  },
+  termsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
   },
   termsText: {
-    textAlign: 'center',
     color: '#888888',
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: 14,
+    lineHeight: 20,
   },
   termsLink: {
     color: '#4CAF50',
+    fontSize: 14,
   },
   scrollContent: {
     flexGrow: 1,
