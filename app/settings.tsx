@@ -178,8 +178,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'ios' ? 50 : 16,
+    paddingTop: Platform.OS === 'android' ? 50 : 54,
     paddingBottom: 16,
+    height: Platform.OS === 'android' ? 100 : 100,
     backgroundColor: '#0E8A3E',
   },
   headerTitle: {

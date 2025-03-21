@@ -1,17 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, SafeAreaView, StatusBar, BackHandler } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
-
-// Create a simplified star background without logo text
-const StarBackground = () => {
-  return (
-    <View style={styles.starsBackground}>
-      {/* Just a colored background - no stars or text */}
-    </View>
-  );
-};
 
 const { width, height } = Dimensions.get('window');
 
@@ -21,40 +11,25 @@ export default function PrivacyPolicyScreen() {
   // Prevent auto-redirect by handling back button and screen focus
   useFocusEffect(
     useCallback(() => {
-      console.log('Privacy Policy screen focused');
-      
-      // Handle hardware back button (Android)
       const onBackPress = () => {
-        console.log('Back button pressed on Android');
         handleBack();
-        return true; // Prevent default behavior
+        return true;
       };
-      
-      // Add event listener for hardware back button
+
       BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      
-      // Cleanup function
-      return () => {
-        console.log('Privacy Policy screen unfocused');
+
+      return () =>
         BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-      };
     }, [])
   );
 
+  // Handle back button press
   const handleBack = () => {
-    console.log('Back button pressed on Privacy Policy');
-    // Use router.back() instead of navigate/push to ensure proper navigation
     router.back();
   };
 
   return (
-    <LinearGradient
-      colors={['#1A1B4B', '#2E0854', '#0C0522']}
-      style={styles.container}
-    >
-      {/* Simple background without logo text */}
-      <StarBackground />
-      
+    <View style={styles.container}>      
       <SafeAreaView style={styles.safeArea}>
         <StatusBar barStyle="light-content" />
         
@@ -68,30 +43,29 @@ export default function PrivacyPolicyScreen() {
         </View>
         
         {/* Content */}
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
           <Text style={styles.policyText}>
-            Last Updated: 10/03/2025
-          </Text>
-          
-          <Text style={styles.sectionTitle}>Introduction</Text>
-          <Text style={styles.policyText}>
-            Welcome to Duaon AI ("we," "our," or "us"). We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you about how we handle your personal information when you use our application and tell you about your privacy rights.
+            Welcome to DuaonAI. We respect your privacy and are committed to protecting your personal data.
           </Text>
           
           <Text style={styles.sectionTitle}>Information We Collect</Text>
           <Text style={styles.policyText}>
-            <Text style={styles.boldText}>1. Personal Information:</Text> When you create an account, we collect your name, email address, and chosen password.
+            <Text style={styles.boldText}>• Personal data:</Text> We may collect your name, email, and device information when you create an account or contact us.
           </Text>
           <Text style={styles.policyText}>
-            <Text style={styles.boldText}>2. Location Data:</Text> With your permission, we collect your location data to provide accurate prayer times based on your geographic location.
+            <Text style={styles.boldText}>• Usage data:</Text> We collect information about how you use our app, including features accessed and time spent.
           </Text>
           <Text style={styles.policyText}>
-            <Text style={styles.boldText}>3. Usage Data:</Text> We collect information about how you use our app, including favorite duas, language preferences, and feature usage.
+            <Text style={styles.boldText}>• Location data:</Text> With your permission, we access your location to provide accurate prayer times.
           </Text>
           
           <Text style={styles.sectionTitle}>How We Use Your Information</Text>
           <Text style={styles.policyText}>
-            <Text style={styles.boldText}>• To provide services:</Text> We use your information to deliver our services, including personalized duas, prayer times, and notifications.
+            <Text style={styles.boldText}>• To provide services:</Text> We use your information to deliver our services, including personalized duas and prayer times.
           </Text>
           <Text style={styles.policyText}>
             <Text style={styles.boldText}>• To improve our app:</Text> We analyze usage patterns to enhance app functionality and user experience.
@@ -100,43 +74,52 @@ export default function PrivacyPolicyScreen() {
             <Text style={styles.boldText}>• To communicate:</Text> We may contact you regarding app updates, new features, or changes to our terms or policies.
           </Text>
           
+          <Text style={styles.sectionTitle}>Data Security</Text>
+          <Text style={styles.policyText}>
+            We implement appropriate security measures to protect your personal data against unauthorized access or disclosure.
+          </Text>
+          
+          <Text style={styles.sectionTitle}>Your Rights</Text>
+          <Text style={styles.policyText}>
+            You have the right to access, correct, or delete your personal data. You can also withdraw consent for certain processing activities.
+          </Text>
+          
+          <Text style={styles.sectionTitle}>Policy Updates</Text>
+          <Text style={styles.policyText}>
+            We may update this privacy policy periodically. We will notify you of significant changes through the app or via email.
+          </Text>
+          
           <Text style={styles.sectionTitle}>Contact Us</Text>
           <Text style={styles.policyText}>
-            If you have any questions about this Privacy Policy, please contact us at:
+            If you have questions about this policy or our data practices, please contact us at:
           </Text>
           <Text style={styles.contactEmail}>duaonai.official@gmail.com</Text>
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  starsBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'transparent',
+    backgroundColor: '#121212',
   },
   safeArea: {
     flex: 1,
-    paddingTop: StatusBar.currentHeight || 0,
-    zIndex: 1,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
     paddingVertical: 16,
+    paddingHorizontal: 16,
   },
   backButton: {
-    padding: 8,
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 20,
@@ -173,7 +156,7 @@ const styles = StyleSheet.create({
   },
   contactEmail: {
     fontSize: 16,
-    color: '#7C4DFF',
+    color: '#4CAF50',
     marginTop: 8,
     fontWeight: 'bold',
   },
