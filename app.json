@@ -9,14 +9,19 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/logo/logo.png",
+      "image": "./assets/images/adaptive-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#121212",
-      "imageResizeMode": "contain",
+      "imageWidth": 120,
+      "imageHeight": 120,
+      "androidSplashResourceName": "splash",
       "androidStatusBar": {
         "backgroundColor": "#121212",
         "translucent": false
-      }
+      },
+      "mdpi": true,
+      "hdpi": true,
+      "xhdpi": true
     },
     "ios": {
       "supportsTablet": true,
@@ -43,8 +48,11 @@
       "windowTranslucentStatus": false,
       "windowTranslucentNavigation": false,
       "splash": {
+        "image": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#121212",
-        "resizeMode": "native"
+        "resizeMode": "contain",
+        "imageWidth": 120,
+        "imageHeight": 120
       }
     },
     "web": {

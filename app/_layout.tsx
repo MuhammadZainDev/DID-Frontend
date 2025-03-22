@@ -119,7 +119,7 @@ export default function RootLayout() {
             {!appReady ? (
               <View style={styles.loadingContainer}>
                 <Image
-                  source={require('../assets/logo/logo.png')}
+                  source={require('../assets/images/adaptive-icon.png')}
                   style={styles.logo}
                   resizeMode="contain"
                 />
@@ -193,7 +193,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#121212',
   },
   logo: {
-    width: width * 0.35,
-    height: width * 0.35,
+    width: width * 0.25,
+    height: width * 0.25,
+    maxWidth: 120,
+    maxHeight: 120,
   },
 });
