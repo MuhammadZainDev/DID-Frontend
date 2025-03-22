@@ -11,8 +11,9 @@ import {
   ActivityIndicator,
   ScrollView,
   Image,
+  Alert,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -20,6 +21,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 export default function Login() {
   const router = useRouter();
+  const { from } = useLocalSearchParams<{ from: string }>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -130,6 +132,13 @@ export default function Login() {
           <Text style={styles.subtitle}>Sign in to continue</Text>
 
           <View style={styles.form}>
+            {from === 'delete-account' && (
+              <View style={styles.infoContainer}>
+                <Ionicons name="information-circle" size={20} color="#4CAF50" />
+                <Text style={styles.infoText}>You need to be logged in to delete your account</Text>
+              </View>
+            )}
+            
             {error ? (
               <View style={styles.errorContainer}>
                 <Ionicons name="alert-circle" size={20} color="#D32F2F" />
@@ -380,5 +389,21 @@ const styles = StyleSheet.create({
     color: '#4CAF50',
     fontSize: 14,
     fontWeight: '500',
+  },
+  infoContainer: {
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: 1,
+    borderColor: '#4CAF50',
+  },
+  infoText: {
+    color: '#4CAF50',
+    fontSize: 14,
+    flex: 1,
   },
 }); 

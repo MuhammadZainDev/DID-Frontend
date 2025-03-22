@@ -140,6 +140,7 @@ export default function RootLayout() {
                   <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                   <Stack.Screen name="dua" options={{ headerShown: false }} />
                   <Stack.Screen name="subcategory" options={{ headerShown: false }} />
+                  <Stack.Screen name="delete-account" options={{ headerShown: false }} />
                   <Stack.Screen 
                     name="welcome" 
                     options={{ 
@@ -192,7 +193,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#121212',
   },
   logo: {
-    width: width * 0.5,
-    height: width * 0.5,
+    width: width * 0.35,
+    height: width * 0.35,
   },
 });

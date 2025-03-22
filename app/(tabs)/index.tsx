@@ -479,10 +479,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     position: 'relative',
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFFFFF', // White text for dark theme
+  logoContainer: {
+    width: 100,
+    height: 40,
+    marginRight: 16,
+  },
+  headerLogo: {
+    width: '100%',
+    height: '100%',
   },
   headerIcons: {
     flexDirection: 'row',
@@ -737,5 +741,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
 });

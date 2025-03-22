@@ -11,7 +11,12 @@
     "splash": {
       "image": "./assets/logo/logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#121212"
+      "backgroundColor": "#121212",
+      "imageResizeMode": "contain",
+      "androidStatusBar": {
+        "backgroundColor": "#121212",
+        "translucent": false
+      }
     },
     "ios": {
       "supportsTablet": true,
@@ -32,7 +37,15 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
       ],
-      "package": "com.muhammadzainraza.duaonai"
+      "package": "com.muhammadzainraza.duaonai",
+      "softwareKeyboardLayoutMode": "pan",
+      "windowSoftInputMode": "adjustResize",
+      "windowTranslucentStatus": false,
+      "windowTranslucentNavigation": false,
+      "splash": {
+        "backgroundColor": "#121212",
+        "resizeMode": "native"
+      }
     },
     "web": {
       "bundler": "metro",

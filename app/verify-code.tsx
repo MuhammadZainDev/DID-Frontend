@@ -15,9 +15,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../context/LanguageContext';
-
-// Use your actual IP address here
-const API_BASE_URL = 'http://192.168.0.107:5000';
+import { API_URL } from '../config/constants';
 
 export default function VerifyCode() {
   const { email } = useLocalSearchParams<{ email: string }>();
@@ -93,7 +91,7 @@ export default function VerifyCode() {
 
     try {
       // Make API call to verify the code
-      const response = await fetch(`${API_BASE_URL}/api/auth/verify-reset-code`, {
+      const response = await fetch(`${API_URL}/api/auth/verify-reset-code`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -119,6 +117,7 @@ export default function VerifyCode() {
         }
       });
     } catch (error: any) {
+      console.error('Verify code error:', error);
       setError(error.message || 'An error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -134,7 +133,7 @@ export default function VerifyCode() {
     
     try {
       // Make API call to resend verification code
-      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+      const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -150,6 +149,7 @@ export default function VerifyCode() {
       
       Alert.alert('Code Resent', `A new verification code has been sent to ${email}`);
     } catch (error: any) {
+      console.error('Resend code error:', error);
       Alert.alert('Error', error.message || 'Failed to resend code');
     }
   };

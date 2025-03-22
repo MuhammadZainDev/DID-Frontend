@@ -16,9 +16,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../context/LanguageContext';
-
-// Use your actual IP address here
-const API_BASE_URL = 'http://192.168.0.107:5000';
+import { API_URL } from '../config/constants';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -48,7 +46,7 @@ export default function ForgotPassword() {
 
     try {
       // Make API call to request password reset
-      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+      const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,6 +66,7 @@ export default function ForgotPassword() {
         params: { email }
       });
     } catch (error: any) {
+      console.error('Forgot password error:', error);
       setError(error.message || 'An error occurred. Please try again.');
     } finally {
       setLoading(false);

@@ -296,4 +296,37 @@ export const authService = {
     await AsyncStorage.removeItem('token');
     await AsyncStorage.removeItem('user');
   },
+
+  async deleteAccount() {
+    try {
+      // Get the authentication token
+      const token = await AsyncStorage.getItem('token');
+      if (!token) throw new Error('Authentication required');
+
+      console.log('API: Attempting to delete account');
+      
+      // Make the API call to delete the account
+      const response = await api.delete('/auth/delete-account', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      console.log('API: Account deleted successfully');
+      
+      // Clear storage
+      await AsyncStorage.removeItem('token');
+      await AsyncStorage.removeItem('user');
+      
+      return response.data;
+    } catch (error) {
+      console.error('API: Delete account error:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('API: Response data:', error.response?.data);
+        console.error('API: Status code:', error.response?.status);
+        throw new Error(error.response?.data?.error || 'Failed to delete account');
+      }
+      throw error;
+    }
+  },
 }; 

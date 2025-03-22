@@ -1,15 +1,44 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView, Platform, StatusBar } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView, Platform, StatusBar, Alert, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme, themeColors } from '../context/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '../context/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { language, setLanguage, translations } = useLanguage();
   const { theme, colors, setTheme } = useTheme();
+  const { user } = useAuth();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error' | 'warning'>('warning');
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
+
+  // Check authentication status whenever the component is focused
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const userStr = await AsyncStorage.getItem('user');
+        
+        console.log('Auth check - Token exists:', !!token);
+        console.log('Auth check - User exists:', !!userStr);
+        
+        setIsAuthenticated(!!(token && userStr && user));
+      } catch (error) {
+        console.error('Error checking auth:', error);
+        setIsAuthenticated(false);
+      }
+    };
+    
+    checkAuth();
+  }, [user]); // Re-check whenever user changes
 
   const goBack = () => {
     router.back();
@@ -18,6 +47,47 @@ export default function SettingsScreen() {
   const toggleLanguage = async () => {
     const newLanguage = language === 'en' ? 'ur' : 'en';
     await setLanguage(newLanguage);
+  };
+
+  const showToastMessage = (message: string, type: 'success' | 'error' | 'warning' = 'success') => {
+    setToastMessage(message);
+    setToastType(type);
+    setShowToast(true);
+    
+    // Animate toast in
+    slideAnim.setValue(50);
+    fadeAnim.setValue(0);
+    
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      })
+    ]).start();
+    
+    // Hide toast after appropriate time
+    setTimeout(() => {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 50,
+          duration: 300,
+          useNativeDriver: true,
+        })
+      ]).start(() => {
+        setShowToast(false);
+      });
+    }, 2000);
   };
 
   const SettingsSection = ({ title, children }) => (
@@ -158,12 +228,67 @@ export default function SettingsScreen() {
           />
         </SettingsSection>
         
+        <SettingsSection title="Account Management">
+          <SettingsItem
+            icon="trash-outline"
+            title="Delete Account"
+            onToggle={() => {
+              console.log("Delete Account clicked - Auth state:", isAuthenticated ? "Authenticated" : "Not authenticated");
+              console.log("User state:", user ? `User exists (email: ${user.email})` : "No user");
+              
+              if (isAuthenticated) {
+                console.log("User is authenticated, navigating to delete account screen");
+                router.push('/delete-account');
+              } else {
+                console.log("User is not authenticated, showing toast and redirecting to login");
+                showToastMessage('You must be logged in to delete your account', 'warning');
+                setTimeout(() => {
+                  router.push({
+                    pathname: '/login',
+                    params: { from: 'delete-account' }
+                  });
+                }, 2000);
+              }
+            }}
+            type="navigation"
+            value={false}
+          />
+        </SettingsSection>
+        
         <View style={styles.versionContainer}>
           <Text style={styles.versionText}>
             {translations['app.name']} v1.0.0
           </Text>
         </View>
       </ScrollView>
+
+      {showToast && (
+        <Animated.View 
+          style={[
+            styles.toast, 
+            { 
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+              backgroundColor: toastType === 'success' ? '#4CAF50' : 
+                              toastType === 'error' ? '#FF3B30' : 
+                              toastType === 'warning' ? '#FF9500' : 
+                              colors.primary
+            }
+          ]}
+        >
+          <Ionicons 
+            name={
+              toastType === 'success' ? "checkmark-circle" : 
+              toastType === 'error' ? "alert-circle" :
+              toastType === 'warning' ? "warning" : 
+              "information-circle"
+            } 
+            size={20} 
+            color="white" 
+          />
+          <Text style={styles.toastText}>{toastMessage}</Text>
+        </Animated.View>
+      )}
     </View>
   );
 }
@@ -274,5 +399,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     marginLeft: 4,
+  },
+  toast: {
+    position: 'absolute',
+    bottom: 80,
+    left: 20,
+    right: 20,
+    backgroundColor: '#4CAF50',
+    borderRadius: 8,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 1000,
+  },
+  toastText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
+    marginLeft: 10,
   },
 }); 
